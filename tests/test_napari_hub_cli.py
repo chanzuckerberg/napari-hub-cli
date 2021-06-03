@@ -5,7 +5,7 @@
 import pytest
 
 
-from napari_hub_cli import napari_hub_cli
+# from napari_hub_cli import napari_hub_cli
 
 
 @pytest.fixture

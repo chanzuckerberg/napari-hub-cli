@@ -1,5 +1,8 @@
-"""Top-level package for napari-hub-cli."""
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown"
 
-__author__ = """Draga Doncila Pop"""
-__email__ = 'ddoncila@gmail.com'
-__version__ = '0.1.0'
+from .cli import main
+
+__all__ = ["main"]
