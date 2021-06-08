@@ -63,6 +63,8 @@ Example output:
 This utility will also check whether, when a `.napari/DESCRIPTION.md` is present, it is different to the 
 boilerplate provided in napari's cookiecutter plugin template. 
 
+For more information on how you can add metadata to your package, and how we use it on the napari hub, check out [this detailed guide](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md).
+
 <a name="sources"></a>
 ### Metadata Sources
 
