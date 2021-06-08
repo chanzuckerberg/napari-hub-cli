@@ -25,7 +25,7 @@ Example output:
 | Description        	| '# Description  This GUI plugin allows you to quickly find the affine matrix mapping one image to another using manual correspondence points annotation.'... 	| .napari/DESCRIPTION.md 	|
 | Authors            	|                                                                      Juan Nunez-Iglesias                                                                     	|   ./setup.py Line 29   	|
 | License            	|                                                                             BSD-3                                                                            	|   ./setup.py Line 31   	|
-| Version            	|                                                                              ??                                                                              	|           ??           	|
+| Version            	|                                                                              scm versioning - see PyPi for released version                                                                               	|           ./setup.py Line 42           	|
 | Development Status 	|                                                                           3 - Alpha                                                                          	|   ./setup.py Line 45   	|
 | Python Version     	|                                                                             >=3.7                                                                            	|   ./setup.py Line 40   	|
 | Operating System   	|                                                                        OS Independent                                                                        	|   ./setup.py Line 54   	|
@@ -47,15 +47,18 @@ $ napari-hub-cli check-metadata /tmp/my-napari-plugin
 ```
 
 This utility will only display the metadata missing from your plugin, and will also suggest where you can add it, if desired.
+'Flagged on Hub' highlights if a missing piece of metadata will be flagged on the hub as "not provided".
+'Used on Hub' highlights if a missing piece of metadata can be used for searching, filtering or sorting on the hub.
+
 Example output:
 
-| Metadata      	|                            Suggested Source                            	|
-|---------------	|:----------------------------------------------------------------------:	|
-| Project Site  	|   ./setup.py setup(project_urls={'Project Site': 'https://url.com'})   	|
-| Documentation 	|   ./setup.py setup(project_urls={'Documentation': 'https://url.com'})  	|
-| Support       	|   ./setup.py setup(project_urls={'User Support': 'https://url.com'})   	|
-| Report Issues 	|   ./setup.py setup(project_urls={'Report Issues': 'https://url.com'})  	|
-| Twitter       	| ./setup.py setup(project_urls={'Twitter': 'https://twitter.com/user'}) 	|
+| Metadata      	| Suggested Source                                                       	| Flagged on Hub 	| Used on Hub 	|
+|---------------	|------------------------------------------------------------------------	|----------------	|-------------	|
+| Project Site  	| ./setup.py setup(project_urls={'Project Site': 'https://url.com'})     	| No             	| No         	|
+| Documentation 	| ./setup.py setup(project_urls={'Documentation': 'https://url.com'})    	| No             	| No         	|
+| Support       	| ./setup.py setup(project_urls={'User Support': 'https://url.com'})     	| No             	| No         	|
+| Report Issues 	| ./setup.py setup(project_urls={'Report Issues': 'https://url.com'})    	| No             	| No         	|
+| Twitter       	| ./setup.py setup(project_urls={'Twitter': 'https://twitter.com/user'}) 	| No             	| No         	|
 
 This utility will also check whether, when a `.napari/DESCRIPTION.md` is present, it is different to the 
 boilerplate provided in napari's cookiecutter plugin template. 
@@ -72,7 +75,7 @@ The table below lists the locations we will search for each metadata value, in o
 | Description        	|  **`.napari/DESCRIPTION.md`**<br>`setup.cfg [metadata] long_description=`<br>`setup.py setup(long_description="")`  	|
 | Authors            	|          **`.napari/config.yml authors:`**<br>`setup.cfg [metadata] author=`<br>`setup.py setup(author="")`         	|
 | License            	|                         **`setup.cfg [metadata] license=`**<br>`setup.py setup(license="")`                         	|
-| Version            	|                                                          ??                                                         	|
+| Version            	|                       **`setup.cfg [metadata] version`**<br>`setup.py setup(version="")`                              |
 | Development Status 	|                      **`setup.cfg [metadata] classifier=`**<br>`setup.py setup(classifiers=[])`                     	|
 | Python Version     	|                 **`setup.cfg [metadata] python_requires=`**<br>`setup.py setup(python_requires="")`                 	|
 | Operating System   	|                      **`setup.cfg [metadata] classifier=`**<br>`setup.py setup(classifiers=[])`                     	|
