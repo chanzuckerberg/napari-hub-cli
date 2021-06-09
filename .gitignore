@@ -130,6 +130,7 @@ dmypy.json
 
 # IDE
 .vscode
+.editorconfig
 
 # version
 napari_hub_cli/_version.py
