@@ -1,9 +1,8 @@
-pip==19.2.3
-wheel==0.33.6
-flake8==3.7.8
-tox==3.14.0
-coverage==4.5.4
-Sphinx==1.8.5
-twine==1.14.0
-
-pytest==6.2.4
+pip
+wheel
+flake8
+tox
+coverage
+Sphinx
+pytest
+pytest-cov
