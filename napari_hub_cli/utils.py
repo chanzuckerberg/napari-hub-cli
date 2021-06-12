@@ -4,17 +4,16 @@ SETUP_PY_PTH = "/setup.py"
 
 YML_META = [
     "Authors",
-    "Project Site",
     "Documentation",
     "User Support",
-    "Report Issues",
     "Twitter",
     "Source Code",
+    "Report Issues",
 ]
-YML_SOURCES = [(YML_META[0].lower(), None)] + [
-    ("project_urls", field.lower()) for field in YML_META[1:]
-]
-YML_INFO = zip(YML_META, YML_SOURCES)
+YML_SOURCES = [('authors', None)] + \
+            [('project_urls', field) for field in YML_META[1:-1]] +\
+            [('project_urls', 'Bug Tracker')]
+YML_INFO = list(zip(YML_META, YML_SOURCES))
 
 SETUP_META = [
     "Name",
