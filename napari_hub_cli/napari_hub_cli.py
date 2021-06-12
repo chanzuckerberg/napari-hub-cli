@@ -11,10 +11,12 @@ from .utils import (
     YML_INFO,
     SETUP_INFO,
     SETUP_COMPLEX_META,
+    SETUP_COMPLEX_SOURCES,
     FIELDS,
     SETUP_PY_SOURCES
 )
-from ast import parse, Call, Attribute, walk, literal_eval, dump
+from ast import parse, Call, Attribute, walk, literal_eval, dump, Expression, fix_missing_locations
+import parsesetup
 
 def load_meta(pth):
     meta_dict = zip(FIELDS, repeat(None))
@@ -44,20 +46,8 @@ def read_setup_cfg(meta_dict, setup_path):
     print([val for val in c_parser["metadata"]])
 
 def read_setup_py(meta_dict, setup_path):
-    setup_func_regex = r"setup\((.*)\)"
-    with open(setup_path) as setup_file:
-        module = parse(setup_file.read())
-        filtered = []
-        for node in module.body:
-            for node in walk(node):
-                if isinstance(node,Call):
-                    if not isinstance(node.func, Attribute) and node.func.id == "setup":
-                        ast_keywords = node.keywords
-                        print([kwd.arg for kwd in ast_keywords])
-                        print(SETUP_PY_SOURCES)
-                        filtered = list(filter(lambda kwd:kwd.arg in SETUP_PY_SOURCES, ast_keywords))
-                        
-        print([(kwd.arg, literal_eval(kwd.value)) for kwd in filtered])
+    setup_args = parsesetup.parse_setup(os.path.abspath(setup_path), trusted=True)
+    print(setup_args)
             
 
 def format_meta(meta):

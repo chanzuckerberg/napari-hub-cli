@@ -33,5 +33,11 @@ SETUP_COMPLEX_META = [
     "Version",
     "Description",
 ]
+SETUP_COMPLEX_SOURCES = [
+    'classifiers',
+    'install_requires',
+    'version',
+    'long_description'
+]
 
 FIELDS = YML_META + SETUP_META + SETUP_COMPLEX_META
