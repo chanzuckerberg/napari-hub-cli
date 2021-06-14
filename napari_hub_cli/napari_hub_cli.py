@@ -56,6 +56,12 @@ def read_yml_config(meta_dict, yml_path):
                     meta_dict[field_name] = yml_meta[section]
 
 
+def flatten(config_parser):
+    config = {}
+    for section in config_parser.sections():
+        config.update(config_parser[section].items())
+    return config
+
 def read_setup_cfg(meta_dict, setup_path, root_pth):
     c_parser = ConfigParser()
     c_parser.read(setup_path)
@@ -65,7 +71,9 @@ def read_setup_cfg(meta_dict, setup_path, root_pth):
             if key in c_parser[section]:
                 if meta_dict[field] is None:
                     meta_dict[field] = c_parser[section][key]
-    parse_complex_cfg(meta_dict, c_parser, root_pth)
+    
+    config = flatten(c_parser)
+    parse_complex_meta(meta_dict, config, root_pth)
 
 
 def read_setup_py(meta_dict, setup_path, root_pth):
@@ -80,10 +88,7 @@ def read_setup_py(meta_dict, setup_path, root_pth):
         else:
             if key in setup_args and meta_dict[field] is None:
                 meta_dict[field] = setup_args[key]
-    # parse_complex_py(meta_dict, setup_args, root_pth)
-    # print(setup_args)
-    pkg_version = get_pkg_version(setup_args, root_pth)
-    meta_dict["Version"] = pkg_version
+    parse_complex_meta(meta_dict, setup_args, root_pth)
 
 
 cls_filter = lambda cls: "Development Status" in cls
@@ -178,31 +183,29 @@ def get_pkg_version(given_meta, root_pth):
 
     return pkg_version
 
+def filter_classifiers(classifiers):
+    dev_status = list(filter(cls_filter, classifiers))
+    os_support = list(filter(os_filter, classifiers))
 
-def parse_complex_cfg(meta_dict, config, root_pth):
-    all_meta = None
-    if "metadata" in config.sections():
-        all_meta = config["metadata"]
-    if all_meta:
-        if "classifiers" in all_meta:
-            all_classifiers = all_meta["classifiers"]
+    return dev_status, os_support
 
-            dev_status = list(filter(cls_filter, all_classifiers))
-            os_support = list(filter(os_filter, all_classifiers))
-
+def parse_complex_meta(meta_dict, config, root_pth):
+    if "classifiers" in config:
+        all_classifiers = config["classifiers"]
+        dev_status, os_support = filter_classifiers(all_classifiers)
+        if dev_status:
             meta_dict["Development Status"] = dev_status
+        if os_support:
             meta_dict["Operating System"] = os_support
-        pkg_version = get_pkg_version(all_meta, root_pth)
-        meta_dict["Version"] = pkg_version
+    pkg_version = get_pkg_version(config, root_pth)
+    meta_dict["Version"] = pkg_version
 
-    if "options" in config.sections():
-        all_options = config["options"]
-        if "install_requires" in all_options:
-            meta_dict["Requirements"] = all_options["install_requires"]
+    if "install_requires" in config and config["install_requires"]:
+        meta_dict["Requirements"] = config["install_requires"]    
 
-    long_desc = get_long_description(all_meta, root_pth)
-    meta_dict["Description"] = long_desc
-
+    if meta_dict['Description'] is None:
+        long_desc = get_long_description(config, root_pth)
+        meta_dict["Description"] = long_desc    
 
 def format_meta(meta):
     pass
