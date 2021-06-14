@@ -8,7 +8,7 @@ def preview_meta(args):
     pth = args.plugin_path
     meta, src = load_meta(pth)
     formatted_meta = format_meta(meta, src)
-    print(f"Previewing Metadata of {pth}")
+    print(formatted_meta)
 
 
 parser = argparse.ArgumentParser()

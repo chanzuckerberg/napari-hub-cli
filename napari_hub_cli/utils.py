@@ -111,6 +111,10 @@ def filter_classifiers(classifiers):
 
     return dev_status, os_support
 
+def split_dangling_list(dangling_list_str):
+    str_trimmed = dangling_list_str.lstrip().rstrip()
+    val_list = str_trimmed.split("\n")
+    return val_list
 
 def is_canonical(version):
     """Returns true if version is in canonical PEP440 format,

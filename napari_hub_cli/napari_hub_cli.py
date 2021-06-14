@@ -8,6 +8,7 @@ from .utils import (
     get_long_description,
     get_pkg_version,
     is_canonical,
+    split_dangling_list
 )
 from .constants import (
     # length of description to preview
@@ -106,6 +107,8 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
 
     if "classifiers" in config:
         all_classifiers = config["classifiers"]
+        if isinstance(all_classifiers, str):
+            all_classifiers = split_dangling_list(all_classifiers)
         dev_status, os_support = filter_classifiers(all_classifiers)
         if dev_status:
             meta_dict["Development Status"] = dev_status
@@ -131,7 +134,10 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
         section = "options, "
 
     if "install_requires" in config and config["install_requires"]:
-        meta_dict["Requirements"] = config["install_requires"]
+        reqs = config["install_requires"]
+        if isinstance(reqs, str):
+            reqs = split_dangling_list(reqs)
+        meta_dict["Requirements"] = reqs
         source_dict["Requirements"] = (cfg_pth, f"{section}install_requires")
 
 def format_meta(meta, src):
@@ -140,7 +146,12 @@ def format_meta(meta, src):
         rep_str += f"{'-'*80}\n{field}\n{'-'*80}\n"
         if field in meta:
             # rep_str += f"{meta[field]}\n{'-'*len(field)}\n"
-            rep_str += f"{meta[field]}\n"
+            val = meta[field]
+            if isinstance(val, list):
+                for i in range(len(val)):
+                    rep_str += f"{val[i]}\n"
+            else:
+                rep_str += f"{val}\n"
             if src[field]:
                 rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
                 pth, detail = src[field]
@@ -152,5 +163,5 @@ def format_meta(meta, src):
         else:
             rep_str += f"\t~~Not Found~~\n"
         # rep_str += f"{'#'*(len(field)+10)}\n\n"
-        rep_str += "\n\n"
+        rep_str += "\n"
     return rep_str
