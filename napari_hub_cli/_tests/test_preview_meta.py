@@ -6,9 +6,10 @@
         # write some manually
 import os
 import pytest
+from yaml import load
 from .config_enum import CONFIG
-import shutil
-import glob
+from napari_hub_cli.napari_hub_cli import load_meta
+from napari_hub_cli.constants import FIELDS, PROJECT_URLS
 
 RESOURCES = './napari_hub_cli/_tests/resources/'
 
@@ -36,7 +37,11 @@ def make_pkg_dir(tmpdir, request):
 @pytest.mark.required_configs([CONFIG.YML])
 def test_config_yml(make_pkg_dir):
     root_dir = make_pkg_dir
+    meta_dict, src_dict = load_meta(root_dir)
 
+    for proj_url in PROJECT_URLS:
+        assert proj_url in meta_dict
+        assert src_dict[proj_url] == ('/.napari/config.yml', f"project_urls, {proj_url}")
 
 # test fixture for different version options?
 
