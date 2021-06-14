@@ -4,20 +4,38 @@
 # It just puts together temp directories with those files
     # our test directory will need example files
         # write some manually
+import os
 import pytest
 from .config_enum import CONFIG
+import shutil
+import glob
+
+RESOURCES = './napari_hub_cli/_tests/resources/'
+
 @pytest.fixture
 def make_pkg_dir(tmpdir, request):
     fn_arg_marker = request.node.get_closest_marker("required_configs")
     if fn_arg_marker:
-        print(fn_arg_marker.args[0])
+        needed_configs = fn_arg_marker.args[0]
     else:
-        print("Not Given Data")
+        needed_configs = CONFIG
 
+    root_dir = tmpdir.mkdir('test-plugin-name')
+    for cfg in needed_configs:
+        fn = cfg.value
+        if isinstance(fn, tuple):
+            new_fn = root_dir.mkdir(fn[0]).join(fn[1])
+            current_fn = os.path.join(RESOURCES, os.path.join(fn[0], fn[1]))
+        else:
+            new_fn = root_dir.join(fn)
+            current_fn = os.path.join(RESOURCES, fn)
+        with open(current_fn) as template:
+            new_fn.write(template.read())
+    return root_dir
 
 @pytest.mark.required_configs([CONFIG.YML])
 def test_config_yml(make_pkg_dir):
-    assert False
+    root_dir = make_pkg_dir
 
 
 # test fixture for different version options?
