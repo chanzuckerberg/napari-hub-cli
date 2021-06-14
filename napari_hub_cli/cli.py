@@ -2,13 +2,16 @@
 import argparse
 import sys
 from .napari_hub_cli import load_meta, format_meta
-
+import os
 
 def preview_meta(args):
     pth = args.plugin_path
-    meta, src = load_meta(pth)
-    formatted_meta = format_meta(meta, src)
-    print(formatted_meta)
+    if not os.path.exists(pth):
+        print(f"Nothing found at path: {pth}")
+    else:
+        meta, src = load_meta(pth)
+        formatted_meta = format_meta(meta, src)
+        print(formatted_meta)
 
 
 parser = argparse.ArgumentParser()
