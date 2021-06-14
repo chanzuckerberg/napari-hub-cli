@@ -1,1 +1,1 @@
-Test Description.
+Test .napari Description.

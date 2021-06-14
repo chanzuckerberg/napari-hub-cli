@@ -1,9 +1,3 @@
-# Test fixture for generating temp directories
-    # could take any combination of 
-    # .napari/DESCRIPTION.md, .napari/config.yml, setup.py, setup.cfg
-# It just puts together temp directories with those files
-    # our test directory will need example files
-        # write some manually
 import os
 import pytest
 from yaml import load
@@ -40,16 +34,36 @@ def test_config_yml(make_pkg_dir):
     meta_dict, src_dict = load_meta(root_dir)
 
     for proj_url in PROJECT_URLS:
+        # all project urls have been read and are sourced from config yml
         assert proj_url in meta_dict
         assert src_dict[proj_url] == ('/.napari/config.yml', f"project_urls, {proj_url}")
 
-# test fixture for different version options?
+    # assert other urls are not included
+    assert 'Other Link' not in meta_dict
 
-# test reading yml config separately
-    # containing authors
-    # not containing authors
-    # containing some urls but not all
-    # containing different urls
+    # authors have been read correctly
+    assert 'Authors' in meta_dict
+    assert isinstance(meta_dict['Authors'], list)
+    assert len(meta_dict['Authors']) == 2
+
+@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG, CONFIG.README])
+def test_config_yml_not_overriden(make_pkg_dir):
+    root_dir = make_pkg_dir
+    meta_dict, src_dict = load_meta(root_dir)
+
+    for proj_url in PROJECT_URLS:
+        # all project urls have been read and are sourced from config yml
+        assert proj_url in meta_dict
+        assert src_dict[proj_url] == ('/.napari/config.yml', f"project_urls, {proj_url}")
+
+    # assert other urls are not included
+    assert 'Other Link' not in meta_dict
+
+    # authors have been read correctly
+    assert 'Authors' in meta_dict
+    assert src_dict['Authors'] == ('/.napari/config.yml', f"authors")
+    
+# test fixture for different version options?
 
 # test reading setup cfg separately
     # a few combinations of simple metadata

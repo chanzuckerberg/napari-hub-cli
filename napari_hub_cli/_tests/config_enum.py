@@ -8,3 +8,4 @@ class CONFIG(Enum):
     INIT = ('test_plugin_name', '__init__.py')
     SCM_VERS = ('test_plugin_name', '_version.py')
     VERS = 'VERSION'
+    README = 'README.md'
