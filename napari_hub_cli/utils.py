@@ -69,7 +69,7 @@ def get_pkg_version(given_meta, root_pth):
     # literal version resolved in meta
     if "version" in given_meta:
         if is_canonical(given_meta["version"]):
-            return given_meta["version"]
+            return None, given_meta["version"]
 
     # versioning scheme with version file declared somewhere
     search_pth = os.path.join(root_pth, "**")
@@ -81,13 +81,13 @@ def get_pkg_version(given_meta, root_pth):
             if mtch.groups():
                 potential_version = parse_setuptools_version(f_pth)
                 if potential_version and is_canonical(potential_version):
-                    return potential_version
+                    return f_pth, potential_version
             # just a version file with no extension, should be version number only
             else:
                 with open(f_pth) as version_file:
                     potential_version = version_file.read().strip()
                     if is_canonical(potential_version):
-                        return potential_version
+                        return f_pth, potential_version
 
     # version number declared in __init__
     init_files = list(
@@ -99,7 +99,7 @@ def get_pkg_version(given_meta, root_pth):
             if potential_version and is_canonical(potential_version):
                 return potential_version
 
-    return pkg_version
+    return None, pkg_version
 
 
 def filter_classifiers(classifiers):

@@ -1,3 +1,4 @@
+DESC_PTH = "/.napari/DESCRIPTION.md"
 YML_PTH = "/.napari/config.yml"
 SETUP_CFG_PTH = "/setup.cfg"
 SETUP_PY_PTH = "/setup.py"
