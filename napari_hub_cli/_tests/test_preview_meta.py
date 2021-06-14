@@ -62,8 +62,23 @@ def test_config_yml_not_overriden(make_pkg_dir):
     # authors have been read correctly
     assert 'Authors' in meta_dict
     assert src_dict['Authors'] == ('/.napari/config.yml', f"authors")
+
+@pytest.mark.required_configs([CONFIG.DESC, CONFIG.CFG, CONFIG.README])
+def test_description_not_overriden(make_pkg_dir):
+    root_dir = make_pkg_dir
+    meta_dict, src_dict = load_meta(root_dir)
+
+    assert meta_dict["Description"] == "Test .napari Description."
+    assert src_dict["Description"] == ('/.napari/DESCRIPTION.md', None)
+
+@pytest.mark.required_configs([CONFIG.CFG, CONFIG.README])
+def test_cfg_description(make_pkg_dir):
+    root_dir = make_pkg_dir
+    meta_dict, src_dict = load_meta(root_dir)
     
-# test fixture for different version options?
+    assert meta_dict["Description"] == 'Test README Description.'
+    assert src_dict["Description"] == ('/setup.cfg', 'metadata, long_description')
+# when we want 'custom' templates, we can make them ourselves based on some template files
 
 # test reading setup cfg separately
     # a few combinations of simple metadata
@@ -74,7 +89,5 @@ def test_config_yml_not_overriden(make_pkg_dir):
     # all options for complex metadata
 
 # version reading should be separate
-
-# test not overriden once set
 
 # test source ?

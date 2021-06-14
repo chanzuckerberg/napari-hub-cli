@@ -23,7 +23,10 @@ def get_long_description(given_meta, root_pth):
                 full_desc = desc_file.read()
         else:
             full_desc = given_meta["long_description"]
-    return full_desc[:DESC_LENGTH] + "..."
+    trimmed_desc = full_desc[:DESC_LENGTH]
+    if len(trimmed_desc) == DESC_LENGTH:
+        trimmed_desc += "..."
+    return trimmed_desc 
 
 
 def parse_setuptools_version(f_pth):

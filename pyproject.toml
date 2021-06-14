@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+markers = [
+    "required_configs: Tests will require given template config files",
+]

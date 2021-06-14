@@ -37,7 +37,9 @@ def load_meta(pth):
     if os.path.exists(desc_pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
-            trimmed_desc = full_desc[:DESC_LENGTH] + "..."
+            trimmed_desc = full_desc[:DESC_LENGTH]
+            if len(trimmed_desc) == DESC_LENGTH:
+                trimmed_desc += "..."
             meta_dict["Description"] = trimmed_desc
             source_dict["Description"] = (DESC_PTH, None)
 
