@@ -1,20 +1,24 @@
 import os
-import re
-import glob
-import codecs
 from yaml import full_load
 from configparser import ConfigParser
 from collections import defaultdict
 from .utils import (
-    SETUP_PY_INFO,
-    YML_PTH,
+    flatten,
+    filter_classifiers,
+    get_long_description,
+    get_pkg_version,
+)
+from .constants import (
+    # length of description to preview
+    DESC_LENGTH,
+    # paths to various configs from root
     SETUP_CFG_PTH,
     SETUP_PY_PTH,
-    YML_INFO,
+    YML_PTH,
+    # field names and sources for different metadata
     SETUP_CFG_INFO,
-    SETUP_COMPLEX_META,
-    DESC_LENGTH,
-    is_canonical,
+    SETUP_PY_INFO,
+    YML_INFO,
 )
 import parsesetup
 
@@ -56,12 +60,6 @@ def read_yml_config(meta_dict, yml_path):
                     meta_dict[field_name] = yml_meta[section]
 
 
-def flatten(config_parser):
-    config = {}
-    for section in config_parser.sections():
-        config.update(config_parser[section].items())
-    return config
-
 def read_setup_cfg(meta_dict, setup_path, root_pth):
     c_parser = ConfigParser()
     c_parser.read(setup_path)
@@ -71,7 +69,7 @@ def read_setup_cfg(meta_dict, setup_path, root_pth):
             if key in c_parser[section]:
                 if meta_dict[field] is None:
                     meta_dict[field] = c_parser[section][key]
-    
+
     config = flatten(c_parser)
     parse_complex_meta(meta_dict, config, root_pth)
 
@@ -91,104 +89,6 @@ def read_setup_py(meta_dict, setup_path, root_pth):
     parse_complex_meta(meta_dict, setup_args, root_pth)
 
 
-cls_filter = lambda cls: "Development Status" in cls
-os_filter = lambda cls: "Operating System" in cls
-
-
-def get_long_description(given_meta, root_pth):
-    if "long_description" in given_meta:
-        if "file:" in given_meta["long_description"]:
-            _, desc_pth = tuple(given_meta["long_description"].strip().split(":"))
-            desc_pth = desc_pth.rstrip().lstrip()
-            readme_pth = os.path.join(root_pth, desc_pth)
-            with open(readme_pth) as desc_file:
-                full_desc = desc_file.read()
-        else:
-            full_desc = given_meta["long_description"]
-    return full_desc[:DESC_LENGTH] + "..."
-
-
-def parse_setuptools_version(f_pth):
-    with open(f_pth) as version_file:
-        for line in version_file:
-            trim_line = "".join(line.split(" "))
-            if "version=" in trim_line:
-                _, version_number = tuple(trim_line.split("="))
-                delim = '"' if '"' in line else "'"
-                return version_number.split(delim)[1]
-
-
-def read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), "r") as fp:
-        return fp.read()
-
-
-def get_init_version(rel_path):
-    """Retrieved from
-    https://packaging.python.org/guides/single-sourcing-package-version/
-
-    Parameters
-    ----------
-    rel_path : str
-        path to __init__
-
-    Returns
-    -------
-    str, or None
-        version number stored in __init__
-    """
-    for line in read(rel_path).splitlines():
-        if line.startswith("__version__"):
-            delim = '"' if '"' in line else "'"
-            return line.split(delim)[1]
-
-
-def get_pkg_version(given_meta, root_pth):
-    version_file_regex = r"_*version_*(.py)?"
-    pkg_version = "We could not parse the version of your package. Check PyPi for your latest version."
-
-    # literal version resolved in meta
-    if "version" in given_meta:
-        if is_canonical(given_meta["version"]):
-            return given_meta["version"]
-
-    # versioning scheme with version file declared somewhere
-    search_pth = os.path.join(root_pth, "**")
-    pkg_files = glob.glob(search_pth, recursive=True)
-    for f_pth in pkg_files:
-        mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
-        if mtch:
-            # ends with .py - likely setuptools-scm
-            if mtch.groups():
-                potential_version = parse_setuptools_version(f_pth)
-                if is_canonical(potential_version):
-                    return potential_version
-            # just a version file with no extension, should be version number only
-            else:
-                with open(f_pth) as version_file:
-                    potential_version = version_file.read().strip()
-                    if is_canonical(potential_version):
-                        return potential_version
-
-    # version number declared in __init__
-    init_files = list(
-        filter(lambda fn: os.path.basename(fn) == "__init__.py", pkg_files)
-    )
-    for pth in init_files:
-        if "_tests" not in pth:
-            potential_version = get_init_version(pth)
-            if potential_version and is_canonical(potential_version):
-                return potential_version
-
-    return pkg_version
-
-def filter_classifiers(classifiers):
-    dev_status = list(filter(cls_filter, classifiers))
-    os_support = list(filter(os_filter, classifiers))
-
-    return dev_status, os_support
-
 def parse_complex_meta(meta_dict, config, root_pth):
     if "classifiers" in config:
         all_classifiers = config["classifiers"]
@@ -197,15 +97,17 @@ def parse_complex_meta(meta_dict, config, root_pth):
             meta_dict["Development Status"] = dev_status
         if os_support:
             meta_dict["Operating System"] = os_support
+
     pkg_version = get_pkg_version(config, root_pth)
     meta_dict["Version"] = pkg_version
 
     if "install_requires" in config and config["install_requires"]:
-        meta_dict["Requirements"] = config["install_requires"]    
+        meta_dict["Requirements"] = config["install_requires"]
 
-    if meta_dict['Description'] is None:
+    if meta_dict["Description"] is None:
         long_desc = get_long_description(config, root_pth)
-        meta_dict["Description"] = long_desc    
+        meta_dict["Description"] = long_desc
+
 
 def format_meta(meta):
     pass
