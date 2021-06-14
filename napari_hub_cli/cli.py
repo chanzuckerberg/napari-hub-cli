@@ -4,6 +4,7 @@ import sys
 from .napari_hub_cli import load_meta, format_meta
 import os
 
+
 def preview_meta(args):
     pth = args.plugin_path
     if not os.path.exists(pth):

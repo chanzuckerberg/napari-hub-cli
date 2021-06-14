@@ -14,6 +14,7 @@ def flatten(config_parser):
 
 
 def get_long_description(given_meta, root_pth):
+    full_desc = ""
     if "long_description" in given_meta:
         if "file:" in given_meta["long_description"]:
             _, desc_pth = tuple(given_meta["long_description"].strip().split(":"))
@@ -24,9 +25,9 @@ def get_long_description(given_meta, root_pth):
         else:
             full_desc = given_meta["long_description"]
     trimmed_desc = full_desc[:DESC_LENGTH]
-    if len(trimmed_desc) == DESC_LENGTH:
+    if len(trimmed_desc) and len(trimmed_desc) == DESC_LENGTH:
         trimmed_desc += "..."
-    return trimmed_desc 
+    return trimmed_desc
 
 
 def parse_setuptools_version(f_pth):
