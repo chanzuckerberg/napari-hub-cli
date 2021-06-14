@@ -21,6 +21,8 @@ from .constants import (
     SETUP_CFG_INFO,
     SETUP_PY_INFO,
     YML_INFO,
+    # all field names
+    FIELDS,
 )
 import parsesetup
 
@@ -50,9 +52,7 @@ def load_meta(pth):
     if os.path.exists(py_pth):
         read_setup_py(meta_dict, source_dict, py_pth, pth)
 
-    for k, v in meta_dict.items():
-        print(f"{k:<18}:\t{v}")
-        print(f"{source_dict[k]}")
+    return meta_dict, source_dict
 
 
 def read_yml_config(meta_dict, source_dict, yml_path):
@@ -117,7 +117,7 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
     src, pkg_version = get_pkg_version(config, root_pth)
     meta_dict["Version"] = pkg_version
     if src:
-        source_dict["Version"] = (src, '-')
+        source_dict["Version"] = (src, None)
     else:
         if is_canonical(pkg_version):
             source_dict["Version"] = (cfg_pth, f"{section}version")
@@ -134,5 +134,23 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
         meta_dict["Requirements"] = config["install_requires"]
         source_dict["Requirements"] = (cfg_pth, f"{section}install_requires")
 
-def format_meta(meta):
-    pass
+def format_meta(meta, src):
+    rep_str = ""
+    for field in sorted(FIELDS):
+        rep_str += f"{'-'*80}\n{field}\n{'-'*80}\n"
+        if field in meta:
+            # rep_str += f"{meta[field]}\n{'-'*len(field)}\n"
+            rep_str += f"{meta[field]}\n"
+            if src[field]:
+                rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
+                pth, detail = src[field]
+                if pth:
+                    rep_str += f"\t{pth}"
+                if detail:
+                    rep_str += f": {detail}"
+                rep_str += "\n"
+        else:
+            rep_str += f"\t~~Not Found~~\n"
+        # rep_str += f"{'#'*(len(field)+10)}\n\n"
+        rep_str += "\n\n"
+    return rep_str

@@ -6,8 +6,8 @@ from .napari_hub_cli import load_meta, format_meta
 
 def preview_meta(args):
     pth = args.plugin_path
-    meta = load_meta(pth)
-    formatted_meta = format_meta(meta)
+    meta, src = load_meta(pth)
+    formatted_meta = format_meta(meta, src)
     print(f"Previewing Metadata of {pth}")
 
 
