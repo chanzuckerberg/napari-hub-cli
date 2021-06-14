@@ -40,4 +40,10 @@ SETUP_PY_SOURCES = [
 ]
 SETUP_PY_INFO = list(zip(SETUP_META, SETUP_PY_SOURCES))
 
-FIELDS = SETUP_META + ['Description', 'Operating System', 'Development Status', 'Requirements', 'Version']
+FIELDS = SETUP_META + [
+    "Description",
+    "Operating System",
+    "Development Status",
+    "Requirements",
+    "Version",
+]

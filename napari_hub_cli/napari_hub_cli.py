@@ -8,7 +8,7 @@ from .utils import (
     get_long_description,
     get_pkg_version,
     is_canonical,
-    split_dangling_list
+    split_dangling_list,
 )
 from .constants import (
     # length of description to preview
@@ -68,6 +68,7 @@ def read_yml_config(meta_dict, source_dict, yml_path):
                     meta_dict[field_name] = yml_meta[section]
                     source_dict[field_name] = (YML_PTH, section)
 
+
 def read_setup_cfg(meta_dict, source_dict, setup_path, root_pth):
     c_parser = ConfigParser()
     c_parser.read(setup_path)
@@ -102,7 +103,7 @@ def read_setup_py(meta_dict, source_dict, setup_path, root_pth):
 
 def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
     section = ""
-    if 'cfg' in cfg_pth:
+    if "cfg" in cfg_pth:
         section = "metadata, "
 
     if "classifiers" in config:
@@ -130,7 +131,7 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
         meta_dict["Description"] = long_desc
         source_dict["Description"] = (cfg_pth, f"{section}long_description")
 
-    if 'cfg' in cfg_pth:
+    if "cfg" in cfg_pth:
         section = "options, "
 
     if "install_requires" in config and config["install_requires"]:
@@ -140,12 +141,12 @@ def parse_complex_meta(meta_dict, source_dict, config, root_pth, cfg_pth):
         meta_dict["Requirements"] = reqs
         source_dict["Requirements"] = (cfg_pth, f"{section}install_requires")
 
+
 def format_meta(meta, src):
     rep_str = ""
     for field in sorted(FIELDS):
         rep_str += f"{'-'*80}\n{field}\n{'-'*80}\n"
         if field in meta:
-            # rep_str += f"{meta[field]}\n{'-'*len(field)}\n"
             val = meta[field]
             if isinstance(val, list):
                 for i in range(len(val)):
@@ -162,6 +163,5 @@ def format_meta(meta, src):
                 rep_str += "\n"
         else:
             rep_str += f"\t~~Not Found~~\n"
-        # rep_str += f"{'#'*(len(field)+10)}\n\n"
         rep_str += "\n"
     return rep_str
