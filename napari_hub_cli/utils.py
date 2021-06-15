@@ -41,8 +41,7 @@ def parse_setuptools_version(f_pth):
 
 
 def read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), "r") as fp:
+    with codecs.open(rel_path, "r") as fp:
         return fp.read()
 
 

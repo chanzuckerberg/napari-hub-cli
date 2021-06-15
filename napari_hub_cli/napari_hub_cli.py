@@ -132,16 +132,17 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
             )
             meta_dict[os_support_item.field_name] = os_support_item
 
-    src, pkg_version = get_pkg_version(config, root_pth)
-    version_item = MetaItem("Version", pkg_version)
-    meta_dict[version_item.field_name] = version_item
-    version_source = None
-    if src:
-        version_source = MetaSource(src)
-    else:
-        if is_canonical(pkg_version):
-            version_source = MetaSource(cfg_pth, section, "version")
-    version_item.source = version_source
+    if 'Version' not in meta_dict:
+        src, pkg_version = get_pkg_version(config, root_pth)
+        version_item = MetaItem("Version", pkg_version)
+        meta_dict[version_item.field_name] = version_item
+        version_source = None
+        if src:
+            version_source = MetaSource(src)
+        else:
+            if is_canonical(pkg_version):
+                version_source = MetaSource(cfg_pth, section, "version")
+        version_item.source = version_source
 
     if meta_dict["Description"] is None:
         long_desc = get_long_description(config, root_pth)
