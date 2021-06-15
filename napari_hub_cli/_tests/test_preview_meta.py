@@ -22,8 +22,9 @@ def make_pkg_dir(tmpdir, request):
     for cfg in needed_configs:
         fn = cfg.value
         if isinstance(fn, tuple):
-            new_fn = root_dir.mkdir(fn[0]).join(fn[1])
-            current_fn = os.path.join(RESOURCES, os.path.join(fn[0], fn[1]))
+            if not os.path.exists(os.path.join(root_dir, fn[0])):
+                new_fn = root_dir.mkdir(fn[0]).join(fn[1])
+                current_fn = os.path.join(RESOURCES, os.path.join(fn[0], fn[1]))
         else:
             new_fn = root_dir.join(fn)
             current_fn = os.path.join(RESOURCES, fn)
@@ -153,3 +154,11 @@ def test_version_file(make_pkg_dir):
     assert meta['Version'].value == '0.0.1'
     f_pth, _, _ = meta['Version'].source.unpack()
     assert os.path.basename(str(f_pth)) == 'VERSION'
+
+@pytest.mark.required_configs([CONFIG.DESC, CONFIG.YML, CONFIG.CFG])
+def test_only_known_fields(make_pkg_dir):
+    root_dir = make_pkg_dir
+    meta = load_meta(root_dir)
+
+    for field in meta:
+        assert field in FIELDS
