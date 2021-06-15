@@ -1,10 +1,11 @@
+from re import L
 from napari_hub_cli.meta_classes import MetaItem
 import os
 import pytest
 from yaml import load
 from .config_enum import CONFIG
 from napari_hub_cli.napari_hub_cli import load_meta
-from napari_hub_cli.constants import FIELDS, PROJECT_URLS
+from napari_hub_cli.constants import FIELDS, PROJECT_URLS, DESC_LENGTH
 import napari_hub_cli
 from pathlib import Path
 
@@ -170,3 +171,63 @@ def test_fields_have_source(make_pkg_dir):
 
     for field in meta:
         assert meta[field].source is not None
+
+@pytest.mark.required_configs([CONFIG.CFG])
+def test_long_description_trimmed(make_pkg_dir):
+    root_dir = make_pkg_dir
+    long_desc = '*' * DESC_LENGTH * 2
+    readme = root_dir.join('README.md')
+    readme.write(long_desc)
+
+    meta = load_meta(root_dir)
+    # trimmed description plus the dots
+    assert len(meta['Description'].value) == DESC_LENGTH+3
+
+    # same for DESCRIPTION.md
+    desc = root_dir.mkdir('.napari').join('DESCRIPTION.md')
+    desc.write(long_desc)
+    meta = load_meta(root_dir)
+    assert meta['Description'].source.src_file == '/.napari/DESCRIPTION.md'
+    assert len(meta['Description'].value) == DESC_LENGTH+3
+
+def test_long_description_cfg(tmpdir):
+    root_dir = tmpdir.mkdir('test-plugin-name')
+    setup_cfg_file = root_dir.join('setup.cfg')
+    setup_cfg_file.write(
+    f"""
+[metadata]
+name = test-plugin-name
+long_description = {'*' * DESC_LENGTH*2}
+    """
+    )
+
+    meta = load_meta(root_dir)
+    assert 'Description' in meta
+    assert len(meta['Description'].value) == DESC_LENGTH+3
+
+
+def test_setup_py_proj_urls(tmpdir):
+    root_dir = tmpdir.mkdir("test-plugin-name")
+    setup_py_file = root_dir.join('setup.py')
+    proj_site = 'https://test-plugin-name.com'
+    twitter = 'https://twitter.com/test-plugin-name'
+    bug_tracker = 'https://github.com/user/test-plugin-name'
+
+    setup_py_file.write(
+    f"""
+from setuptools import setup
+
+setup(
+    name = 'test-plugin-name',
+    project_urls = {{ 
+        'Project Site': '{proj_site}',
+        'Twitter': '{twitter}',
+        'Bug Tracker': '{bug_tracker}'
+        }}
+)
+    """
+    )
+    meta = load_meta(root_dir)
+    for key, value in zip(['Project Site', 'Bug Tracker', 'Twitter'], [proj_site, bug_tracker, twitter]):
+        assert key in meta
+        assert meta[key].value == value
