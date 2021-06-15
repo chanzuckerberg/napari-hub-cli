@@ -1,12 +1,14 @@
+from napari_hub_cli.meta_classes import MetaItem
 import os
 import pytest
 from yaml import load
 from .config_enum import CONFIG
 from napari_hub_cli.napari_hub_cli import load_meta
 from napari_hub_cli.constants import FIELDS, PROJECT_URLS
+import napari_hub_cli
+from pathlib import Path
 
-RESOURCES = "./napari_hub_cli/_tests/resources/"
-
+RESOURCES = Path(napari_hub_cli.__file__).parent / '_tests/resources/'
 
 @pytest.fixture
 def make_pkg_dir(tmpdir, request):
@@ -49,7 +51,12 @@ def test_config_yml(make_pkg_dir):
     # authors have been read correctly
     assert "Authors" in meta_dict
     assert isinstance(meta_dict["Authors"].value, list)
+    assert meta_dict["Authors"].value[0]['name'] == "Jane Doe"
     assert len(meta_dict["Authors"].value) == 2
+    f_pth, section, key = meta_dict["Authors"].source.unpack()
+    assert f_pth == "/.napari/config.yml"
+    assert section == "authors"
+    assert key is None
 
 
 @pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG, CONFIG.README])
@@ -70,10 +77,6 @@ def test_config_yml_not_overriden(make_pkg_dir):
 
     # authors have been read correctly
     assert "Authors" in meta_dict
-    f_pth, section, key = meta_dict["Authors"].source.unpack()
-    assert f_pth == "/.napari/config.yml"
-    assert section == "authors"
-    assert key is None
 
 
 @pytest.mark.required_configs([CONFIG.DESC, CONFIG.CFG, CONFIG.README])
@@ -99,17 +102,54 @@ def test_cfg_description(make_pkg_dir):
     assert section == "metadata"
     assert key == "long_description"
 
+@pytest.mark.required_configs([CONFIG.INIT])
+def test_version_init_setup_cfg(make_pkg_dir):
+    root_dir = make_pkg_dir
+    stup = root_dir.join('setup.cfg')
+    stup.write("[metadata]\nname = test-plugin-name")
+    
+    meta = load_meta(root_dir)
 
-# when we want 'custom' templates, we can make them ourselves based on some template files
+    assert isinstance(meta['Version'], MetaItem)
+    assert meta['Version'].value == '0.0.1'
+    f_pth, _, _ = meta['Version'].source.unpack()
+    assert os.path.basename(str(f_pth)) == '__init__.py'
 
-# test reading setup cfg separately
-# a few combinations of simple metadata
-# all options for complex metadata
+@pytest.mark.required_configs([CONFIG.INIT])
+def test_version_init_setup_py(make_pkg_dir):
+    root_dir = make_pkg_dir
+    stup = root_dir.join('setup.py')
+    stup.write("from setuptools import setup\nsetup()")
+    
+    meta = load_meta(root_dir)
 
-# test reading setup py separately
-# a few combinations of simple metadata
-# all options for complex metadata
+    assert isinstance(meta['Version'], MetaItem)
+    assert meta['Version'].value == '0.0.1'
+    f_pth, _, _ = meta['Version'].source.unpack()
+    assert os.path.basename(str(f_pth)) == '__init__.py'
 
-# version reading should be separate
+@pytest.mark.required_configs([CONFIG.SCM_VERS])
+def test_version_scm(make_pkg_dir):
+    root_dir = make_pkg_dir
+    stup = root_dir.join('setup.py')
+    stup.write("from setuptools import setup\nsetup()")
+    
+    meta = load_meta(root_dir)
 
-# test source ?
+    assert isinstance(meta['Version'], MetaItem)
+    assert meta['Version'].value == '0.0.1'
+    f_pth, _, _ = meta['Version'].source.unpack()
+    assert os.path.basename(str(f_pth)) == '_version.py'
+
+@pytest.mark.required_configs([CONFIG.VERS])
+def test_version_file(make_pkg_dir):
+    root_dir = make_pkg_dir
+    stup = root_dir.join('setup.py')
+    stup.write("from setuptools import setup\nsetup()")
+    
+    meta = load_meta(root_dir)
+
+    assert isinstance(meta['Version'], MetaItem)
+    assert meta['Version'].value == '0.0.1'
+    f_pth, _, _ = meta['Version'].source.unpack()
+    assert os.path.basename(str(f_pth)) == 'VERSION'

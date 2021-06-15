@@ -79,10 +79,11 @@ def get_pkg_version(given_meta, root_pth):
     search_pth = os.path.join(root_pth, "**")
     pkg_files = glob.glob(search_pth, recursive=True)
     for f_pth in pkg_files:
+        fname = os.path.basename(f_pth)
         mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
         if mtch:
             # ends with .py - likely setuptools-scm
-            if mtch.groups():
+            if mtch.groups()[0] != None:
                 potential_version = parse_setuptools_version(f_pth)
                 if potential_version and is_canonical(potential_version):
                     return f_pth, potential_version
@@ -101,7 +102,7 @@ def get_pkg_version(given_meta, root_pth):
         if "_tests" not in pth:
             potential_version = get_init_version(pth)
             if potential_version and is_canonical(potential_version):
-                return potential_version
+                return pth, potential_version
 
     return None, pkg_version
 

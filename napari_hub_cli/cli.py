@@ -10,9 +10,12 @@ def preview_meta(args):
     if not os.path.exists(pth):
         print(f"Nothing found at path: {pth}")
     else:
-        meta, src = load_meta(pth)
-        formatted_meta = format_meta(meta, src)
-        print(formatted_meta)
+        meta = load_meta(pth)
+        if len(meta) == 0 or len(meta) == 1 and "Version" in meta:
+            print(f"Found no metadata. Is {pth} the root of a python package?")
+        else:
+            formatted_meta = format_meta(meta)
+            print(formatted_meta)
 
 
 parser = argparse.ArgumentParser()

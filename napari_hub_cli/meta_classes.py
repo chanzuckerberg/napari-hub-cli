@@ -1,4 +1,4 @@
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict
 
 
 class MetaSource:
@@ -17,7 +17,7 @@ class MetaItem:
     def __init__(
         self,
         field_name: str,
-        value: Union[str, List[str]],
+        value: Union[str, List[Union[str, Dict[str, str]]]],
         source: Optional[MetaSource] = None,
     ) -> None:
         self.field_name = field_name
