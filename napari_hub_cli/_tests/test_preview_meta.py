@@ -162,3 +162,11 @@ def test_only_known_fields(make_pkg_dir):
 
     for field in meta:
         assert field in FIELDS
+
+@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG, CONFIG.README])
+def test_fields_have_source(make_pkg_dir):
+    root_dir = make_pkg_dir
+    meta = load_meta(root_dir)
+
+    for field in meta:
+        assert meta[field].source is not None
