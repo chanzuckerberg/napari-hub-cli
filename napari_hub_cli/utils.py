@@ -67,7 +67,7 @@ def get_init_version(rel_path):
 
 
 def get_pkg_version(given_meta, root_pth):
-    version_file_regex = r"_*version_*(.py)?"
+    version_file_regex = r"^_*version_*(.py)?$"
     pkg_version = "We could not parse the version of your package. Check PyPi for your latest version."
 
     # literal version resolved in meta
@@ -79,7 +79,6 @@ def get_pkg_version(given_meta, root_pth):
     search_pth = os.path.join(root_pth, "**")
     pkg_files = glob.glob(search_pth, recursive=True)
     for f_pth in pkg_files:
-        fname = os.path.basename(f_pth)
         mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
         if mtch:
             # ends with .py - likely setuptools-scm
@@ -89,7 +88,7 @@ def get_pkg_version(given_meta, root_pth):
                     return f_pth, potential_version
             # just a version file with no extension, should be version number only
             else:
-                with open(f_pth) as version_file:
+                with codecs.open(f_pth, "r", encoding="utf-8", errors="ignore") as version_file:
                     potential_version = version_file.read().strip()
                     if is_canonical(potential_version):
                         return f_pth, potential_version
