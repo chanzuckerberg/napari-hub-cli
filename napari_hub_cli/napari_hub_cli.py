@@ -166,28 +166,41 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
 def format_meta(meta):
     rep_str = ""
     for field in sorted(FIELDS):
-        rep_str += f"{'-'*80}\n{field}\n{'-'*80}\n"
-        if field in meta:
-            val = meta[field].value
-            src = meta[field].source
-            if isinstance(val, list):
-                for i in range(len(val)):
-                    rep_str += f"{val[i]}\n"
-            else:
-                rep_str += f"{val}\n"
-            if src:
-                rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
-                if src.src_file:
-                    rep_str += f"\t{src.src_file}"
-                if src.section and src.key:
-                    rep_str += f": {src.section}, {src.key}"
-                else:
-                    if src.section:
-                        rep_str += f": {src.section}"
-                    if src.key:
-                        rep_str += f": {src.key}"
-                rep_str += "\n"
+        rep_str += format_field(field, meta)
+    return rep_str
+
+
+def print_meta_interactive(meta):
+    for field in sorted(FIELDS):
+        rep_str = format_field(field, meta)
+        print(rep_str)
+        input('Enter to continue >>>')
+
+
+def format_field(field, meta):
+    rep_str = f"{'-'*80}\n{field}\n{'-'*80}\n"
+    if field in meta:
+        meta_item = meta[field]
+        val = meta_item.value
+        src = meta_item.source
+        if isinstance(val, list):
+            for i in range(len(val)):
+                rep_str += f"{val[i]}\n"
         else:
-            rep_str += f"\t~~Not Found~~\n"
-        rep_str += "\n"
+            rep_str += f"{val}\n"
+        if src:
+            rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
+            if src.src_file:
+                rep_str += f"\t{src.src_file}"
+            if src.section and src.key:
+                rep_str += f": {src.section}, {src.key}"
+            else:
+                if src.section:
+                    rep_str += f": {src.section}"
+                if src.key:
+                    rep_str += f": {src.key}"
+            rep_str += "\n"
+    else:
+        rep_str += f"\t~~Not Found~~\n"
+    rep_str += "\n"
     return rep_str
