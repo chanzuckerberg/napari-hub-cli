@@ -1,0 +1,12 @@
+authors:
+  - name: Jane Doe
+    orcid: 0000-0001-0002-0003
+  - name: John Doe
+project_urls:
+    Project Site: https://test-plugin-name.com
+    Bug Tracker: https://github.com/user/repo/issues
+    Documentation: https://github.com/user/repo#README.md
+    Source Code: https://github.com/user/repo
+    User Support: https://github.com/user/repo/issues
+    Twitter: https://twitter.com/user
+    Other Link: https://github.com
