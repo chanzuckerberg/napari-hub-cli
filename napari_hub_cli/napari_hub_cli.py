@@ -132,7 +132,7 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
             )
             meta_dict[os_support_item.field_name] = os_support_item
 
-    if 'Version' not in meta_dict:
+    if "Version" not in meta_dict:
         src, pkg_version = get_pkg_version(config, root_pth)
         version_item = MetaItem("Version", pkg_version)
         meta_dict[version_item.field_name] = version_item
@@ -174,7 +174,7 @@ def print_meta_interactive(meta):
     for field in sorted(FIELDS):
         rep_str = format_field(field, meta)
         print(rep_str)
-        input('Enter to continue >>>')
+        input("Enter to continue >>>")
 
 
 def format_field(field, meta):

@@ -21,18 +21,27 @@ def preview_meta(args):
                 print(formatted_meta)
 
 
-parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers()
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
 
-parser_preview_metadata = subparsers.add_parser("preview-metadata")
-parser_preview_metadata.add_argument("plugin_path", help="Local path to your plugin")
-parser_preview_metadata.set_defaults(func=preview_meta)
-parser_preview_metadata.add_argument('-i', default=False, action='store_true', help="Wait for user input after each field")
+    parser_preview_metadata = subparsers.add_parser("preview-metadata")
+    parser_preview_metadata.add_argument(
+        "plugin_path", help="Local path to your plugin"
+    )
+    parser_preview_metadata.set_defaults(func=preview_meta)
+    parser_preview_metadata.add_argument(
+        "-i",
+        default=False,
+        action="store_true",
+        help="Wait for user input after each field",
+    )
+    return parser.parse_args(args)
 
 
 def main(argv=sys.argv[1:]):
     """Console script for napari_hub_cli."""
-    args = parser.parse_args(argv)
+    args = parse_args(argv)
     args.func(args)
 
     return 0
