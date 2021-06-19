@@ -1,7 +1,7 @@
 """Console script for napari_hub_cli."""
 import argparse
 import sys
-from .napari_hub_cli import load_meta, format_meta, get_missing
+from .napari_hub_cli import load_meta, format_meta, print_meta_interactive, get_missing
 import os
 
 
@@ -14,8 +14,12 @@ def preview_meta(args):
         if len(meta) == 0 or len(meta) == 1 and "Version" in meta:
             print(f"Found no metadata. Is {pth} the root of a python package?")
         else:
-            formatted_meta = format_meta(meta)
-            print(formatted_meta)
+            if args.i:
+                print_meta_interactive(meta)
+            else:
+                formatted_meta = format_meta(meta)
+                print(formatted_meta)
+
 
 def check_missing(args):
     pth = args.plugin_path
