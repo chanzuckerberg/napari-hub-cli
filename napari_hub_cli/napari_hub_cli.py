@@ -193,8 +193,7 @@ def get_missing(meta, pth):
             src_item = MetaSource(suggested_cfg, section, key)
             missing_meta[field] = src_item
     
-    for k, v in missing_meta.items():
-        print(f"{k}: {v.unpack()}")
+    return missing_meta
     
 def format_meta(meta):
     rep_str = ""
