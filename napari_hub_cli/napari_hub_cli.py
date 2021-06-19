@@ -17,6 +17,7 @@ from .constants import (
     # paths to various configs from root
     DESC_PTH,
     SETUP_CFG_PTH,
+    SETUP_META,
     SETUP_PY_PTH,
     YML_PTH,
     # field names and sources for different metadata
@@ -163,6 +164,38 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
         meta_dict[reqs_item.field_name] = reqs_item
 
 
+def get_missing(meta, pth):
+    missing_meta = defaultdict(None)
+
+    for field, source in YML_INFO:
+        if field not in meta:
+            section, key = source
+            src_item = MetaSource(YML_PTH, section, key)
+            missing_meta[field] = src_item
+
+    if 'Description' not in meta:
+        src_item = MetaSource(DESC_PTH)
+        missing_meta['Description'] = src_item
+
+    cfg_pth = pth + SETUP_CFG_PTH
+    py_pth = pth + SETUP_PY_PTH
+    # if we already have a cfg or if we don't have setup.py
+    if os.path.exists(cfg_pth) or not os.path.exists(py_pth):     
+        suggested_cfg = SETUP_CFG_PTH
+        cfg_info = SETUP_CFG_INFO
+    else:
+        suggested_cfg = SETUP_PY_PTH
+        cfg_info = SETUP_PY_INFO
+
+    for field, src in cfg_info:
+        if field not in meta and field not in missing_meta:
+            section, key = src
+            src_item = MetaSource(suggested_cfg, section, key)
+            missing_meta[field] = src_item
+    
+    for k, v in missing_meta.items():
+        print(f"{k}: {v.unpack()}")
+    
 def format_meta(meta):
     rep_str = ""
     for field in sorted(FIELDS):

@@ -25,8 +25,8 @@ SETUP_META = YML_META + [
 ]
 SETUP_CFG_SOURCES = (
     [("metadata", "author")]
-    + YML_SOURCES[1:]
     + [("metadata", "url")]
+    + YML_SOURCES[2:]
     + [("metadata", "name")]
     + [("metadata", "summary")]
     + [("metadata", "license")]
