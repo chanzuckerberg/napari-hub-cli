@@ -87,7 +87,9 @@ def get_pkg_version(given_meta, root_pth):
                     return f_pth, potential_version
             # just a version file with no extension, should be version number only
             else:
-                with codecs.open(f_pth, "r", encoding="utf-8", errors="ignore") as version_file:
+                with codecs.open(
+                    f_pth, "r", encoding="utf-8", errors="ignore"
+                ) as version_file:
                     potential_version = version_file.read().strip()
                     if is_canonical(potential_version):
                         return f_pth, potential_version
