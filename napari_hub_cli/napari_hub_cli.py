@@ -39,12 +39,13 @@ def load_meta(pth):
     if os.path.exists(desc_pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
-            trimmed_desc = full_desc[:DESC_LENGTH]
-            if len(trimmed_desc) == DESC_LENGTH:
-                trimmed_desc += "..."
-            desc_source = MetaSource(DESC_PTH)
-            desc_item = MetaItem("Description", trimmed_desc, desc_source)
-            meta_dict[desc_item.field_name] = desc_item
+            if full_desc:
+                trimmed_desc = full_desc[:DESC_LENGTH]
+                if len(trimmed_desc) == DESC_LENGTH:
+                    trimmed_desc += "..."
+                desc_source = MetaSource(DESC_PTH)
+                desc_item = MetaItem("Description", trimmed_desc, desc_source)
+                meta_dict[desc_item.field_name] = desc_item
 
     yml_pth = pth + YML_PTH
     if os.path.exists(yml_pth):

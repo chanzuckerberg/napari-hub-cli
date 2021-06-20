@@ -228,8 +228,8 @@ from setuptools import setup
 
 setup(
     name = 'test-plugin-name',
+    url = '{proj_site}',
     project_urls = {{ 
-        'Project Site': '{proj_site}',
         'Twitter': '{twitter}',
         'Bug Tracker': '{bug_tracker}'
         }}
