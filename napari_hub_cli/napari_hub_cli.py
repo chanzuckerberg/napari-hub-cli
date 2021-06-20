@@ -238,7 +238,6 @@ def print_meta_interactive(meta, missing_meta):
         print(rep_str)
         input("Enter to continue >>>")
 
-
 def format_source(src):
     rep_str = ""
     if src.src_file:
