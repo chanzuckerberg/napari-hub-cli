@@ -1,3 +1,4 @@
+from requests.exceptions import MissingSchema
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
 import os
 from yaml import full_load
@@ -17,7 +18,6 @@ from .constants import (
     # paths to various configs from root
     DESC_PTH,
     SETUP_CFG_PTH,
-    SETUP_META,
     SETUP_PY_PTH,
     YML_PTH,
     # field names and sources for different metadata
@@ -26,6 +26,8 @@ from .constants import (
     YML_INFO,
     # all field names
     FIELDS,
+    # how each field is used on the hub (filterable, sortable, searched)
+    HUB_USES,
 )
 import parsesetup
 
@@ -166,21 +168,20 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
 
 def get_missing(meta, pth):
     missing_meta = defaultdict(None)
-
     for field, source in YML_INFO:
         if field not in meta:
             section, key = source
             src_item = MetaSource(YML_PTH, section, key)
             missing_meta[field] = src_item
 
-    if 'Description' not in meta:
+    if "Description" not in meta:
         src_item = MetaSource(DESC_PTH)
-        missing_meta['Description'] = src_item
+        missing_meta["Description"] = src_item
 
     cfg_pth = pth + SETUP_CFG_PTH
     py_pth = pth + SETUP_PY_PTH
     # if we already have a cfg or if we don't have setup.py
-    if os.path.exists(cfg_pth) or not os.path.exists(py_pth):     
+    if os.path.exists(cfg_pth) or not os.path.exists(py_pth):
         suggested_cfg = SETUP_CFG_PTH
         cfg_info = SETUP_CFG_INFO
     else:
@@ -192,24 +193,58 @@ def get_missing(meta, pth):
             section, key = src
             src_item = MetaSource(suggested_cfg, section, key)
             missing_meta[field] = src_item
-    
     return missing_meta
-    
-def format_meta(meta):
+
+
+def format_missing(missing_meta):
     rep_str = ""
-    for field in sorted(FIELDS):
-        rep_str += format_field(field, meta)
+    for field, suggested_source in missing_meta.items():
+        rep_str += f"{'-'*80}\nMISSING: {field}\n{'-'*80}\n"
+        rep_str += "\tSUGGESTED SOURCE: "
+        rep_str += format_source(suggested_source)
+        filterable, sortable, searched = HUB_USES[field]
+        if filterable or sortable or searched:
+            rep_str += f"\t{'-'*6}\n\tUsed For\n\t{'-'*6}\n"
+        if filterable:
+            rep_str += f"\tFiltering\n"
+        if sortable:
+            rep_str += f"\tSorting\n"
+        if searched:
+            rep_str += f"\tSearching\n"
+        rep_str += "\n"
     return rep_str
 
 
-def print_meta_interactive(meta):
+def format_meta(meta, missing_meta):
+    rep_str = ""
     for field in sorted(FIELDS):
-        rep_str = format_field(field, meta)
+        rep_str += format_field(field, meta, missing_meta)
+    return rep_str
+
+
+def print_meta_interactive(meta, missing_meta):
+    for field in sorted(FIELDS):
+        rep_str = format_field(field, meta, missing_meta)
         print(rep_str)
         input("Enter to continue >>>")
 
 
-def format_field(field, meta):
+def format_source(src):
+    rep_str = ""
+    if src.src_file:
+        rep_str += f"\t{src.src_file}"
+    if src.section and src.key:
+        rep_str += f": {src.section}, {src.key}"
+    else:
+        if src.section:
+            rep_str += f": {src.section}"
+        if src.key:
+            rep_str += f": {src.key}"
+    rep_str += "\n"
+    return rep_str
+
+
+def format_field(field, meta, missing_meta):
     rep_str = f"{'-'*80}\n{field}\n{'-'*80}\n"
     if field in meta:
         meta_item = meta[field]
@@ -222,17 +257,12 @@ def format_field(field, meta):
             rep_str += f"{val}\n"
         if src:
             rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
-            if src.src_file:
-                rep_str += f"\t{src.src_file}"
-            if src.section and src.key:
-                rep_str += f": {src.section}, {src.key}"
-            else:
-                if src.section:
-                    rep_str += f": {src.section}"
-                if src.key:
-                    rep_str += f": {src.key}"
-            rep_str += "\n"
+            rep_str += format_source(src)
     else:
-        rep_str += f"\t~~Not Found~~\n"
+        rep_str += f"~~Not Found~~\n"
+        if field in missing_meta:
+            rep_str += f"\t{'-'*6}\n\tSuggested Source\n\t{'-'*6}\n"
+            rep_str += format_source(missing_meta[field])
+
     rep_str += "\n"
     return rep_str

@@ -47,3 +47,63 @@ FIELDS = SETUP_META + [
     "Requirements",
     "Version",
 ]
+
+FILTERABLE = [
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    False,
+    True,
+    True,
+    False,
+    False,
+]
+
+SORTABLE = [
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+]
+
+SEARCHED = [
+    True,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    False,
+    False,
+    True,
+    False,
+    False,
+    False,
+    False,
+]
+
+USES = zip(FILTERABLE, SORTABLE, SEARCHED)
+HUB_USES = dict(zip(FIELDS, USES))
