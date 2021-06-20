@@ -5,6 +5,7 @@ from .napari_hub_cli import (
     load_meta,
     format_meta,
     print_meta_interactive,
+    print_missing_interactive,
     get_missing,
     format_missing,
 )
@@ -38,8 +39,11 @@ def check_missing(args):
             print(f"Found no metadata. Is {pth} the root of a Python package?")
         else:
             missing_meta = get_missing(meta, pth)
-            formatted_missing = format_missing(missing_meta)
-            print(formatted_missing)
+            if args.i:
+                print_missing_interactive(missing_meta)
+            else:
+                formatted_missing = format_missing(missing_meta)
+                print(formatted_missing)
 
 
 def parse_args(args):
@@ -60,6 +64,12 @@ def parse_args(args):
 
     parser_check_missing = subparsers.add_parser("check-missing")
     parser_check_missing.add_argument("plugin_path", help="Local path to your plugin")
+    parser_check_missing.add_argument(
+        "-i",
+        default=False,
+        action="store_true",
+        help="Wait for user input after each field",
+    )
     parser_check_missing.set_defaults(func=check_missing)
     return parser.parse_args(args)
 

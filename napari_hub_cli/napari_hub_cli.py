@@ -199,21 +199,31 @@ def get_missing(meta, pth):
 def format_missing(missing_meta):
     rep_str = ""
     for field, suggested_source in missing_meta.items():
-        rep_str += f"{'-'*80}\nMISSING: {field}\n{'-'*80}\n"
-        rep_str += "\tSUGGESTED SOURCE: "
-        rep_str += format_source(suggested_source)
-        filterable, sortable, searched = HUB_USES[field]
-        if filterable or sortable or searched:
-            rep_str += f"\t{'-'*6}\n\tUsed For\n\t{'-'*6}\n"
-        if filterable:
-            rep_str += f"\tFiltering\n"
-        if sortable:
-            rep_str += f"\tSorting\n"
-        if searched:
-            rep_str += f"\tSearching\n"
-        rep_str += "\n"
+        rep_str += format_missing_field(field, suggested_source)
     return rep_str
 
+
+def format_missing_field(field, suggested_source):
+    rep_str = f"{'-'*80}\nMISSING: {field}\n{'-'*80}\n"
+    rep_str += "\tSUGGESTED SOURCE: "
+    rep_str += format_source(suggested_source)
+    filterable, sortable, searched = HUB_USES[field]
+    if filterable or sortable or searched:
+        rep_str += f"\t{'-'*6}\n\tUsed For\n\t{'-'*6}\n"
+    if filterable:
+        rep_str += f"\tFiltering\n"
+    if sortable:
+        rep_str += f"\tSorting\n"
+    if searched:
+        rep_str += f"\tSearching\n"
+    rep_str += "\n"
+    return rep_str
+
+def print_missing_interactive(missing_meta):
+    for field, suggested_source in missing_meta.items():
+        rep_str = format_missing_field(field, suggested_source)
+        print(rep_str)
+        input("Enter to continue >>>")    
 
 def format_meta(meta, missing_meta):
     rep_str = ""
