@@ -11,6 +11,7 @@ from .utils import (
     get_pkg_version,
     is_canonical,
     split_dangling_list,
+    split_project_urls
 )
 from .constants import (
     # length of description to preview
@@ -87,7 +88,10 @@ def read_yml_config(meta_dict, yml_path):
 
 def read_setup_cfg(meta_dict, setup_path, root_pth):
     c_parser = ConfigParser()
+    c_parser.optionxform = str
     c_parser.read(setup_path)
+
+    split_project_urls(c_parser)
 
     for field, (section, key) in SETUP_CFG_INFO.items():
         if section in c_parser.sections():
