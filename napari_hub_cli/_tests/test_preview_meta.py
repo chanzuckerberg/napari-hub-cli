@@ -215,6 +215,29 @@ setup(
         assert key in meta
         assert meta[key].value == value
 
+def test_setup_cfg_proj_urls(tmpdir):
+    root_dir = tmpdir.mkdir("test-plugin-name")
+    setup_cfg_file = root_dir.join("setup.cfg")
+    proj_site = "https://test-plugin-name.com"
+    twitter = "https://twitter.com/test-plugin-name"
+    bug_tracker = "https://github.com/user/test-plugin-name"
+
+    setup_cfg_file.write(
+        f"""
+[metadata]
+url = {proj_site}
+project_urls =
+    Bug Tracker = {bug_tracker}
+    Twitter = {twitter}
+    """
+    )
+    meta = load_meta(root_dir)
+    for key, value in zip(
+        ["Project Site", "Bug Tracker", "Twitter"], [proj_site, bug_tracker, twitter]
+    ):
+        assert key in meta
+        assert meta[key].value == value
+
 def test_source_code_url(tmpdir):
     root_dir = tmpdir.mkdir("test-plugin-name")
     setup_py_file = root_dir.join("setup.py")
