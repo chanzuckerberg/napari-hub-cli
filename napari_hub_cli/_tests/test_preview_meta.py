@@ -214,3 +214,24 @@ setup(
     ):
         assert key in meta
         assert meta[key].value == value
+
+def test_source_code_url(tmpdir):
+    root_dir = tmpdir.mkdir("test-plugin-name")
+    setup_py_file = root_dir.join("setup.py")
+    proj_site = "https://github.com/user/test-plugin-name"
+
+    setup_py_file.write(
+        f"""
+from setuptools import setup
+
+setup(
+    name = 'test-plugin-name',
+    url = '{proj_site}'
+)
+    """
+    )
+
+    meta = load_meta(root_dir)
+    assert "Project Site" not in meta
+    assert "Source Code" in meta
+    assert meta["Source Code"].value == proj_site    
