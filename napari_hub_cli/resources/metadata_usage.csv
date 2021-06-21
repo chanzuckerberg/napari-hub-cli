@@ -1,0 +1,17 @@
+Field,Filterable,Sortable,Searched
+Authors,False,False,True
+Bug Tracker,False,False,False
+Description,False,False,True
+Development Status,True,False,False
+Documentation,False,False,False
+License,True,False,False
+Name,False,True,True
+Operating System,True,False,False
+Project Site,False,False,False
+Python Version,True,False,False
+Requirements,False,False,False
+Source Code,False,False,False
+Summary,False,False,True
+Twitter,False,False,False
+User Support,False,False,False
+Version,False,False,False

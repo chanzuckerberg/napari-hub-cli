@@ -2,6 +2,7 @@ import pandas as pd
 import pathlib
 
 SOURCES_CSV = str(pathlib.Path(__file__).parent.absolute()) + "/resources/metadata_sources.csv"
+USAGE_CSV = str(pathlib.Path(__file__).parent.absolute()) + "/resources/metadata_usage.csv"
 
 DESC_PTH = "/.napari/DESCRIPTION.md"
 YML_PTH = "/.napari/config.yml"
@@ -35,101 +36,65 @@ PROJECT_URLS = [
 
 YML_META = list(yml_info.Field)
 
-# YML_META = ["Authors"] + PROJECT_URLS
-# YML_SOURCES = [("authors", None)] + [("project_urls", url) for url in PROJECT_URLS]
-# YML_INFO = list(zip(YML_META, YML_SOURCES))
+usage_df = pd.read_csv(USAGE_CSV)
+HUB_USES = dict(zip(usage_df.Field, zip(usage_df.Filterable, usage_df.Sortable, usage_df.Searched)))
 
-# SETUP_META = YML_META + [
-#     "Name",
-#     "Summary",
-#     "Summary",
-#     "License",
-#     "Python Version",
+# FILTERABLE = [
+#     False,
+#     False,
+#     False,
+#     True,
+#     False,
+#     True,
+#     False,
+#     True,
+#     False,
+#     True,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
 # ]
-# SETUP_CFG_SOURCES = (
-#     [("metadata", "author")]
-#     + [("metadata", "url")]
-#     + YML_SOURCES[2:]
-#     + [("metadata", "name")]
-#     + [("metadata", "summary")]
-#     + [('metadata', 'description')]
-#     + [("metadata", "license")]
-#     + [("options", "python_requires")]
-# )
-# SETUP_CFG_INFO = list(zip(SETUP_META, SETUP_CFG_SOURCES))
 
-# SETUP_PY_SOURCES = [
-#     (None, key) if section != "project_urls" else (section, key)
-#     for (section, key) in SETUP_CFG_SOURCES
+# SORTABLE = [
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     True,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
 # ]
-# SETUP_PY_INFO = list(zip(SETUP_META, SETUP_PY_SOURCES))
 
-# FIELDS = sorted(list(set(SETUP_META)) + [
-#     "Description",
-#     "Operating System",
-#     "Development Status",
-#     "Requirements",
-#     "Version",
-# ])
+# SEARCHED = [
+#     True,
+#     False,
+#     True,
+#     False,
+#     False,
+#     False,
+#     True,
+#     False,
+#     False,
+#     False,
+#     False,
+#     False,
+#     True,
+#     False,
+#     False,
+#     False,
+# ]
 
-
-
-FILTERABLE = [
-    False,
-    False,
-    False,
-    True,
-    False,
-    True,
-    False,
-    True,
-    False,
-    True,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-]
-
-SORTABLE = [
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    True,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-]
-
-SEARCHED = [
-    True,
-    False,
-    True,
-    False,
-    False,
-    False,
-    True,
-    False,
-    False,
-    False,
-    False,
-    False,
-    True,
-    False,
-    False,
-    False,
-]
-
-USES = zip(FILTERABLE, SORTABLE, SEARCHED)
-HUB_USES = dict(zip(FIELDS, USES))
+# USES = zip(FILTERABLE, SORTABLE, SEARCHED)
+# HUB_USES = dict(zip(FIELDS, USES))
