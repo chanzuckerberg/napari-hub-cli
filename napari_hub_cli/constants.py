@@ -23,7 +23,7 @@ SETUP_CFG_INFO = dict(zip(cfg_info.Field, zip(cfg_info.CFG_Section, cfg_info.CFG
 py_info = sources_df[sources_df.PY]
 SETUP_PY_INFO = dict(zip(py_info.Field, zip(py_info.PY_Section, py_info.PY_Key)))
 
-FIELDS = list(sources_df.Field)
+FIELDS = list(set(sources_df.Field))
 
 PROJECT_URLS = [
     "Project Site",
@@ -38,63 +38,3 @@ YML_META = list(yml_info.Field)
 
 usage_df = pd.read_csv(USAGE_CSV)
 HUB_USES = dict(zip(usage_df.Field, zip(usage_df.Filterable, usage_df.Sortable, usage_df.Searched)))
-
-# FILTERABLE = [
-#     False,
-#     False,
-#     False,
-#     True,
-#     False,
-#     True,
-#     False,
-#     True,
-#     False,
-#     True,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-# ]
-
-# SORTABLE = [
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     True,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-# ]
-
-# SEARCHED = [
-#     True,
-#     False,
-#     True,
-#     False,
-#     False,
-#     False,
-#     True,
-#     False,
-#     False,
-#     False,
-#     False,
-#     False,
-#     True,
-#     False,
-#     False,
-#     False,
-# ]
-
-# USES = zip(FILTERABLE, SORTABLE, SEARCHED)
-# HUB_USES = dict(zip(FIELDS, USES))
