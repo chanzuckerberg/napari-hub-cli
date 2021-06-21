@@ -12,82 +12,117 @@ will inspect from your plugin and display on the napari hub.
 ### Previewing Metadata
 
 ```
-$ napari-hub-cli preview-metadata /tmp/my-napari-plugin
+$ napari-hub-cli preview-metadata /tmp/example-plugin
+```
+
+or
+
+```
+# display one field at a time and wait for input
+$ napari-hub-cli preview-metadata /tmp/example-plugin -i
 ```
 
 This utility will inspect the plugin at the given path for metadata and display it for preview.
+
+Each field of metadata is accompanied by the file and attribute where it was found.
+When fields are missing, they are accompanied instead by a suggested source.
+When a field is sourced from `setup.py`, it is always an argument to the `setup` method.
+
+**Version** - Depending on how you manage versioning for your package, we may not be able to
+parse its latest version. The version of your package displayed on
+the napari hub will always be the latest version released on PyPI.
+
+**Project Site** - If your `url` metadata is a GitHub url, it will be displayed as the
+Source Code url instead.
+
 Example output:
 
-| Metadata           	|                                                                             Value                                                                            	|         Source         	|
-|--------------------	|:------------------------------------------------------------------------------------------------------------------------------------------------------------:	|:----------------------:	|
-| Name               	|                                                                           affinder                                                                           	|   ./setup.py Line 28   	|
-| Summary            	|                    'Quickly find the affine matrix mapping one image to another using '         'manual correspondence points annotation'                    	|  ./setup.py Line 33-36 	|
-| Description        	| '# Description  This GUI plugin allows you to quickly find the affine matrix mapping one image to another using manual correspondence points annotation.'... 	| .napari/DESCRIPTION.md 	|
-| Authors            	|                                                                      Juan Nunez-Iglesias                                                                     	|   ./setup.py Line 29   	|
-| License            	|                                                                             BSD-3                                                                            	|   ./setup.py Line 31   	|
-| Version            	|                                                                              scm versioning - see PyPi for released version                                                                               	|           ./setup.py Line 42           	|
-| Development Status 	|                                                                           3 - Alpha                                                                          	|   ./setup.py Line 45   	|
-| Python Version     	|                                                                             >=3.7                                                                            	|   ./setup.py Line 40   	|
-| Operating System   	|                                                                        OS Independent                                                                        	|   ./setup.py Line 54   	|
-| Requirements       	|                               napari-plugin-engine>=0.1.9 napari>=0.4.3 numpy scikit-image magicgui>=0.2.5,!=0.2.7 napari toolz                              	|   ./requirements.txt   	|
-| Project Site       	|                                                                               -                                                                              	|            -           	|
-| Documentation      	|                                                                               -                                                                              	|            -           	|
-| Support            	|                                                                               -                                                                              	|            -           	|
-| Report Issues      	|                                                                               -                                                                              	|            -           	|
-| Twitter            	|                                                                               -                                                                              	|            -           	|
-| Source Code        	|                                                                https://github.com/jni/affinder                                                               	|   ./setup.py Line 32   	|
+```
+--------------------------------------------------------------------------------
+Authors
+--------------------------------------------------------------------------------
+Draga Doncila Pop
+        ------
+        Source
+        ------
+        /setup.cfg: metadata, author
 
-Missing metadata is denoted with a `-`. You can then use `check-metadata` to get a display of just the missing metadata, and where 
-you can add it into your project. See [below](#sources) for where we look for your metadata.
+--------------------------------------------------------------------------------
+Description
+--------------------------------------------------------------------------------
+This is my napari-hub specific description. It is detailed, and comprehensive (v0.0.4) - extra comprehension.
+        ------
+        Source
+        ------
+        /.napari/DESCRIPTION.md
 
-### Checking Metadata
+--------------------------------------------------------------------------------
+Source Code
+--------------------------------------------------------------------------------
+https://github.com/DragaDoncila/example-plugin
+        ------
+        Source
+        ------
+        /.napari/config.yml: project_urls, Source Code
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+~~Not Found~~
+        ------
+        Suggested Source
+        ------
+        /setup.cfg: metadata, summary
+
+--------------------------------------------------------------------------------
+User Support
+--------------------------------------------------------------------------------
+https://github.com/DragaDoncila/example-plugin/issues
+        ------
+        Source
+        ------
+        /.napari/config.yml: project_urls, User Support
+```
+
+You can then use `check-metadata` to get a display of just the missing metadata. 
+See [Customizing Your Plugin Listing](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md) for a detailed guide on how you can add this metadata
+to your project.
+
+### Checking Missing Metadata
 
 ```
-$ napari-hub-cli check-metadata /tmp/my-napari-plugin
+$ napari-hub-cli check-missing /tmp/example-plugin
+```
+or
+```
+# display one field at a time and wait for input
+$ napari-hub-cli check-missing /tmp/example-plugin -i
 ```
 
 This utility will only display the metadata missing from your plugin, and will also suggest where you can add it, if desired.
-'Flagged on Hub' highlights if a missing piece of metadata will be flagged on the hub as "not provided".
-'Used on Hub' highlights if a missing piece of metadata can be used for searching, filtering or sorting on the hub.
+All metadata listed here would be displayed on your plugin's napari hub page. When this metadata might also be used
+for sorting, filtering or searching for plugins, this information is also displayed.
 
 Example output:
 
-| Metadata      	| Suggested Source                                                       	| Flagged on Hub 	| Used on Hub 	|
-|---------------	|------------------------------------------------------------------------	|----------------	|-------------	|
-| Project Site  	| ./setup.py setup(project_urls={'Project Site': 'https://url.com'})     	| No             	| No         	|
-| Documentation 	| ./setup.py setup(project_urls={'Documentation': 'https://url.com'})    	| No             	| No         	|
-| Support       	| ./setup.py setup(project_urls={'User Support': 'https://url.com'})     	| No             	| No         	|
-| Report Issues 	| ./setup.py setup(project_urls={'Report Issues': 'https://url.com'})    	| No             	| No         	|
-| Twitter       	| ./setup.py setup(project_urls={'Twitter': 'https://twitter.com/user'}) 	| No             	| No         	|
+```
+--------------------------------------------------------------------------------
+MISSING: Twitter
+--------------------------------------------------------------------------------
+        SUGGESTED SOURCE:       /.napari/config.yml: project_urls, Twitter
 
-This utility will also check whether, when a `.napari/DESCRIPTION.md` is present, it is different to the 
-boilerplate provided in napari's cookiecutter plugin template. 
+--------------------------------------------------------------------------------
+MISSING: Summary
+--------------------------------------------------------------------------------
+        SUGGESTED SOURCE:       /setup.cfg: metadata, summary
+        ------
+        Used For
+        ------
+        Searching
 
-For more information on how you can add metadata to your package, and how we use it on the napari hub, check out [this detailed guide](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md).
+```
 
-<a name="sources"></a>
-### Metadata Sources
-
-The table below lists the locations we will search for each metadata value, in order.
-
-| Metadata           	|                                                     Searched In                                                     	|
-|--------------------	|:-------------------------------------------------------------------------------------------------------------------:	|
-| Name               	|                            **`setup.cfg [metadata] name=`**<br>`setup.py setup(name="")`                            	|
-| Summary            	|       **`.napari/config.yml summary:`**<br>`setup.cfg [metadata] summary=`<br>`setup.py setup(description="")`      	|
-| Description        	|  **`.napari/DESCRIPTION.md`**<br>`setup.cfg [metadata] long_description=`<br>`setup.py setup(long_description="")`  	|
-| Authors            	|          **`.napari/config.yml authors:`**<br>`setup.cfg [metadata] author=`<br>`setup.py setup(author="")`         	|
-| License            	|                         **`setup.cfg [metadata] license=`**<br>`setup.py setup(license="")`                         	|
-| Version            	|                       **`setup.cfg [metadata] version`**<br>`setup.py setup(version="")`                              |
-| Development Status 	|                      **`setup.cfg [metadata] classifier=`**<br>`setup.py setup(classifiers=[])`                     	|
-| Python Version     	|                 **`setup.cfg [metadata] python_requires=`**<br>`setup.py setup(python_requires="")`                 	|
-| Operating System   	|                      **`setup.cfg [metadata] classifier=`**<br>`setup.py setup(classifiers=[])`                     	|
-| Requirements       	|     **`setup.cfg [options] install_requires=`**<br>`setup.py setup(install_requires=[])`<br>`./requirements.txt`    	|
-| Project Site       	|          **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] url=`<br>`setup.py setup(url="")`          	|
-| Documentation      	| **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] project_urls=`<br>`setup.py setup(project_urls={})` 	|
-| Support            	| **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] project_urls=`<br>`setup.py setup(project_urls={})` 	|
-| Report Issues      	| **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] project_urls=`<br>`setup.py setup(project_urls={})` 	|
-| Twitter            	| **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] project_urls=`<br>`setup.py setup(project_urls={})` 	|
-| Source Code        	| **`.napari/config.yml project_urls:`**<br>`setup.cfg [metadata] project_urls=`<br>`setup.py setup(project_urls={})` 	|
+For more information on how you can add metadata to your package, and how we use it on the napari hub, check out [Customizing Your Plugin Listing](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md).
 
 ## Code of Conduct
 
