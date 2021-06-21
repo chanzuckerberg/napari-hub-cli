@@ -3,6 +3,7 @@ YML_PTH = "/.napari/config.yml"
 SETUP_CFG_PTH = "/setup.cfg"
 SETUP_PY_PTH = "/setup.py"
 DESC_LENGTH = 250
+GITHUB_PATTERN = r'https://github\.com/([^/]+)/([^/]+)'
 
 PROJECT_URLS = [
     "Project Site",
