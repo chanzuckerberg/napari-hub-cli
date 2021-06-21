@@ -23,7 +23,7 @@ def preview_meta(args):
         if len(meta) == 0 or len(meta) == 1 and "Version" in meta:
             print(f"Found no metadata. Is {pth} the root of a Python package?")
         else:
-            missing_meta = get_missing(meta)
+            missing_meta = get_missing(meta, pth)
             if args.i:
                 print_meta_interactive(meta, missing_meta)
             else:

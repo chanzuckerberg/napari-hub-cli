@@ -43,29 +43,29 @@ SETUP_PY_SOURCES = [
 ]
 SETUP_PY_INFO = list(zip(SETUP_META, SETUP_PY_SOURCES))
 
-FIELDS = list(set(SETUP_META)) + [
+FIELDS = sorted(list(set(SETUP_META)) + [
     "Description",
     "Operating System",
     "Development Status",
     "Requirements",
     "Version",
-]
+])
 
 FILTERABLE = [
     False,
     False,
     False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    True,
     True,
     False,
     True,
+    False,
     True,
+    False,
+    True,
+    False,
+    False,
+    False,
+    False,
     False,
     False,
 ]
@@ -77,8 +77,8 @@ SORTABLE = [
     False,
     False,
     False,
-    False,
     True,
+    False,
     False,
     False,
     False,
@@ -92,17 +92,17 @@ SORTABLE = [
 SEARCHED = [
     True,
     False,
+    True,
+    False,
+    False,
+    False,
+    True,
     False,
     False,
     False,
     False,
     False,
     True,
-    True,
-    False,
-    False,
-    True,
-    False,
     False,
     False,
     False,
