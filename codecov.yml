@@ -1,5 +1,6 @@
 ignore:
   - napari_hub_cli/formatting.py
+  - napari_hub_cli/cli.py
 coverage:
   status:
     project:
