@@ -25,8 +25,8 @@ SETUP_META = YML_META + [
 ]
 SETUP_CFG_SOURCES = (
     [("metadata", "author")]
-    + YML_SOURCES[1:]
     + [("metadata", "url")]
+    + YML_SOURCES[2:]
     + [("metadata", "name")]
     + [("metadata", "summary")]
     + [("metadata", "license")]
@@ -47,3 +47,63 @@ FIELDS = SETUP_META + [
     "Requirements",
     "Version",
 ]
+
+FILTERABLE = [
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    False,
+    True,
+    True,
+    False,
+    False,
+]
+
+SORTABLE = [
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+]
+
+SEARCHED = [
+    True,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    False,
+    False,
+    True,
+    False,
+    False,
+    False,
+    False,
+]
+
+USES = zip(FILTERABLE, SORTABLE, SEARCHED)
+HUB_USES = dict(zip(FIELDS, USES))

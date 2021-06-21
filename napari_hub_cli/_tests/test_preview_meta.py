@@ -1,4 +1,3 @@
-from re import L
 from napari_hub_cli.meta_classes import MetaItem
 import os
 import pytest
@@ -6,33 +5,6 @@ from yaml import load
 from .config_enum import CONFIG
 from napari_hub_cli.napari_hub_cli import load_meta
 from napari_hub_cli.constants import FIELDS, PROJECT_URLS, DESC_LENGTH
-import napari_hub_cli
-from pathlib import Path
-
-RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
-
-
-@pytest.fixture
-def make_pkg_dir(tmpdir, request):
-    fn_arg_marker = request.node.get_closest_marker("required_configs")
-    if fn_arg_marker:
-        needed_configs = fn_arg_marker.args[0]
-    else:
-        needed_configs = CONFIG
-
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    for cfg in needed_configs:
-        fn = cfg.value
-        if isinstance(fn, tuple):
-            if not os.path.exists(os.path.join(root_dir, fn[0])):
-                new_fn = root_dir.mkdir(fn[0]).join(fn[1])
-                current_fn = os.path.join(RESOURCES, os.path.join(fn[0], fn[1]))
-        else:
-            new_fn = root_dir.join(fn)
-            current_fn = os.path.join(RESOURCES, fn)
-        with open(current_fn) as template:
-            new_fn.write(template.read())
-    return root_dir
 
 
 @pytest.mark.required_configs([CONFIG.YML])
@@ -62,7 +34,7 @@ def test_config_yml(make_pkg_dir):
     assert key is None
 
 
-@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG, CONFIG.README])
+@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG])
 def test_config_yml_not_overriden(make_pkg_dir):
     root_dir = make_pkg_dir
     meta_dict = load_meta(root_dir)
@@ -228,8 +200,8 @@ from setuptools import setup
 
 setup(
     name = 'test-plugin-name',
+    url = '{proj_site}',
     project_urls = {{ 
-        'Project Site': '{proj_site}',
         'Twitter': '{twitter}',
         'Bug Tracker': '{bug_tracker}'
         }}

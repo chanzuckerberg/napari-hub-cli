@@ -1,3 +1,4 @@
+from requests.exceptions import MissingSchema
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
 import os
 from yaml import full_load
@@ -23,8 +24,6 @@ from .constants import (
     SETUP_CFG_INFO,
     SETUP_PY_INFO,
     YML_INFO,
-    # all field names
-    FIELDS,
 )
 import parsesetup
 
@@ -36,12 +35,13 @@ def load_meta(pth):
     if os.path.exists(desc_pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
-            trimmed_desc = full_desc[:DESC_LENGTH]
-            if len(trimmed_desc) == DESC_LENGTH:
-                trimmed_desc += "..."
-            desc_source = MetaSource(DESC_PTH)
-            desc_item = MetaItem("Description", trimmed_desc, desc_source)
-            meta_dict[desc_item.field_name] = desc_item
+            if full_desc:
+                trimmed_desc = full_desc[:DESC_LENGTH]
+                if len(trimmed_desc) == DESC_LENGTH:
+                    trimmed_desc += "..."
+                desc_source = MetaSource(DESC_PTH)
+                desc_item = MetaItem("Description", trimmed_desc, desc_source)
+                meta_dict[desc_item.field_name] = desc_item
 
     yml_pth = pth + YML_PTH
     if os.path.exists(yml_pth):
@@ -163,44 +163,47 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
         meta_dict[reqs_item.field_name] = reqs_item
 
 
-def format_meta(meta):
-    rep_str = ""
-    for field in sorted(FIELDS):
-        rep_str += format_field(field, meta)
-    return rep_str
+def get_missing(meta, pth):
+    missing_meta = defaultdict(None)
+    for field, source in YML_INFO:
+        if field not in meta:
+            section, key = source
+            src_item = MetaSource(YML_PTH, section, key)
+            missing_meta[field] = src_item
 
+    if "Description" not in meta:
+        src_item = MetaSource(DESC_PTH)
+        missing_meta["Description"] = src_item
 
-def print_meta_interactive(meta):
-    for field in sorted(FIELDS):
-        rep_str = format_field(field, meta)
-        print(rep_str)
-        input("Enter to continue >>>")
-
-
-def format_field(field, meta):
-    rep_str = f"{'-'*80}\n{field}\n{'-'*80}\n"
-    if field in meta:
-        meta_item = meta[field]
-        val = meta_item.value
-        src = meta_item.source
-        if isinstance(val, list):
-            for i in range(len(val)):
-                rep_str += f"{val[i]}\n"
-        else:
-            rep_str += f"{val}\n"
-        if src:
-            rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
-            if src.src_file:
-                rep_str += f"\t{src.src_file}"
-            if src.section and src.key:
-                rep_str += f": {src.section}, {src.key}"
-            else:
-                if src.section:
-                    rep_str += f": {src.section}"
-                if src.key:
-                    rep_str += f": {src.key}"
-            rep_str += "\n"
+    cfg_pth = pth + SETUP_CFG_PTH
+    py_pth = pth + SETUP_PY_PTH
+    # if we already have a cfg or if we don't have setup.py
+    if os.path.exists(cfg_pth) or not os.path.exists(py_pth):
+        suggested_cfg = SETUP_CFG_PTH
+        cfg_info = SETUP_CFG_INFO
     else:
-        rep_str += f"\t~~Not Found~~\n"
-    rep_str += "\n"
-    return rep_str
+        suggested_cfg = SETUP_PY_PTH
+        cfg_info = SETUP_PY_INFO
+    
+    for field, src in cfg_info:
+        if field not in meta and field not in missing_meta:
+            section, key = src
+            src_item = MetaSource(suggested_cfg, section, key)
+            missing_meta[field] = src_item
+
+    for field in ["Operating System","Development Status"]:
+        section = None
+        if field not in meta:
+            if suggested_cfg == SETUP_CFG_PTH:
+                section = 'metadata'
+            src_item = MetaSource(suggested_cfg, section, 'classifiers')
+            missing_meta[field] = src_item
+    
+    section = None
+    if "Requirements" not in meta:
+        if suggested_cfg == SETUP_CFG_PTH:
+            section = 'options'
+        src_item = MetaSource(suggested_cfg, section, 'install_requires')
+        missing_meta["Requirements"] = src_item        
+
+    return missing_meta
