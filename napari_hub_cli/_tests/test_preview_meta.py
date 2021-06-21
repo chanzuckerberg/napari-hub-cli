@@ -215,6 +215,7 @@ setup(
         assert key in meta
         assert meta[key].value == value
 
+
 def test_setup_cfg_proj_urls(tmpdir):
     root_dir = tmpdir.mkdir("test-plugin-name")
     setup_cfg_file = root_dir.join("setup.cfg")
@@ -238,6 +239,7 @@ project_urls =
         assert key in meta
         assert meta[key].value == value
 
+
 def test_source_code_url(tmpdir):
     root_dir = tmpdir.mkdir("test-plugin-name")
     setup_py_file = root_dir.join("setup.py")
@@ -257,4 +259,4 @@ setup(
     meta = load_meta(root_dir)
     assert "Project Site" not in meta
     assert "Source Code" in meta
-    assert meta["Source Code"].value == proj_site    
+    assert meta["Source Code"].value == proj_site

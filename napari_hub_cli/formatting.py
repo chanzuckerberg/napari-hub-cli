@@ -5,6 +5,7 @@ from .constants import (
     HUB_USES,
 )
 
+
 def format_missing(missing_meta):
     rep_str = ""
     for field, suggested_source in missing_meta.items():
@@ -28,13 +29,15 @@ def format_missing_field(field, suggested_source):
     rep_str += "\n"
     return rep_str
 
+
 def print_missing_interactive(missing_meta):
     for field, suggested_source in missing_meta.items():
         rep_str = format_missing_field(field, suggested_source)
         print(rep_str)
-        quit = input("Enter to continue (any to quit)>>>")    
+        quit = input("Enter to continue (any to quit)>>>")
         if quit:
             break
+
 
 def format_meta(meta, missing_meta):
     rep_str = ""
@@ -47,9 +50,10 @@ def print_meta_interactive(meta, missing_meta):
     for field in sorted(FIELDS):
         rep_str = format_field(field, meta, missing_meta)
         print(rep_str)
-        quit = input("Enter to continue (any to quit)>>>")    
+        quit = input("Enter to continue (any to quit)>>>")
         if quit:
             break
+
 
 def format_source(src):
     rep_str = ""

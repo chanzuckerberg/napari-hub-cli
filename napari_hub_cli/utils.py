@@ -120,17 +120,17 @@ def split_dangling_list(dangling_list_str):
 
 
 def split_project_urls(config):
-    if 'metadata' in config.sections() and 'project_urls' in config['metadata']:
-        url_str = config['metadata']['project_urls']
-        del config['metadata']['project_urls']
+    if "metadata" in config.sections() and "project_urls" in config["metadata"]:
+        url_str = config["metadata"]["project_urls"]
+        del config["metadata"]["project_urls"]
 
         url_list = split_dangling_list(url_str)
         url_dict = {}
         for url in url_list:
             split_url = url.split(" = ")
             url_dict[split_url[0]] = split_url[1]
-        
-        config['project_urls'] = url_dict
+
+        config["project_urls"] = url_dict
 
 
 def is_canonical(version):
