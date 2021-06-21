@@ -2,3 +2,6 @@
 markers = [
     "required_configs: Tests will require given template config files",
 ]
+
+[build-system]
+requires = ["setuptools", "wheel", "numpy"]
