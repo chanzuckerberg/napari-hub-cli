@@ -91,7 +91,8 @@ def test_proj_urls_src(make_pkg_dir):
     f_pth = '/.napari/config.yml'
     section = 'project_urls'
 
-    for url in PROJECT_URLS[1:]:
-        assert url in missing
-        assert (f_pth, section, url) == missing[url].unpack()
+    for url in PROJECT_URLS:
+        if url not in meta:
+            assert url in missing
+            assert (f_pth, section, url) == missing[url].unpack()
 

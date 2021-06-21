@@ -1,4 +1,4 @@
-from requests.exceptions import MissingSchema
+import re
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
 import os
 from yaml import full_load
@@ -17,6 +17,7 @@ from .constants import (
     DESC_LENGTH,
     # paths to various configs from root
     DESC_PTH,
+    GITHUB_PATTERN,
     SETUP_CFG_PTH,
     SETUP_PY_PTH,
     YML_PTH,
@@ -54,6 +55,13 @@ def load_meta(pth):
     py_pth = pth + SETUP_PY_PTH
     if os.path.exists(py_pth):
         read_setup_py(meta_dict, py_pth, pth)
+
+    # napari hub will interpret GitHub URLs as Source Code
+    if "Project Site" in meta_dict:
+        if re.match(GITHUB_PATTERN, meta_dict["Project Site"].value) \
+            and "Source Code" not in meta_dict:
+            meta_dict["Source Code"] = meta_dict["Project Site"]
+            del meta_dict["Project Site"]
 
     return meta_dict
 
