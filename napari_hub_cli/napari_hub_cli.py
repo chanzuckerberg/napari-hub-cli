@@ -188,12 +188,28 @@ def get_missing(meta, pth):
     else:
         suggested_cfg = SETUP_PY_PTH
         cfg_info = SETUP_PY_INFO
-
+    
     for field, src in cfg_info:
         if field not in meta and field not in missing_meta:
             section, key = src
             src_item = MetaSource(suggested_cfg, section, key)
             missing_meta[field] = src_item
+
+    for field in ["Operating System","Development Status"]:
+        section = None
+        if field not in meta:
+            if suggested_cfg == SETUP_CFG_PTH:
+                section = 'metadata'
+            src_item = MetaSource(suggested_cfg, section, 'classifiers')
+            missing_meta[field] = src_item
+    
+    section = None
+    if "Requirements" not in meta:
+        if suggested_cfg == SETUP_CFG_PTH:
+            section = 'options'
+        src_item = MetaSource(suggested_cfg, section, 'install_requires')
+        missing_meta["Requirements"] = src_item        
+
     return missing_meta
 
 

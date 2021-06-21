@@ -20,8 +20,9 @@ def get_long_description(given_meta, root_pth):
             _, desc_pth = tuple(given_meta["long_description"].strip().split(":"))
             desc_pth = desc_pth.rstrip().lstrip()
             readme_pth = os.path.join(root_pth, desc_pth)
-            with open(readme_pth) as desc_file:
-                full_desc = desc_file.read()
+            if os.path.exists(readme_pth):
+                with open(readme_pth) as desc_file:
+                    full_desc = desc_file.read()
         else:
             full_desc = given_meta["long_description"]
     trimmed_desc = full_desc[:DESC_LENGTH]

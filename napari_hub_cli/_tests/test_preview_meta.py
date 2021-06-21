@@ -34,7 +34,7 @@ def test_config_yml(make_pkg_dir):
     assert key is None
 
 
-@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG, CONFIG.README])
+@pytest.mark.required_configs([CONFIG.YML, CONFIG.CFG])
 def test_config_yml_not_overriden(make_pkg_dir):
     root_dir = make_pkg_dir
     meta_dict = load_meta(root_dir)
