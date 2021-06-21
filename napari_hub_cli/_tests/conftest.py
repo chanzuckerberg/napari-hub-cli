@@ -6,6 +6,7 @@ from .config_enum import CONFIG
 
 RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
 
+
 @pytest.fixture
 def make_pkg_dir(tmpdir, request):
     fn_arg_marker = request.node.get_closest_marker("required_configs")

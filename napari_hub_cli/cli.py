@@ -47,6 +47,7 @@ def check_missing(args):
                 formatted_missing = format_missing(missing_meta)
                 print(formatted_missing)
 
+
 def parse_args(args):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()

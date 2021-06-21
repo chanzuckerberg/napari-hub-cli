@@ -11,6 +11,7 @@ from .utils import (
     get_pkg_version,
     is_canonical,
     split_dangling_list,
+    split_project_urls,
 )
 from .constants import (
     # length of description to preview
@@ -37,11 +38,8 @@ def load_meta(pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
             if full_desc:
-                trimmed_desc = full_desc[:DESC_LENGTH]
-                if len(trimmed_desc) == DESC_LENGTH:
-                    trimmed_desc += "..."
                 desc_source = MetaSource(DESC_PTH)
-                desc_item = MetaItem("Description", trimmed_desc, desc_source)
+                desc_item = MetaItem("Description", full_desc, desc_source)
                 meta_dict[desc_item.field_name] = desc_item
 
     yml_pth = pth + YML_PTH
@@ -58,10 +56,19 @@ def load_meta(pth):
 
     # napari hub will interpret GitHub URLs as Source Code
     if "Project Site" in meta_dict:
-        if re.match(GITHUB_PATTERN, meta_dict["Project Site"].value) \
-            and "Source Code" not in meta_dict:
+        if (
+            re.match(GITHUB_PATTERN, meta_dict["Project Site"].value)
+            and "Source Code" not in meta_dict
+        ):
             meta_dict["Source Code"] = meta_dict["Project Site"]
             del meta_dict["Project Site"]
+
+    # trim long description so we're not printing the whole file
+    if "Description" in meta_dict:
+        trimmed_desc = meta_dict["Description"].value
+        if len(trimmed_desc) > DESC_LENGTH:
+            trimmed_desc = trimmed_desc[:DESC_LENGTH] + "..."
+        meta_dict["Description"].value = trimmed_desc
 
     return meta_dict
 
@@ -69,7 +76,7 @@ def load_meta(pth):
 def read_yml_config(meta_dict, yml_path):
     with open(yml_path) as yml_file:
         yml_meta = full_load(yml_file)
-        for field_name, (section, key) in YML_INFO:
+        for field_name, (section, key) in YML_INFO.items():
             if section in yml_meta:
                 if key and key in yml_meta[section]:
                     src = MetaSource(YML_PTH, section, key)
@@ -83,9 +90,12 @@ def read_yml_config(meta_dict, yml_path):
 
 def read_setup_cfg(meta_dict, setup_path, root_pth):
     c_parser = ConfigParser()
+    c_parser.optionxform = str
     c_parser.read(setup_path)
 
-    for field, (section, key) in SETUP_CFG_INFO:
+    split_project_urls(c_parser)
+
+    for field, (section, key) in SETUP_CFG_INFO.items():
         if section in c_parser.sections():
             if key in c_parser[section]:
                 if meta_dict[field] is None:
@@ -99,7 +109,7 @@ def read_setup_cfg(meta_dict, setup_path, root_pth):
 
 def read_setup_py(meta_dict, setup_path, root_pth):
     setup_args = parsesetup.parse_setup(os.path.abspath(setup_path), trusted=True)
-    for field, (section, key) in SETUP_PY_INFO:
+    for field, (section, key) in SETUP_PY_INFO.items():
         if section:
             # project urls are the only fields with a section
             if section in setup_args:
@@ -152,7 +162,7 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
                 version_source = MetaSource(cfg_pth, section, "version")
         version_item.source = version_source
 
-    if meta_dict["Description"] is None:
+    if "Description" not in meta_dict or "file:" in meta_dict["Description"].value:
         long_desc = get_long_description(config, root_pth)
         if long_desc:
             desc_source = MetaSource(cfg_pth, section, "long_description")
@@ -173,7 +183,7 @@ def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
 
 def get_missing(meta, pth):
     missing_meta = defaultdict(None)
-    for field, source in YML_INFO:
+    for field, source in YML_INFO.items():
         if field not in meta:
             section, key = source
             src_item = MetaSource(YML_PTH, section, key)
@@ -192,26 +202,26 @@ def get_missing(meta, pth):
     else:
         suggested_cfg = SETUP_PY_PTH
         cfg_info = SETUP_PY_INFO
-    
-    for field, src in cfg_info:
+
+    for field, src in cfg_info.items():
         if field not in meta and field not in missing_meta:
             section, key = src
             src_item = MetaSource(suggested_cfg, section, key)
             missing_meta[field] = src_item
 
-    for field in ["Operating System","Development Status"]:
+    for field in ["Operating System", "Development Status"]:
         section = None
         if field not in meta:
             if suggested_cfg == SETUP_CFG_PTH:
-                section = 'metadata'
-            src_item = MetaSource(suggested_cfg, section, 'classifiers')
+                section = "metadata"
+            src_item = MetaSource(suggested_cfg, section, "classifiers")
             missing_meta[field] = src_item
-    
+
     section = None
     if "Requirements" not in meta:
         if suggested_cfg == SETUP_CFG_PTH:
-            section = 'options'
-        src_item = MetaSource(suggested_cfg, section, 'install_requires')
-        missing_meta["Requirements"] = src_item        
+            section = "options"
+        src_item = MetaSource(suggested_cfg, section, "install_requires")
+        missing_meta["Requirements"] = src_item
 
     return missing_meta

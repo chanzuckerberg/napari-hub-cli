@@ -1,9 +1,7 @@
 import re
-import re
 import glob
 import codecs
 import os
-from .constants import DESC_LENGTH
 
 
 def flatten(config_parser):
@@ -25,10 +23,7 @@ def get_long_description(given_meta, root_pth):
                     full_desc = desc_file.read()
         else:
             full_desc = given_meta["long_description"]
-    trimmed_desc = full_desc[:DESC_LENGTH]
-    if len(trimmed_desc) and len(trimmed_desc) == DESC_LENGTH:
-        trimmed_desc += "..."
-    return trimmed_desc
+    return full_desc
 
 
 def parse_setuptools_version(f_pth):
@@ -122,6 +117,20 @@ def split_dangling_list(dangling_list_str):
     str_trimmed = dangling_list_str.lstrip().rstrip()
     val_list = str_trimmed.split("\n")
     return val_list
+
+
+def split_project_urls(config):
+    if "metadata" in config.sections() and "project_urls" in config["metadata"]:
+        url_str = config["metadata"]["project_urls"]
+        del config["metadata"]["project_urls"]
+
+        url_list = split_dangling_list(url_str)
+        url_dict = {}
+        for url in url_list:
+            split_url = url.split(" = ")
+            url_dict[split_url[0]] = split_url[1]
+
+        config["project_urls"] = url_dict
 
 
 def is_canonical(version):
