@@ -3,11 +3,13 @@ import argparse
 import sys
 from .napari_hub_cli import (
     load_meta,
+    get_missing,
+)
+from .formatting import (
     format_meta,
+    format_missing,
     print_meta_interactive,
     print_missing_interactive,
-    get_missing,
-    format_missing,
 )
 import os
 
