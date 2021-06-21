@@ -21,6 +21,7 @@ YML_INFO = list(zip(YML_META, YML_SOURCES))
 SETUP_META = YML_META + [
     "Name",
     "Summary",
+    "Summary",
     "License",
     "Python Version",
 ]
@@ -30,6 +31,7 @@ SETUP_CFG_SOURCES = (
     + YML_SOURCES[2:]
     + [("metadata", "name")]
     + [("metadata", "summary")]
+    + [('metadata', 'description')]
     + [("metadata", "license")]
     + [("options", "python_requires")]
 )
@@ -41,7 +43,7 @@ SETUP_PY_SOURCES = [
 ]
 SETUP_PY_INFO = list(zip(SETUP_META, SETUP_PY_SOURCES))
 
-FIELDS = SETUP_META + [
+FIELDS = list(set(SETUP_META)) + [
     "Description",
     "Operating System",
     "Development Status",
