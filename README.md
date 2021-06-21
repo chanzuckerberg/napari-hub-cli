@@ -32,8 +32,8 @@ When a field is sourced from `setup.py`, it is always an argument to the `setup`
 parse its latest version. The version of your package displayed on
 the napari hub will always be the latest version released on PyPI.
 
-**Project Site** - If your `url` metadata is a GitHub url, it will be displayed as the
-Source Code url instead.
+**Project Site** - If your `url` or `Project Site` metadata is a GitHub url, 
+it will be displayed as the Source Code field instead.
 
 Example output:
 
@@ -50,7 +50,7 @@ Draga Doncila Pop
 --------------------------------------------------------------------------------
 Description
 --------------------------------------------------------------------------------
-This is my napari-hub specific description. It is detailed, and comprehensive (v0.0.4) - extra comprehension.
+This is my napari-hub specific description. It is detailed, and comprehensive.
         ------
         Source
         ------
@@ -99,8 +99,8 @@ or
 $ napari-hub-cli check-missing /tmp/example-plugin -i
 ```
 
-This utility will only display the metadata missing from your plugin, and will also suggest where you can add it, if desired.
-All metadata listed here would be displayed on your plugin's napari hub page. When this metadata might also be used
+This utility will only display the metadata missing from your plugin, and will also suggest where you can add it.
+All metadata listed here will be displayed on your plugin's napari hub page. When this metadata might also be used
 for sorting, filtering or searching for plugins, this information is also displayed.
 
 Example output:
