@@ -2,6 +2,14 @@
 
 Command line utilities for inspecting and validating plugins for the napari hub.
 
+# Installation
+
+From your console, you can install the napari hub CLI through pip
+
+```
+$ pip install napari-hub-cli
+```
+
 # Usage
 
 ## Metadata
