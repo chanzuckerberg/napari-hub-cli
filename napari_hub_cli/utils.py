@@ -33,7 +33,11 @@ def parse_setuptools_version(f_pth):
             if "version=" in trim_line:
                 _, version_number = tuple(trim_line.split("="))
                 delim = '"' if '"' in line else "'"
-                return version_number.split(delim)[1]
+                version_number_split = version_number.split(delim)
+                if len(version_number_split) > 1:
+                    return version_number_split[1]
+                else: 
+                    return None
 
 
 def read(rel_path):
@@ -74,21 +78,22 @@ def get_pkg_version(given_meta, root_pth):
     search_pth = os.path.join(root_pth, "**")
     pkg_files = glob.glob(search_pth, recursive=True)
     for f_pth in pkg_files:
-        mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
-        if mtch:
-            # ends with .py - likely setuptools-scm
-            if mtch.groups()[0] != None:
-                potential_version = parse_setuptools_version(f_pth)
-                if potential_version and is_canonical(potential_version):
-                    return f_pth, potential_version
-            # just a version file with no extension, should be version number only
-            else:
-                with codecs.open(
-                    f_pth, "r", encoding="utf-8", errors="ignore"
-                ) as version_file:
-                    potential_version = version_file.read().strip()
-                    if is_canonical(potential_version):
+        if 'build' not in f_pth and 'dist' not in f_pth:
+            mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
+            if mtch:
+                # ends with .py - likely setuptools-scm
+                if mtch.groups()[0] != None:
+                    potential_version = parse_setuptools_version(f_pth)
+                    if potential_version and is_canonical(potential_version):
                         return f_pth, potential_version
+                # just a version file with no extension, should be version number only
+                else:
+                    with codecs.open(
+                        f_pth, "r", encoding="utf-8", errors="ignore"
+                    ) as version_file:
+                        potential_version = version_file.read().strip()
+                        if is_canonical(potential_version):
+                            return f_pth, potential_version
 
     # version number declared in __init__
     init_files = list(
