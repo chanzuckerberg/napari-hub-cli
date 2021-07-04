@@ -63,8 +63,8 @@ def get_github_license(meta):
     str
         the license spdx identifier, or None
     """
-    if meta["Source Code"] and re.match(GITHUB_PATTERN, meta["Source Code"]):
-        repo_url = meta["Source Code"]
+    if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"].value):
+        repo_url = meta["Source Code"].value
         api_url = repo_url.replace("https://github.com/",
                               "https://api.github.com/repos/")
         try:

@@ -66,6 +66,10 @@ def load_meta(pth):
 
     # see if we can get a license from GitHub API
     github_license = get_github_license(meta_dict)
+    if github_license:
+        license_src = MetaSource("GitHub Repository")
+        license_item = MetaItem("License", github_license, license_src)
+        meta_dict[license_item.field_name] = license_item
 
     # trim long description so we're not printing the whole file
     if "Description" in meta_dict:
