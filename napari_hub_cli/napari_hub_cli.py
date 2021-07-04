@@ -7,6 +7,7 @@ from collections import defaultdict
 from .utils import (
     flatten,
     filter_classifiers,
+    get_github_license,
     get_long_description,
     get_pkg_version,
     is_canonical,
@@ -62,6 +63,9 @@ def load_meta(pth):
         ):
             meta_dict["Source Code"] = meta_dict["Project Site"]
             del meta_dict["Project Site"]
+
+    # see if we can get a license from GitHub API
+    github_license = get_github_license(meta_dict)
 
     # trim long description so we're not printing the whole file
     if "Description" in meta_dict:

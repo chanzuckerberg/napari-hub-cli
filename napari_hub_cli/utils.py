@@ -2,6 +2,11 @@ import re
 import glob
 import codecs
 import os
+import json
+import requests
+from requests.exceptions import HTTPError
+
+from .constants import GITHUB_PATTERN
 
 
 def flatten(config_parser):
@@ -43,6 +48,34 @@ def parse_setuptools_version(f_pth):
 def read(rel_path):
     with codecs.open(rel_path, "r") as fp:
         return fp.read()
+
+
+def get_github_license(meta):
+    """Use Source Code field to get license from GitHub repo
+
+    Parameters
+    ----------
+    meta : dict
+        dictionary of loaded metadata
+
+    Returns
+    -------
+    str
+        the license spdx identifier, or None
+    """
+    if meta["Source Code"] and re.match(GITHUB_PATTERN, meta["Source Code"]):
+        repo_url = meta["Source Code"]
+        api_url = repo_url.replace("https://github.com/",
+                              "https://api.github.com/repos/")
+        try:
+            response = requests.get(f'{api_url}/license')
+            if response.status_code != requests.codes.ok:
+                response.raise_for_status()
+            response_json = json.loads(response.text.strip())
+            if 'license' in response_json and 'spdx_id' in response_json['license']: 
+                return response_json['license']["spdx_id"]
+        except HTTPError:
+            return None
 
 
 def get_init_version(rel_path):
