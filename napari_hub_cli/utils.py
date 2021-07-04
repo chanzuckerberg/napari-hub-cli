@@ -41,7 +41,7 @@ def parse_setuptools_version(f_pth):
                 version_number_split = version_number.split(delim)
                 if len(version_number_split) > 1:
                     return version_number_split[1]
-                else: 
+                else:
                     return None
 
 
@@ -65,15 +65,18 @@ def get_github_license(meta):
     """
     if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"].value):
         repo_url = meta["Source Code"].value
-        api_url = repo_url.replace("https://github.com/",
-                              "https://api.github.com/repos/")
+        api_url = repo_url.replace(
+            "https://github.com/", "https://api.github.com/repos/"
+        )
         try:
-            response = requests.get(f'{api_url}/license')
+            response = requests.get(f"{api_url}/license")
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()
             response_json = json.loads(response.text.strip())
-            if 'license' in response_json and 'spdx_id' in response_json['license']: 
-                return response_json['license']["spdx_id"]
+            if "license" in response_json and "spdx_id" in response_json["license"]:
+                spdx_id = response_json["license"]["spdx_id"]
+                if spdx_id != "NOASSERTION":
+                    return spdx_id
         except HTTPError:
             return None
 
@@ -111,7 +114,7 @@ def get_pkg_version(given_meta, root_pth):
     search_pth = os.path.join(root_pth, "**")
     pkg_files = glob.glob(search_pth, recursive=True)
     for f_pth in pkg_files:
-        if 'build' not in f_pth and 'dist' not in f_pth:
+        if "build" not in f_pth and "dist" not in f_pth:
             mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
             if mtch:
                 # ends with .py - likely setuptools-scm

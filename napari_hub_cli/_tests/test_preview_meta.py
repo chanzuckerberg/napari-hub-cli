@@ -8,6 +8,7 @@ from napari_hub_cli.meta_classes import MetaItem
 
 DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
 
+
 @pytest.mark.required_configs([CONFIG.YML])
 def test_config_yml(make_pkg_dir):
     root_dir = make_pkg_dir
@@ -262,19 +263,21 @@ setup(
     assert "Source Code" in meta
     assert meta["Source Code"].value == proj_site
 
+
 def test_github_license():
     meta = {}
     meta["Source Code"] = MetaItem("Source Code", DEMO_GITHUB_REPO)
-    
+
     github_api_license = get_github_license(meta)
     assert github_api_license == "BSD-3-Clause"
+
 
 def test_github_license_overrides_local(tmpdir):
     root_dir = tmpdir.mkdir("test-plugin-name")
     setup_cfg_file = root_dir.join("setup.cfg")
 
     setup_cfg_file.write(
-    f"""
+        f"""
 [metadata]
 license = MIT
 project_urls =
@@ -284,6 +287,6 @@ project_urls =
     meta = load_meta(root_dir)
 
     assert "License" in meta
-    license_src = meta["License"].source 
+    license_src = meta["License"].source
     assert license_src.src_file == "GitHub Repository"
-    assert meta["License"].value == 'BSD-3-Clause'    
+    assert meta["License"].value == "BSD-3-Clause"
