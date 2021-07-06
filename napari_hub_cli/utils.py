@@ -63,13 +63,18 @@ def get_github_license(meta):
     str
         the license spdx identifier, or None
     """
+    github_token = os.environ.get('GITHUB_TOKEN')
+    auth_header = None
+    if github_token:
+        auth_header = {'Authorization': f'token {github_token}'}
+
     if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"].value):
         repo_url = meta["Source Code"].value
         api_url = repo_url.replace(
             "https://github.com/", "https://api.github.com/repos/"
         )
         try:
-            response = requests.get(f"{api_url}/license")
+            response = requests.get(f"{api_url}/license", headers=auth_header)
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()
             response_json = json.loads(response.text.strip())
