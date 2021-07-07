@@ -92,7 +92,7 @@ https://github.com/DragaDoncila/example-plugin/issues
         /.napari/config.yml: project_urls, User Support
 ```
 
-You can then use `check-metadata` to get a display of just the missing metadata. 
+You can then use `check-missing` to get a display of just the missing metadata. 
 See [Customizing Your Plugin Listing](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md) for a detailed guide on how you can add this metadata
 to your project.
 
