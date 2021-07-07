@@ -1,10 +1,12 @@
-from napari_hub_cli.meta_classes import MetaItem
 import os
 import pytest
-from yaml import load
 from .config_enum import CONFIG
 from napari_hub_cli.napari_hub_cli import load_meta
 from napari_hub_cli.constants import FIELDS, PROJECT_URLS, DESC_LENGTH
+from napari_hub_cli.utils import get_github_license
+from napari_hub_cli.meta_classes import MetaItem
+
+DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
 
 
 @pytest.mark.required_configs([CONFIG.YML])
@@ -260,3 +262,31 @@ setup(
     assert "Project Site" not in meta
     assert "Source Code" in meta
     assert meta["Source Code"].value == proj_site
+
+
+def test_github_license():
+    meta = {}
+    meta["Source Code"] = MetaItem("Source Code", DEMO_GITHUB_REPO)
+
+    github_api_license = get_github_license(meta)
+    assert github_api_license == "BSD-3-Clause"
+
+
+def test_github_license_overrides_local(tmpdir):
+    root_dir = tmpdir.mkdir("test-plugin-name")
+    setup_cfg_file = root_dir.join("setup.cfg")
+
+    setup_cfg_file.write(
+        f"""
+[metadata]
+license = MIT
+project_urls =
+    Source Code = {DEMO_GITHUB_REPO}
+"""
+    )
+    meta = load_meta(root_dir)
+
+    assert "License" in meta
+    license_src = meta["License"].source
+    assert license_src.src_file == "GitHub Repository"
+    assert meta["License"].value == "BSD-3-Clause"
