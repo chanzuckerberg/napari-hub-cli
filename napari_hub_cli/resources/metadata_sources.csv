@@ -2,11 +2,11 @@ Field,YML,CFG,PY,YML_Section,YML_Key,CFG_Section,CFG_Key,PY_Section,PY_Key
 Authors,True,True,True,authors,None,metadata,author,None,author
 Bug Tracker,True,True,True,project_urls,Bug Tracker,project_urls,Bug Tracker,project_urls,Bug Tracker
 Description,False,True,True,None,None,metadata,long_description,None,long_description
-Development Status,False,True,True,None,None,metadata,classifiers,None,classifiers
+Development Status,False,True,True,None,None,None,None,None,None
 Documentation,True,True,True,project_urls,Documentation,project_urls,Documentation,project_urls,Documentation
 License,False,True,True,None,None,metadata,license,None,license
 Name,False,True,True,None,None,metadata,name,None,name
-Operating System,False,True,True,None,None,metadata,classifiers,None,classifiers
+Operating System,False,True,True,None,None,None,None,None,None
 Project Site,True,True,True,project_urls,Project Site,metadata,url,None,url
 Python Version,False,True,True,None,None,options,python_requires,None,python_requires
 Requirements,False,True,True,None,None,options,install_requires,None,install_requires
