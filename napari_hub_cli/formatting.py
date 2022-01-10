@@ -1,11 +1,8 @@
 """This file contains utility functions for formatting and printing metadata"""
 
-from .constants import (
-    # all field names
-    FIELDS,
-    # how each field is used on the hub (filterable, sortable, searched)
-    HUB_USES,
-)
+from .constants import FIELDS  # all field names;
+from .constants import \
+    HUB_USES  # how each field is used on the hub (filterable, sortable, searched)
 
 
 def format_missing(missing_meta):
@@ -14,7 +11,7 @@ def format_missing(missing_meta):
     Parameters
     ----------
     missing_meta : Dict[str, str]
-        Dictionary of field name to suggested source (file, section, key) for all missing metadata
+        Field name to suggested source (file, section, key) for all missing metadata
 
     Returns
     -------
@@ -47,13 +44,13 @@ def format_missing_field(field, suggested_source):
     rep_str += format_source(suggested_source)
     filterable, sortable, searched = HUB_USES[field]
     if filterable or sortable or searched:
-        rep_str += f"\t{'-'*6}\n\tUsed For\n\t{'-'*6}\n"
+        rep_str += f"\t{'-'*6}\n\tUsed For\n\t{'-'*6}\n"  # noqa
     if filterable:
-        rep_str += f"\tFiltering\n"
+        rep_str += "\tFiltering\n"
     if sortable:
-        rep_str += f"\tSorting\n"
+        rep_str += "\tSorting\n"
     if searched:
-        rep_str += f"\tSearching\n"
+        rep_str += "\tSearching\n"
     rep_str += "\n"
     return rep_str
 
@@ -116,7 +113,7 @@ def format_field(field, meta, missing_meta):
             rep_str += f"\t{'-'*6}\n\tSource\n\t{'-'*6}\n"
             rep_str += format_source(src)
     else:
-        rep_str += f"~~Not Found~~\n"
+        rep_str += "~~Not Found~~\n"
         if field in missing_meta:
             rep_str += f"\t{'-'*6}\n\tSuggested Source\n\t{'-'*6}\n"
             rep_str += format_source(missing_meta[field])

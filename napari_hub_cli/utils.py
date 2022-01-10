@@ -1,8 +1,9 @@
-import re
-import glob
 import codecs
-import os
+import glob
 import json
+import os
+import re
+
 import requests
 from requests.exceptions import HTTPError
 
@@ -105,10 +106,10 @@ def get_github_license(meta):
     str
         the license spdx identifier, or None
     """
-    github_token = os.environ.get('GITHUB_TOKEN')
+    github_token = os.environ.get("GITHUB_TOKEN")
     auth_header = None
     if github_token:
-        auth_header = {'Authorization': f'token {github_token}'}
+        auth_header = {"Authorization": f"token {github_token}"}
 
     if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"].value):
         repo_url = meta["Source Code"].value
@@ -167,7 +168,10 @@ def get_pkg_version(given_meta, root_pth):
         tuple of source, version or None, error message
     """
     version_file_regex = r"^_*version_*(.py)?$"
-    pkg_version = "We could not parse the version of your package. Check PyPi for your latest version."
+    pkg_version = (
+        "We could not parse the version of your package."
+        + " Check PyPi for your latest version."
+    )
 
     # literal version resolved in meta
     if "version" in given_meta:
@@ -182,7 +186,7 @@ def get_pkg_version(given_meta, root_pth):
             mtch = re.match(version_file_regex, os.path.basename(f_pth).lower())
             if mtch:
                 # ends with .py - likely setuptools-scm
-                if mtch.groups()[0] != None:
+                if mtch.groups()[0] is not None:
                     potential_version = parse_setuptools_version(f_pth)
                     if potential_version and is_canonical(potential_version):
                         return f_pth, potential_version
@@ -209,7 +213,7 @@ def get_pkg_version(given_meta, root_pth):
 
 
 def filter_classifiers(classifiers):
-    """Filter list of classifiers to only include Development Status or Operating System 
+    """Filter list of classifiers to only include Development Status or Operating System
 
     Parameters
     ----------
@@ -221,11 +225,9 @@ def filter_classifiers(classifiers):
     Tuple[List, List]
         development status classifier list and operating system classifier list
     """
-    cls_filter = lambda cls: "Development Status" in cls
-    os_filter = lambda cls: "Operating System" in cls
 
-    dev_status = list(filter(cls_filter, classifiers))
-    os_support = list(filter(os_filter, classifiers))
+    dev_status = list(filter(lambda cls: "Development Status" in cls, classifiers))
+    os_support = list(filter(lambda cls: "Operating System" in cls, classifiers))
 
     return dev_status, os_support
 
@@ -289,7 +291,7 @@ def is_canonical(version):
     """
     return (
         re.match(
-            r"^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$",
+            r"^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$",  # noqa
             version,
         )
         is not None

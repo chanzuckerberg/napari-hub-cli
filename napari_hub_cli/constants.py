@@ -1,16 +1,22 @@
 """This file contains constants for finding Python package metadata in a directory"""
-import pandas as pd
 import pathlib
 
-# this csv contains a mapping for each metadata field to all possible sources where it could occur
-# e.g. `Authors` could be in config.yml, setup.cfg or setup.py
-# each file where the field could occur also contains entries for SECTION and KEY within that file
-# e.g. `Authors` is under section `authors`, key `none` in config.yml, but under section `metadata`, key `authors` in setup.cfg
-# we keep this information to be able to tell the user where to find metadata, or add it if it's missing
+import pandas as pd
+
+"""
+this csv contains a mapping for each metadata field to all possible sources
+e.g. `Authors` could be in config.yml, setup.cfg or setup.py
+each possible source file also contains entries for SECTION and KEY within that file
+e.g. `Authors` is under section `authors`, key `none` in config.yml, but under
+section `metadata`, key `authors` in setup.cfg
+we keep this information to be able to tell the user where to find metadata,
+or add it if it's missing
+"""
 SOURCES_CSV = (
     str(pathlib.Path(__file__).parent.absolute()) + "/resources/metadata_sources.csv"
 )
-# this csv maps each field to a bool for whether it is used for searching, filtering and/or sorting on the napari hub
+# this csv maps each field to a bool for whether it is used for searching,
+# filtering and/or sorting on the napari hub
 USAGE_CSV = (
     str(pathlib.Path(__file__).parent.absolute()) + "/resources/metadata_usage.csv"
 )

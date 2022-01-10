@@ -1,18 +1,12 @@
 """Console script for napari_hub_cli."""
 
 import argparse
-import sys
-from .napari_hub_cli import (
-    load_meta,
-    get_missing,
-)
-from .formatting import (
-    format_meta,
-    format_missing,
-    print_meta_interactive,
-    print_missing_interactive,
-)
 import os
+import sys
+
+from .formatting import (format_meta, format_missing, print_meta_interactive,
+                         print_missing_interactive)
+from .napari_hub_cli import get_missing, load_meta
 
 
 def preview_meta(args):

@@ -1,34 +1,19 @@
-import re
 import os
-from yaml import full_load
-from configparser import ConfigParser
+import re
 from collections import defaultdict
-from napari_hub_cli.meta_classes import MetaItem, MetaSource
-from .utils import (
-    flatten,
-    filter_classifiers,
-    get_github_license,
-    get_long_description,
-    get_pkg_version,
-    is_canonical,
-    split_dangling_list,
-    split_project_urls,
-)
-from .constants import (
-    # length of description to preview
-    DESC_LENGTH,
-    # paths to various configs from root
-    DESC_PTH,
-    GITHUB_PATTERN,
-    SETUP_CFG_PTH,
-    SETUP_PY_PTH,
-    YML_PTH,
-    # field names and sources for different metadata
-    SETUP_CFG_INFO,
-    SETUP_PY_INFO,
-    YML_INFO,
-)
+from configparser import ConfigParser
+
 import parsesetup
+from yaml import full_load
+
+from napari_hub_cli.meta_classes import MetaItem, MetaSource
+
+from .constants import (DESC_LENGTH, DESC_PTH, GITHUB_PATTERN, SETUP_CFG_INFO,
+                        SETUP_CFG_PTH, SETUP_PY_INFO, SETUP_PY_PTH, YML_INFO,
+                        YML_PTH)
+from .utils import (filter_classifiers, flatten, get_github_license,
+                    get_long_description, get_pkg_version, is_canonical,
+                    split_dangling_list, split_project_urls)
 
 
 def load_meta(pth):
@@ -146,7 +131,11 @@ def read_setup_cfg(meta_dict, setup_path, root_pth):
     split_project_urls(c_parser)
 
     for field, (section, key) in SETUP_CFG_INFO.items():
-        if field not in meta_dict and section in c_parser.sections() and key in c_parser[section]:
+        if (
+            field not in meta_dict
+            and section in c_parser.sections()
+            and key in c_parser[section]
+        ):
             item_src = MetaSource(SETUP_CFG_PTH, section, key)
             item = MetaItem(field, c_parser[section][key], item_src)
             meta_dict[field] = item
@@ -161,7 +150,7 @@ def read_setup_cfg(meta_dict, setup_path, root_pth):
 def read_setup_py(meta_dict, setup_path, root_pth):
     """Read available metadata from setup.py
 
-    While this function doesn't install the package, the parsesetup library 
+    While this function doesn't install the package, the parsesetup library
     *does* require executing the code in setup.py in order to read the metadata.
     This is executed using `trusted=True` so that users do not have to install docker
     to preview metadata
@@ -197,13 +186,13 @@ def read_setup_py(meta_dict, setup_path, root_pth):
 
 
 def parse_complex_meta(meta_dict, config, root_pth, cfg_pth):
-    """Parse metadata that requires additional handling besides looking for section and key.
+    """Parse metadata requiring additional handling besides section and key.
 
     Development Status: found in a list of classifiers that needs to be filtered
     Operating System: found in a list of classifiers that needs to be filtered
-    Version: we try to look for the version as a literal in setup.py, setup.cfg, __init__.py,
-            or the setuptools generated _version.py
-    Description: could be found as file: file_pth in setup.cfg, attempt to read this file
+    Version: we try to look for the version as a literal in setup.py, setup.cfg,
+    __init__.py, or the setuptools generated _version.py
+    Description: could be found as file:file_pth in setup.cfg or literal string
     Requirements: could be a list of requirements or a string which needs splitting
 
 

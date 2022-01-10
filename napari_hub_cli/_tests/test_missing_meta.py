@@ -1,7 +1,9 @@
 import pytest
-from .config_enum import CONFIG
-from napari_hub_cli.napari_hub_cli import get_missing, load_meta
+
 from napari_hub_cli.constants import FIELDS, PROJECT_URLS, YML_META
+from napari_hub_cli.napari_hub_cli import get_missing, load_meta
+
+from .config_enum import CONFIG
 
 
 def assert_cfg_src(meta, missing):
@@ -17,7 +19,7 @@ def test_suggested_src_cfg(tmpdir):
     root_dir = tmpdir.mkdir("test-plugin-name")
     setup_cfg_file = root_dir.join("setup.cfg")
     setup_cfg_file.write(
-        f"""
+        """
 [metadata]
 name = test-plugin-name
     """
@@ -54,7 +56,7 @@ def test_setup_py_no_cfg_suggest_py(tmpdir):
     setup_py_file = root_dir.join("setup.py")
 
     setup_py_file.write(
-        f"""
+        """
 from setuptools import setup
 
 setup(

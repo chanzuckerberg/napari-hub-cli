@@ -1,7 +1,10 @@
-import napari_hub_cli
-from pathlib import Path
 import os
+from pathlib import Path
+
 import pytest
+
+import napari_hub_cli
+
 from .config_enum import CONFIG
 
 RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
