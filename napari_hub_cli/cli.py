@@ -1,4 +1,5 @@
 """Console script for napari_hub_cli."""
+
 import argparse
 import sys
 from .napari_hub_cli import (
@@ -15,6 +16,13 @@ import os
 
 
 def preview_meta(args):
+    """Takes args.plugin_path and prints current and missing metadata
+
+    Parameters
+    ----------
+    args : List[str]
+        list of command line arguments
+    """
     pth = args.plugin_path
     if not os.path.exists(pth):
         print(f"Nothing found at path: {pth}")
@@ -32,6 +40,13 @@ def preview_meta(args):
 
 
 def check_missing(args):
+    """Check and print missing metadata for plugin at args.plugin_path
+
+    Parameters
+    ----------
+    args : List[str]
+        List of command line arguments
+    """
     pth = args.plugin_path
     if not os.path.exists(pth):
         print(f"Nothing found at path: {pth}")

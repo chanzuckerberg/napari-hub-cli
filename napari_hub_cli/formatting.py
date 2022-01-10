@@ -1,3 +1,5 @@
+"""This file contains utility functions for formatting and printing metadata"""
+
 from .constants import (
     # all field names
     FIELDS,
@@ -7,6 +9,18 @@ from .constants import (
 
 
 def format_missing(missing_meta):
+    """Format all missing metadata for printing
+
+    Parameters
+    ----------
+    missing_meta : Dict[str, str]
+        Dictionary of field name to suggested source (file, section, key) for all missing metadata
+
+    Returns
+    -------
+    str
+        formatted missing metadata string
+    """
     rep_str = ""
     for field, suggested_source in missing_meta.items():
         rep_str += format_missing_field(field, suggested_source)
@@ -14,6 +28,20 @@ def format_missing(missing_meta):
 
 
 def format_missing_field(field, suggested_source):
+    """Format a missing metadata field with its name, suggested placement and hub use.
+
+    Parameters
+    ----------
+    field : str
+        name of the metadata field
+    suggested_source : MetaSource
+        suggested file, section and key to add the field
+
+    Returns
+    -------
+    str
+        formatted metadata information
+    """
     rep_str = f"{'-'*80}\nMISSING: {field}\n{'-'*80}\n"
     rep_str += "\tSUGGESTED SOURCE: "
     rep_str += format_source(suggested_source)
@@ -30,32 +58,19 @@ def format_missing_field(field, suggested_source):
     return rep_str
 
 
-def print_missing_interactive(missing_meta):
-    for field, suggested_source in missing_meta.items():
-        rep_str = format_missing_field(field, suggested_source)
-        print(rep_str)
-        quit = input("Enter to continue (any to quit)>>>")
-        if quit:
-            break
-
-
-def format_meta(meta, missing_meta):
-    rep_str = ""
-    for field in sorted(FIELDS):
-        rep_str += format_field(field, meta, missing_meta)
-    return rep_str
-
-
-def print_meta_interactive(meta, missing_meta):
-    for field in sorted(FIELDS):
-        rep_str = format_field(field, meta, missing_meta)
-        print(rep_str)
-        quit = input("Enter to continue (any to quit)>>>")
-        if quit:
-            break
-
-
 def format_source(src):
+    """Format source string using file and section, key if available
+
+    Parameters
+    ----------
+    src : MetaSource
+        source of metadata with file, section and key attributes
+
+    Returns
+    -------
+    str
+        formatted source string
+    """
     rep_str = ""
     if src.src_file:
         rep_str += f"\t{src.src_file}"
@@ -71,6 +86,22 @@ def format_source(src):
 
 
 def format_field(field, meta, missing_meta):
+    """Format a field (included or missing) and its source
+
+    Parameters
+    ----------
+    field : str
+        name of the field to format
+    meta : Dict[str, MetaItem]
+        metadata present for this plugin
+    missing_meta : Dict[str, MetaItem]
+        missing metadata for this plugin
+
+    Returns
+    -------
+    str
+        formatted metadata for this field
+    """
     rep_str = f"{'-'*80}\n{field}\n{'-'*80}\n"
     if field in meta:
         meta_item = meta[field]
@@ -92,3 +123,58 @@ def format_field(field, meta, missing_meta):
 
     rep_str += "\n"
     return rep_str
+
+
+def format_meta(meta, missing_meta):
+    """Format all metadata and missing metadata for this plugin
+
+    Parameters
+    ----------
+    meta : Dict[str, MetaItem]
+        present metadata for this plugin
+    missing_meta : Dict[str, MetaItem]
+        missing metadata for this plugin
+
+    Returns
+    -------
+    str
+        formatted metadata string
+    """
+    rep_str = ""
+    for field in sorted(FIELDS):
+        rep_str += format_field(field, meta, missing_meta)
+    return rep_str
+
+
+def print_missing_interactive(missing_meta):
+    """Print formatted metadata, but wait for input after each field
+
+    Parameters
+    ----------
+    missing_meta : Dict[str, MetaItem]
+        missing metadata for this plugin
+    """
+    for field, suggested_source in missing_meta.items():
+        rep_str = format_missing_field(field, suggested_source)
+        print(rep_str)
+        quit = input("Enter to continue (any to quit)>>>")
+        if quit:
+            break
+
+
+def print_meta_interactive(meta, missing_meta):
+    """Print formatted present and missing metadata, but wait for input after each field
+
+    Parameters
+    ----------
+    meta : Dict[str, MetaItem]
+        present metadata for this plugin
+    missing_meta : Dict[str, MetaItem]
+        missing metadata for this plugin
+    """
+    for field in sorted(FIELDS):
+        rep_str = format_field(field, meta, missing_meta)
+        print(rep_str)
+        quit = input("Enter to continue (any to quit)>>>")
+        if quit:
+            break

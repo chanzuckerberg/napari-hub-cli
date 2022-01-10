@@ -1,9 +1,13 @@
+"""Metadata classes mainly to support the use of named attributes throughout remaining code"""
 from typing import Union, List, Optional, Dict
 
 
 class MetaSource:
     def __init__(
-        self, src_file: str, section: Optional[str] = None, key: Optional[str] = None
+        self, 
+        src_file: str, 
+        section: Optional[str] = None, 
+        key: Optional[str] = None
     ) -> None:
         self.src_file = src_file
         self.section = section
