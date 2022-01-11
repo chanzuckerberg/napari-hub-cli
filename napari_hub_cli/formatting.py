@@ -135,15 +135,16 @@ def format_meta(meta, missing_meta):
     str
         formatted metadata string
     """
-    rep_str = (
-        "~~NOTE: THIS PACKAGE IS NOT MAINTAINED AND THIS METADATA MAY BE OUTDATED.~~\n"
-    )
-    rep_str += (
+    rep_warning = "\n\n\n~~NOTE: THIS PACKAGE IS NOT MAINTAINED AND THIS METADATA MAY BE OUTDATED.~~\n"  # noqa
+    rep_warning += (
         "~~Please use the napari hub preview page service instead:"
-        + " https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md~~\n"  # noqa
+        + " https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md~~\n\n\n"  # noqa
     )
+
+    rep_str = rep_warning
     for field in sorted(FIELDS):
         rep_str += format_field(field, meta, missing_meta)
+    rep_str += rep_warning
     return rep_str
 
 
