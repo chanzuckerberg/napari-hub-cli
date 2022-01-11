@@ -1,8 +1,6 @@
 """This file contains utility functions for formatting and printing metadata"""
 
-from .constants import FIELDS  # all field names;
-from .constants import \
-    HUB_USES  # how each field is used on the hub (filterable, sortable, searched)
+from .constants import FIELDS, HUB_USES
 
 
 def format_missing(missing_meta):
@@ -137,7 +135,13 @@ def format_meta(meta, missing_meta):
     str
         formatted metadata string
     """
-    rep_str = ""
+    rep_str = (
+        "~~NOTE: THIS PACKAGE IS NOT MAINTAINED AND THIS METADATA MAY BE OUTDATED.~~\n"
+    )
+    rep_str += (
+        "~~Please use the napari hub preview page service instead:"
+        + " https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md~~\n"  # noqa
+    )
     for field in sorted(FIELDS):
         rep_str += format_field(field, meta, missing_meta)
     return rep_str
