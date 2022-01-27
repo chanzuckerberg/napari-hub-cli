@@ -1,4 +1,5 @@
-from typing import Union, List, Optional, Dict
+"""Metadata classes mainly to support the use of named attributes"""
+from typing import Dict, List, Optional, Union
 
 
 class MetaSource:

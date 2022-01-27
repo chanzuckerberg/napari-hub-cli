@@ -1,10 +1,13 @@
 import os
+
 import pytest
-from .config_enum import CONFIG
-from napari_hub_cli.napari_hub_cli import load_meta
-from napari_hub_cli.constants import FIELDS, PROJECT_URLS, DESC_LENGTH
-from napari_hub_cli.utils import get_github_license
+
+from napari_hub_cli.constants import DESC_LENGTH, FIELDS, PROJECT_URLS
 from napari_hub_cli.meta_classes import MetaItem
+from napari_hub_cli.napari_hub_cli import load_meta
+from napari_hub_cli.utils import get_github_license
+
+from .config_enum import CONFIG
 
 DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
 
@@ -203,7 +206,7 @@ from setuptools import setup
 setup(
     name = 'test-plugin-name',
     url = '{proj_site}',
-    project_urls = {{ 
+    project_urls = {{
         'Twitter': '{twitter}',
         'Bug Tracker': '{bug_tracker}'
         }}
