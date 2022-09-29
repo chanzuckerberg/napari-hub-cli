@@ -13,10 +13,9 @@ import ruamel.yaml
 
 
 def cff_citation(repo_path):
-
     """
-        ----------
-    The main code works as the following:
+    ----------
+    Works as the following:
     - first checks for BibTex citations in the GitHub Repo's README.md page
     - then checks for APA citations in the GitHub Repo's README.md page
     - If none of the first was found, checks for a DOI in the GitHub Repo's README.md,
@@ -24,14 +23,21 @@ def cff_citation(repo_path):
     - In the case that no citation was found in the README.md page, a warning
     is issued
 
-
     CITATION.CFF format:
     - The first citation that appears references the software
     - The preffered citation, which is the one used in GitHub, references an article/book, preffarably article when both exist
     - when both article and book information exist, book information is written as a sub-reference
 
-        ----------
+    Parameters
+    ----------
+    repo_path : str
+        holds the path to the local repository where the plugin can be found
 
+    Returns
+    -------
+    CITATION.CFF : yaml
+        CITATION.CFF created considering GitHub info and Article/Book info
+    ----------
     """
 
     # get the current GitHub Repository info
@@ -87,7 +93,6 @@ def cff_citation(repo_path):
                 citation_journal )
 
 
-
     #then check if there's any APA citation information in the README.md
     elif bool(get_bibtex_citations(README_LINK))==False and bool(get_apa_citations(README_LINK)):
         
@@ -129,7 +134,6 @@ def cff_citation(repo_path):
                 citation_journal )
 
         
-
         # when no citation information is found, check for an APA formatted DOI
         else:
             print('\n')
@@ -165,7 +169,6 @@ def cff_citation(repo_path):
                 citation_doi, 
                 citation_publisher, 
                 citation_journal )
-
 
 
     else:
