@@ -1,7 +1,7 @@
 
 import re
-from citation_scraper.htmlScraper import *
-from patterns import *
+from create_citation.citation_scraper.htmlScraper import *
+from create_citation.patterns import *
 
 def get_bibtex_citations(link):
     """Collects all BibTex formatted citations existent in the README.md
