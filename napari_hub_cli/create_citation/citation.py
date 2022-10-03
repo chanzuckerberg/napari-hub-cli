@@ -25,8 +25,8 @@ def cff_citation(repo_path):
 
     CITATION.CFF format:
     - The first citation that appears references the software
-    - The preffered citation, which is the one used in GitHub, references an article/book, preffarably article when both exist
-    - when both article and book information exist, book information is written as a sub-reference
+    - The preffered citation, which is the one used in GitHub, references an article/publisher, preffarably article when both exist
+    - when both article and publisher information exist, publisher information is written as a sub-reference
 
     Parameters
     ----------
@@ -36,7 +36,7 @@ def cff_citation(repo_path):
     Returns
     -------
     CITATION.CFF : yaml
-        CITATION.CFF created considering GitHub info and Article/Book info
+        CITATION.CFF created considering GitHub info and Article/publisher info
     ----------
     """
 

@@ -19,15 +19,15 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
     given_names : dict[str]
         from the authors present, holds only the given names for said authors
     title : dict[str]
-        title of the article/book cited in the README.md
+        title of the article/publisher cited in the README.md
     year : dict[str]
-        year of release of the article/book cited in the README.md
+        year of release of the article/publisher cited in the README.md
     url : dict[str]
-        URL of the article/book cited in the README.md
+        URL of the article/publisher cited in the README.md
     doi : dict[str]
-        DOI of the article/book cited in the README.md
+        DOI of the article/publisher cited in the README.md
     publisher : dict[str]
-        publisher of the book cited in the README.md
+        publisher of the publisher cited in the README.md
     journal : dict[str]
         journal of the article cited in the README.md
 
@@ -82,6 +82,7 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
     
     #if existent, add a book reference as the preferred citation
     if bool(publisher) and bool(journal) == False:
+        publisher = ''.join(map(str, publisher))
 
         publisher_dict_file = {'preferred-citation': 
                         {'type': 'book', 'publisher': publisher}}
@@ -90,12 +91,15 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
         
         #adding title of the book citation, if existent
         if bool(title):
+            title = ''.join(map(str, title))
             pub['title'] = title
         #adding DOI of the book citation, if existent
         if(bool(doi)):
+            doi = ''.join(map(str, doi))
             pub['doi'] = doi
         #adding URL of the book citation, if existent
         if(bool(url)):
+            url = ''.join(map(str, url))
             pub['url'] = url
         #adding authors of the book citation, if existent
         if bool(family_names):
@@ -116,6 +120,7 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
                                 dict_file[key] = value
     #if existent, add a book reference as the preferred citation
     if bool(journal) and bool(publisher)== False:
+        journal = ''.join(map(str, journal))
 
         journal_dict_file = {'preferred-citation': 
                         {'type': 'journal', 'journal': journal}}
@@ -124,12 +129,15 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
 
         #adding title of the article citation, if existent
         if(bool(title)):
+            title = ''.join(map(str, title))
             journ['title'] = title
         #adding DOI of the article citation, if existent
         if(bool(doi)):
+            doi = ''.join(map(str, doi))
             journ['doi'] = doi
         #adding URL of the article citation, if existent
         if(bool(url)):
+            url = ''.join(map(str, url))
             journ['url'] = url
         #adding authors of the article citation, if existent
         if bool(family_names):
@@ -151,6 +159,8 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
     #if both journal and publisher ingormation exist, add an article reference as 
     #the preferred citation and a book reference as a sub-reference
     if bool(journal) and bool(publisher):
+        journal = ''.join(map(str, journal))
+        publisher = ''.join(map(str, publisher))
         journal_dict_file = {'preferred-citation': 
                         {'type': 'journal', 'journal': journal}}
 
@@ -158,12 +168,15 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
 
         #adding authors of the article citation, if existent
         if(bool(title)):
+            title = ''.join(map(str, title))
             journ['title'] = title
         #adding DOI of the article citation, if existent    
         if(bool(doi)):
+            doi = ''.join(map(str, doi))
             journ['doi'] = doi
         #adding URL of the article citation, if existent
         if(bool(url)):
+            url = ''.join(map(str, url))
             journ['url'] = url
         #adding authors of the article citation, if existent
         if bool(family_names):
@@ -185,15 +198,17 @@ def add_to_dict( git_title, git_family_name, git_given_name, git_url,family_name
                                 dict_file[key] = value
         
 
-        publisher_dict_file = {'references': 
-                        {'type': 'book', 'publisher': publisher}}
+        publisher_dict_file = {'references': [
+                        {'type': 'book', 'publisher': publisher}],}
 
-        pub = publisher_dict_file['references']
+        pub = publisher_dict_file['references'][0]
         #adding title of the book citation, if existent
         if(bool(title)):
+            title = ''.join(map(str, title))
             pub['title'] = title
         #adding DOI of the book citation, if existent    
         if(bool(doi)):
+            doi = ''.join(map(str, doi))
             pub['doi'] = doi
         #adding field(s) to the base cff
         for key, value in publisher_dict_file.items():
