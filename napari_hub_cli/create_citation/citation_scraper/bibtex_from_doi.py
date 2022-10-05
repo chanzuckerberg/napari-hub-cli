@@ -1,9 +1,9 @@
 
 import urllib.request
-from create_citation.citation_scraper.htmlScraper import *
+from .htmlScraper import *
 import re
 import requests
-from create_citation.patterns import *
+from ..patterns import *
 
 
 def get_bibtext(doi, cache={}):

@@ -1,6 +1,6 @@
 
 import git
-from create_citation.patterns import *
+from ..patterns import *
 import re
 
 def getGitInfo(repo_path):

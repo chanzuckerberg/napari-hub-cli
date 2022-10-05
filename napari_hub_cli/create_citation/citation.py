@@ -1,11 +1,11 @@
-from create_citation.citation_scraper.bibtexCitation import *
-from create_citation.citation_scraper.apaCitation import *
-from create_citation.citation_scraper.bibtex_from_doi import *
-from create_citation.create_dict import *
+from .citation_scraper.bibtexCitation import *
+from .citation_scraper.apaCitation import *
+from .citation_scraper.bibtex_from_doi import *
+from .create_dict import *
 import yaml
 import warnings
-from create_citation.patterns import *
-from create_citation.citation_scraper.githubInfo import *
+from .patterns import *
+from .citation_scraper.githubInfo import *
 import os
 from ruamel.yaml import YAML
 import ruamel.yaml

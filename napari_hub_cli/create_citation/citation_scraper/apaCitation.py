@@ -1,6 +1,6 @@
-from create_citation.citation_scraper.htmlScraper import *
+from .htmlScraper import *
 import re
-from create_citation.patterns import *
+from ..patterns import *
 
 
 def get_apa_citations(link):
