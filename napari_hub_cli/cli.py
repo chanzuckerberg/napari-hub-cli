@@ -58,6 +58,13 @@ def check_missing(args):
 
 
 def create_citation(args):
+    """Creates the CFF citation for the plugin at args.plugin_path
+
+    Parameters
+    ----------
+    args : List[str]
+        List of command line arguments
+    """
     from create_citation.citation import cff_citation
 
     pth = args.plugin_path
