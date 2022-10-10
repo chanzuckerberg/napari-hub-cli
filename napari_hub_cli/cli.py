@@ -8,8 +8,6 @@ from .formatting import (format_meta, format_missing, print_meta_interactive,
                          print_missing_interactive)
 from .napari_hub_cli import get_missing, load_meta
 
-from .create_citation.citation import cff_citation
-
 
 def preview_meta(args):
     """Takes args.plugin_path and prints current and missing metadata
@@ -58,7 +56,10 @@ def check_missing(args):
                 formatted_missing = format_missing(missing_meta)
                 print(formatted_missing)
 
+
 def create_citation(args):
+    from create_citation.citation import cff_citation
+
     pth = args.plugin_path
     if not os.path.exists(pth):
         print(f"Nothing found at path: {pth}")
