@@ -65,28 +65,28 @@ def intro_metadata_descriptionfile(soup):
     return(intro_paragraph_check)
 
 
-repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
-print('\n')
+# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
+# print('\n')
 
-x_soup = description_soup(repo_path)
-y = screenshot_metadata_descriptionfile(x_soup)
-print('Screenshot found?')
-print(y)
-print('\n')
+# x_soup = description_soup(repo_path)
+# y = screenshot_metadata_descriptionfile(x_soup)
+# print('Screenshot found?')
+# print(y)
+# print('\n')
 
-z = video_metadata_descriptionfile(x_soup)
-print('Video found?')
-print(z)
-print('\n')
-
-
-c = usage_metadata_descriptionfile(x_soup)
-print('Usage section found?')
-print(c)
-print('\n')
+# z = video_metadata_descriptionfile(x_soup)
+# print('Video found?')
+# print(z)
+# print('\n')
 
 
-d = intro_metadata_descriptionfile(x_soup)
-print('Intro paragraph found?')
-print(d)
-print('\n')
+# c = usage_metadata_descriptionfile(x_soup)
+# print('Usage section found?')
+# print(c)
+# print('\n')
+
+
+# d = intro_metadata_descriptionfile(x_soup)
+# print('Intro paragraph found?')
+# print(d)
+# print('\n')

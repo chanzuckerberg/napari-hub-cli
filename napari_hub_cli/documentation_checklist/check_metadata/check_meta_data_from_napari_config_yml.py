@@ -4,7 +4,7 @@ from rich import print
 from rich.console import Console
 
 
-repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
+# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
 
 
 

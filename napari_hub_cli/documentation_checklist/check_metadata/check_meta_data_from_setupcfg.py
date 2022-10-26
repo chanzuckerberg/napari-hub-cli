@@ -3,9 +3,9 @@ from .htmlScraper import *
 from rich import print
 from rich.console import Console
 
-repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
+# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
 
-PYCFG_DISPLAY_NAME_PATTERN = '(?:name\s\=\s)(.*?)(?=\s\n)'
+PYCFG_DISPLAY_NAME_PATTERN = '(?:\sname\s\=\s)(.*?)(?=\s\n)'
 PYCFG_SUMMARY_SENTENCE_PATTERN = '(?:\sdescription\s\=\s)(.*?)(?=\s\n)'
 PYCFG_LONG_DESCRIPTION_PATTERN = '(?:long_description\s\=\s)(.*?)(?=\s\n)'
 PYCFG_SOURCE_CODE_PATTERN = '(?:Source\sCode\s\=\s)(.*?)(?=\s)'
@@ -108,56 +108,64 @@ def usersupport_metadata_cfgfile(scraped_text):
 
 def long_description_file(scraped_text, repo_link):
     console = Console()
-    console.print('Checking setup.cfg long_description associated file....')
+    
 
     long_description_data = re.findall(PYCFG_LONG_DESCRIPTION_PATTERN, scraped_text, flags=re.DOTALL)
-
-    for data in long_description_data:
-        long_description_file = re.findall(FILE_IN_LONG_DESCRIPTION_PATTERN, data, flags=re.DOTALL)
-    
-    if bool(long_description_file):
-       
-        long_description_file = ''.join(long_description_file)
-        LONG_DESCRIPTION_LINK = repo_link + '#%s'%(long_description_file)
-        long_description_soup = get_html(LONG_DESCRIPTION_LINK)
-        link_data_soup = long_description_soup.find_all("article",{'class': 'markdown-body entry-content container-lg'})
-        link_data_soup = link_data_soup[0]
+    link_data_soup = []
+    if(bool(long_description_data)):
+        console.print('Checking setup.cfg long_description associated file....')
+        for data in long_description_data:
+            long_description_file = re.findall(FILE_IN_LONG_DESCRIPTION_PATTERN, data, flags=re.DOTALL)
+            
+            if bool(long_description_file):
+            
+                long_description_file = ''.join(long_description_file)
+                LONG_DESCRIPTION_LINK = repo_link + '#%s'%(long_description_file)
+                long_description_soup = get_html(LONG_DESCRIPTION_LINK)
+                link_data_soup = long_description_soup.find_all("article",{'class': 'markdown-body entry-content container-lg'})
+                link_data_soup = link_data_soup[0]
+            else:
+                LONG_DESCRIPTION_LINK = repo_link + '#readme'
+                long_description_soup = get_html(LONG_DESCRIPTION_LINK)
+                link_data_soup = long_description_soup.find_all("article",{'class': 'markdown-body entry-content container-lg'})
+                link_data_soup = link_data_soup[0]
 
     return link_data_soup
 
 # s = long_description_file(p,l)
 
 def video_metadata_cfgfile(description_file_soup):
-    video_data = description_file_soup.find_all("video")
     intro_video_check = False
-    if len(video_data)>0:
-            intro_video_check = True
+    if(bool(description_file_soup)):
+        video_data = description_file_soup.find_all("video")
+        if len(video_data)>0:
+                intro_video_check = True
     return intro_video_check
 
 # print(video_metadata_cfgfile(s))
 
 def screenshot_metadata_cfgfile(description_file_soup):
     intro_screenshot_check = False
-    screenshot_data = description_file_soup.find_all("img")
-    for data in screenshot_data:
-        # print(data)
-        data = str(data)
-        image_maxwidth_percentage = re.findall(IMAGE_STYLE_PATTERN, data, flags=re.DOTALL)
-        image_width = re.findall(IMAGE_WIDTH_PATTERN, data, flags=re.DOTALL)
-        shields_io_image = re.findall(SHIELDS_IO_PATTERN, data, flags=re.DOTALL)
-        
-        if(bool(image_width) and not bool(shields_io_image)):
-            for i in image_width:
-                width_number = int(str(i))
-                if width_number > 200 :
-                    intro_screenshot_check = True
+    if(bool(description_file_soup)):
+        screenshot_data = description_file_soup.find_all("img")
+        for data in screenshot_data:
+            # print(data)
+            data = str(data)
+            image_maxwidth_percentage = re.findall(IMAGE_STYLE_PATTERN, data, flags=re.DOTALL)
+            image_width = re.findall(IMAGE_WIDTH_PATTERN, data, flags=re.DOTALL)
+            shields_io_image = re.findall(SHIELDS_IO_PATTERN, data, flags=re.DOTALL)
+            
+            if(bool(image_width) and not bool(shields_io_image)):
+                for i in image_width:
+                    width_number = int(str(i))
+                    if width_number > 200 :
+                        intro_screenshot_check = True
 
-        if not bool(image_width) and (bool(image_maxwidth_percentage)and not bool(shields_io_image)):
-            for i in image_maxwidth_percentage:
-                percentage_number = int(str(i))
-                if percentage_number > 30:
-                    intro_screenshot_check = True
-        
+            if not bool(image_width) and (bool(image_maxwidth_percentage)and not bool(shields_io_image)):
+                for i in image_maxwidth_percentage:
+                    percentage_number = int(str(i))
+                    if percentage_number > 30:
+                        intro_screenshot_check = True
         
            
     return intro_screenshot_check
@@ -167,23 +175,25 @@ def screenshot_metadata_cfgfile(description_file_soup):
 
 def usage_metadata_cfgfile(description_file_soup):
     usage_check = False
-    usage_data = description_file_soup.find_all("a", {'href':'#usage'})
-    if bool(usage_data):
-            usage_check = True
+    if(bool(description_file_soup)):
+        usage_data = description_file_soup.find_all("a", {'href':'#usage'})
+        if bool(usage_data):
+                usage_check = True
     return usage_check
 
 # print(usage_metadata_cfgfile(s))
 
 
 def intro_metadata_cfgfile(description_file_soup):
-    possible_intro_paragraph = description_file_soup.select_one('h2').find_all_previous('p', {'dir':'auto'})
-    actual_text_in_p_count = 0
     intro_paragraph_check = False
-    for intro_paragraph in possible_intro_paragraph:
-            if(bool(intro_paragraph.text)):
-                actual_text_in_p_count += + 1
-    if actual_text_in_p_count > 0:
-            intro_paragraph_check = True
+    if(bool(description_file_soup)):
+        possible_intro_paragraph = description_file_soup.select_one('h2').find_all_previous('p', {'dir':'auto'})
+        actual_text_in_p_count = 0
+        for intro_paragraph in possible_intro_paragraph:
+                if(bool(intro_paragraph.text)):
+                    actual_text_in_p_count += + 1
+        if actual_text_in_p_count > 0:
+                intro_paragraph_check = True
 
     return intro_paragraph_check
 

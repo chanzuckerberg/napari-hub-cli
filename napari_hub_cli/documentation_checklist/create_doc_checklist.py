@@ -4,11 +4,12 @@ from rich.progress import track
 from rich.console import Console
 from rich.table import Table
 
-from check_metadata.check_meta_data_from_cfg import *
-from check_metadata.check_meta_data_from_napari_config_yml import *
-from check_metadata.check_meta_data_from_napari_descriptionmd import *
-from check_metadata.check_meta_data_from_npe2config import *
-from check_metadata.check_citation import *
+from .check_metadata.check_meta_data_from_setupcfg import *
+from .check_metadata.check_meta_data_from_pysetup import *
+from .check_metadata.check_meta_data_from_napari_config_yml import *
+from .check_metadata.check_meta_data_from_napari_descriptionmd import *
+from .check_metadata.check_meta_data_from_npe2config import *
+from .check_metadata.check_citation import *
 
 repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/Issue29/CZI-29-test'
 
@@ -18,6 +19,8 @@ def create_checklist(repo):
     
     cfg_scraped_text, git_link = cfg_soup(repo)
     longdescription_scraped_text = long_description_file(cfg_scraped_text,git_link )
+    setupy_scraped_text, git_link = setuppy_soup(repo)
+    longdescription_pysetup_scraped_text = long_description_pysetupfile(setupy_scraped_text, git_link)
     napari_cfg_scraped_text = napari_cfgfile_soup(repo)
     description_scraped_text = description_soup(repo)
     npe2_napari_file = npe2_file_location(repo)
@@ -49,39 +52,39 @@ def create_checklist(repo):
     citation_check = non_checked_element
     citation_column_style = unchecked_style
 
-    if (name_metadata_npe2file(repo,npe2_napari_file) or (name_metadata_cfgfile(cfg_scraped_text)) ):
+    if (name_metadata_npe2file(repo,npe2_napari_file) or (name_metadata_cfgfile(cfg_scraped_text)) or name_metadata_pysetupfile(setupy_scraped_text) ):
         display_name_check = checked_element
         display_name_column_style = checked_style
     
-    if (summary_metadata_cfgfile(cfg_scraped_text)) or (summary_metadata_naparicfg(napari_cfg_scraped_text)):
+    if (summary_metadata_cfgfile(cfg_scraped_text)) or (summary_metadata_naparicfg(napari_cfg_scraped_text) or summary_metadata_pysetupfile(setupy_scraped_text)):
         summary_sentence_check = checked_element
         summary_sentence_column_style = checked_style
    
-    if (sourcecode_metadata_cfgfile(cfg_scraped_text)) or (sourcecode_metadata_naparicfg(napari_cfg_scraped_text)):
+    if (sourcecode_metadata_cfgfile(cfg_scraped_text)) or (sourcecode_metadata_naparicfg(napari_cfg_scraped_text) or sourcecode_metadata_pysetupfile(setupy_scraped_text)):
         sc_link_check = checked_element
         sc_link_column_style = checked_style
 
-    if (author_metadata_cfgfile(cfg_scraped_text)) or (author_metadata_naparicfg(napari_cfg_scraped_text)):
+    if (author_metadata_cfgfile(cfg_scraped_text)) or (author_metadata_naparicfg(napari_cfg_scraped_text) or author_metadata_pysetupfile(setupy_scraped_text)):
         author_name_check = checked_element
         author_name_column_style = checked_style
    
-    if (bug_metadata_cfgfile(cfg_scraped_text)) or (bugtracker_metadata_naparicfg(napari_cfg_scraped_text)):
+    if (bug_metadata_cfgfile(cfg_scraped_text)) or (bugtracker_metadata_naparicfg(napari_cfg_scraped_text) or bug_metadata_pysetupfile(setupy_scraped_text)):
         issue_submission_check = checked_element
         issue_submission_column_style = checked_style  
 
-    if (usersupport_metadata_cfgfile(cfg_scraped_text)) or (usersupport_metadata_naparicfg(napari_cfg_scraped_text)):
+    if (usersupport_metadata_cfgfile(cfg_scraped_text)) or (usersupport_metadata_naparicfg(napari_cfg_scraped_text)) or usersupport_metadata_pysetupfile(setupy_scraped_text):
         support_channel_check = checked_element
         support_channel_column_style = checked_style  
 
-    if (video_metadata_cfgfile(longdescription_scraped_text)) or (video_metadata_descriptionfile(description_scraped_text)or screenshot_metadata_descriptionfile(description_scraped_text)) or (screenshot_metadata_cfgfile(longdescription_scraped_text)):
+    if (video_metadata_cfgfile(longdescription_scraped_text)) or (video_metadata_descriptionfile(description_scraped_text)or screenshot_metadata_descriptionfile(description_scraped_text)) or (screenshot_metadata_cfgfile(longdescription_scraped_text) or screenshot_metadata_pysetupfile(longdescription_pysetup_scraped_text) or video_metadata_pysetupfile(longdescription_pysetup_scraped_text)):
         intro_video_or_screenshot_check = checked_element
         intro_video_or_screenshot_column_style = checked_style
 
-    if (usage_metadata_cfgfile(longdescription_scraped_text)) or (usage_metadata_descriptionfile(description_scraped_text)):
+    if (usage_metadata_cfgfile(longdescription_scraped_text)) or (usage_metadata_descriptionfile(description_scraped_text) or usage_metadata_pysetupfile(longdescription_pysetup_scraped_text)):
         usage_check = checked_element
         usage_column_style = checked_style
 
-    if (intro_metadata_descriptionfile(description_scraped_text)) or (intro_metadata_cfgfile(longdescription_scraped_text)):
+    if (intro_metadata_descriptionfile(description_scraped_text)) or (intro_metadata_cfgfile(longdescription_scraped_text) or intro_metadata_pysetupfile(longdescription_pysetup_scraped_text)):
         intro_paragraph_check = checked_element
         intro_paragraph_column_style = checked_style
     
@@ -119,34 +122,34 @@ def create_checklist(repo):
     intro_paragraph_fallback = False
     author_fallback = False
 
-    if(name_metadata_cfgfile(cfg_scraped_text)) and not name_metadata_npe2file(repo,npe2_napari_file) :
+    if(name_metadata_cfgfile(cfg_scraped_text)) or name_metadata_pysetupfile(setupy_scraped_text)  and not name_metadata_npe2file(repo,npe2_napari_file) :
         # console.print('Display name' + FALLBACK_TEXT, style = 'yellow')
         display_name_fallback = True
-    if(usage_metadata_cfgfile(longdescription_scraped_text)) and not usage_metadata_descriptionfile(description_scraped_text) :
+    if(usage_metadata_cfgfile(longdescription_scraped_text)) or usage_metadata_pysetupfile(longdescription_pysetup_scraped_text) and not usage_metadata_descriptionfile(description_scraped_text) :
         # console.print('Usage ' + FALLBACK_TEXT, style = 'yellow')
         usage_fallback = True
-    if(summary_metadata_cfgfile(cfg_scraped_text)) and not summary_metadata_naparicfg(napari_cfg_scraped_text) :
+    if(summary_metadata_cfgfile(cfg_scraped_text)) or summary_metadata_pysetupfile(setupy_scraped_text) and not summary_metadata_naparicfg(napari_cfg_scraped_text) :
         # console.print('Summary sentence' + FALLBACK_TEXT, style = 'yellow')
         summary_sentence_fallback = True
-    if (sourcecode_metadata_cfgfile(cfg_scraped_text)) and not sourcecode_metadata_naparicfg(napari_cfg_scraped_text):
+    if (sourcecode_metadata_cfgfile(cfg_scraped_text)) or sourcecode_metadata_pysetupfile(setupy_scraped_text) and not sourcecode_metadata_naparicfg(napari_cfg_scraped_text):
         # console.print('Source Code Link ' + FALLBACK_TEXT, style = 'yellow')
         source_code_link_fallback = True
-    if (bug_metadata_cfgfile(cfg_scraped_text)) and not bugtracker_metadata_naparicfg(napari_cfg_scraped_text):
+    if (bug_metadata_cfgfile(cfg_scraped_text)) or bug_metadata_pysetupfile(setupy_scraped_text) and not bugtracker_metadata_naparicfg(napari_cfg_scraped_text):
         # console.print('Bug Tracker Link ' + FALLBACK_TEXT, style = 'yellow')
         bug_tracker_link_fallback = True
-    if (usersupport_metadata_cfgfile(cfg_scraped_text)) and not usersupport_metadata_naparicfg(napari_cfg_scraped_text):
+    if (usersupport_metadata_cfgfile(cfg_scraped_text)) or usersupport_metadata_pysetupfile(setupy_scraped_text) and not usersupport_metadata_naparicfg(napari_cfg_scraped_text):
         # console.print('User Support link' + FALLBACK_TEXT, style = 'yellow')
         user_support_link_fallback = True
-    if (video_metadata_cfgfile(longdescription_scraped_text)) and not video_metadata_descriptionfile(description_scraped_text):
+    if (video_metadata_cfgfile(longdescription_scraped_text)) or video_metadata_pysetupfile(longdescription_pysetup_scraped_text) and not video_metadata_descriptionfile(description_scraped_text):
         # console.print('Video ' + FALLBACK_TEXT, style = 'yellow')
         screenshot_or_video_fallback = True
-    if(intro_metadata_cfgfile(longdescription_scraped_text)) and not intro_metadata_descriptionfile(description_scraped_text) :
+    if(intro_metadata_cfgfile(longdescription_scraped_text)) or intro_metadata_pysetupfile(longdescription_pysetup_scraped_text) and not intro_metadata_descriptionfile(description_scraped_text) :
         # console.print('Intro Paragraph' + FALLBACK_TEXT, style = 'yellow')
         intro_paragraph_fallback = True
-    if (screenshot_metadata_cfgfile(longdescription_scraped_text)) and not screenshot_metadata_descriptionfile(description_scraped_text):
+    if (screenshot_metadata_cfgfile(longdescription_scraped_text)) or  screenshot_metadata_pysetupfile(longdescription_pysetup_scraped_text) and not screenshot_metadata_descriptionfile(description_scraped_text):
         # console.print('Screenshot' + FALLBACK_TEXT, style = 'yellow')
         screenshot_or_video_fallback = True
-    if (author_metadata_cfgfile(cfg_scraped_text)) and not author_metadata_naparicfg(napari_cfg_scraped_text):
+    if (author_metadata_cfgfile(cfg_scraped_text)) or author_metadata_pysetupfile(setupy_scraped_text) and not author_metadata_naparicfg(napari_cfg_scraped_text):
         # console.print('Author Name' + FALLBACK_TEXT, style = 'yellow')
         author_fallback = True
 
@@ -211,5 +214,5 @@ def create_checklist(repo):
 
     return 
 
-create_checklist(repo_path)
+# create_checklist(repo_path)
 
