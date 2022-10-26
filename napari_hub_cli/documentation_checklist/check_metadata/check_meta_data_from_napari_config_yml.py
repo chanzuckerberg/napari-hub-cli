@@ -4,9 +4,6 @@ from rich import print
 from rich.console import Console
 
 
-# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
-
-
 
 NAPARI_CFG_SUMMARY_SENTENCE_PATTERN = '(?:summary\:\s)(.*?)(?=\s\n)'
 NAPARI_CFG_SOURCE_CODE_PATTERN = '(?:Project\sSite\:\s)(.*?)(?=\s)'
@@ -18,6 +15,17 @@ NAPARI_CFG_USER_SUPPORT_PATTERN = '(?:User\sSupport\:\s)(.*?)(?=\s)'
 
         
 def napari_cfgfile_soup(path):
+    """Get the scraped text from napari-hub/config.yml
+    Parameters
+    ----------
+    path : str
+        local path to the plugin
+    
+    Returns
+    -------
+    napari_cfg_scraped_text: str
+        napari-hub/config.yml scraped text
+    """
     console = Console()
     console.print('Checking napari-hub/config.yml file...')
     
@@ -33,23 +41,40 @@ def napari_cfgfile_soup(path):
 
     return napari_cfg_scraped_text
 
-# p = napari_cfgfile_soup(repo_path)
-
 
 
 def summary_metadata_naparicfg(scraped_text):
+    """Checks for Summary Sentence data on the napari-hub/config.yml file
+    Parameters
+    ----------
+    scraped_text : str
+         napari-hub/config.yml scraped text
+    
+    Returns
+    -------
+    summary_sentence_check: bool
+        True if Summary Sentence is found, False on the contrary
+    """
     summary_sentence_data = re.findall(NAPARI_CFG_SUMMARY_SENTENCE_PATTERN, scraped_text, flags=re.DOTALL)
 
     summary_sentence_check = False
     if(bool(summary_sentence_data)):
         summary_sentence_check = True
     return summary_sentence_check
-# print('Summary Sentence found?')
-# print(summary_metadata_naparicfg(p))
-# print('\n')
 
 
 def sourcecode_metadata_naparicfg(scraped_text):
+    """Checks for Source Code Link data on the napari-hub/config.yml file
+    Parameters
+    ----------
+    scraped_text : str
+         napari-hub/config.yml scraped text
+    
+    Returns
+    -------
+    source_code_check: bool
+        True if Source Code Link is found, False on the contrary
+    """
     source_code_data = re.findall(NAPARI_CFG_SOURCE_CODE_PATTERN, scraped_text, flags=re.DOTALL)
 
     source_code_check = False
@@ -57,11 +82,19 @@ def sourcecode_metadata_naparicfg(scraped_text):
         source_code_check = True
     return source_code_check
 
-# print('Source Code link found?')
-# print(sourcecode_metadata_naparicfg(p))
-# print('\n')
 
 def author_metadata_naparicfg(scraped_text):
+    """Checks for Author data on the napari-hub/config.yml file
+    Parameters
+    ----------
+    scraped_text : str
+         napari-hub/config.yml scraped text
+    
+    Returns
+    -------
+    author_check: bool
+        True if Author is found, False on the contrary
+    """
     author_data = re.findall(NAPARI_CFG_AUTHOR_PATTERN, scraped_text, flags=re.DOTALL)
 
     author_check = False
@@ -69,11 +102,19 @@ def author_metadata_naparicfg(scraped_text):
         author_check = True
     return author_check
 
-# print('Author found?')
-# print(author_metadata_naparicfg(p))
-# print('\n')
 
 def usersupport_metadata_naparicfg(scraped_text):
+    """Checks for User Support Link data on the napari-hub/config.yml file
+    Parameters
+    ----------
+    scraped_text : str
+         napari-hub/config.yml scraped text
+    
+    Returns
+    -------
+    user_support_check: bool
+        True if User Support Link is found, False on the contrary
+    """
     user_support_data = re.findall(NAPARI_CFG_USER_SUPPORT_PATTERN, scraped_text, flags=re.DOTALL)
 
     user_support_check = False
@@ -81,11 +122,19 @@ def usersupport_metadata_naparicfg(scraped_text):
         user_support_check = True
     return user_support_check
 
-# print('User Support link found?')
-# print(usersupport_metadata_naparicfg(p))
-# print('\n')
 
 def bugtracker_metadata_naparicfg(scraped_text):
+    """Checks for Bug Tracker Link data on the napari-hub/config.yml file
+    Parameters
+    ----------
+    scraped_text : str
+         napari-hub/config.yml scraped text
+    
+    Returns
+    -------
+    bug_tracker_check: bool
+        True if Bug Tracker Link is found, False on the contrary
+    """
 
     if (bool(re.findall(NAPARI_CFG_BUG_TRACKER_PATTERN, scraped_text, flags=re.DOTALL))):
         bug_tracker_data = re.findall(NAPARI_CFG_BUG_TRACKER_PATTERN, scraped_text, flags=re.DOTALL)
@@ -96,7 +145,4 @@ def bugtracker_metadata_naparicfg(scraped_text):
     if(bool(bug_tracker_data)):
         bug_tracker_check = True    
     return bug_tracker_check
-# print('Bug Tracker link found?')
-# print(bugtracker_metadata_naparicfg(p))
-# print('\n')
 

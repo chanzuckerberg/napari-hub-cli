@@ -3,7 +3,6 @@ from rich import print
 from rich.progress import track
 from rich.console import Console
 from rich.table import Table
-
 from .check_metadata.check_meta_data_from_setupcfg import *
 from .check_metadata.check_meta_data_from_pysetup import *
 from .check_metadata.check_meta_data_from_napari_config_yml import *
@@ -11,10 +10,20 @@ from .check_metadata.check_meta_data_from_napari_descriptionmd import *
 from .check_metadata.check_meta_data_from_npe2config import *
 from .check_metadata.check_citation import *
 
-repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/Issue29/CZI-29-test'
 
 
 def create_checklist(repo):
+    """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
+    Parameters
+    ----------
+    repo : str
+        local path to the plugin
+    
+    Returns
+    -------
+        Console Checklist and Suggestions
+
+    """
     print('\n')
     
     cfg_scraped_text, git_link = cfg_soup(repo)
@@ -208,11 +217,6 @@ def create_checklist(repo):
             console.print('\n'+non_checked_element + checks_array_text[idx] + NOT_FOUND_TEXT, style = 'yellow')
             console.print('  Recommended file location - '+ main_file_array[idx], style = 'white')
 
-    
-
-
-
     return 
 
-# create_checklist(repo_path)
 

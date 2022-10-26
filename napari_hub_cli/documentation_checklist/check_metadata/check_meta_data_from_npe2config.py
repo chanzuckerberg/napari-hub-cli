@@ -5,7 +5,6 @@ from rich.console import Console
 import requests
 
 
-# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
 
 NPE2_DISPLAY_NAME_PATTERN = '(?:\sname\:\s)(.*?)(?=\s\n)'
 NPE2_SETUPCFG_MANIFEST_PATTERN = '(?=napari.manifest\s\=)(.*?)(?:\.yaml\n)'
@@ -20,6 +19,17 @@ NPE2_FOLDER_LOCATION_PATTERN = '(.*?)(?=\/napari\.yaml)'
 
 
 def check_for_file( path: str, name: str) -> bool:
+    """Checks for a specific file in a GitHub repository
+    Parameters
+    ----------
+    path : str
+        local path to the plugin
+    name : str
+        name of the file to look for
+    Returns
+    -------
+    bool: True if the file exists, False if it doesn't
+    """
     git_repo_username,git_repo_name, git_repo_link,git_base_branch = getGitInfo(path)
     try:
             r = requests.get(git_repo_link)
@@ -35,6 +45,17 @@ def check_for_file( path: str, name: str) -> bool:
 
 
 def npe2_file_location(repo_path):
+    """Get the npe2 file name
+    Parameters
+    ----------
+    repo_path : str
+        local path to the plugin
+    
+    Returns
+    -------
+    npe2_file: str
+        npe2 file name
+    """
     console = Console()
     console.print('Checking npe2 file location...')
 
@@ -87,6 +108,19 @@ def npe2_file_location(repo_path):
 
 
 def name_metadata_npe2file(path, npe2file):
+    """Check for Display Name data in the npe2 file
+    Parameters
+    ----------
+    path : str
+        local path to the plugin
+    npe2file : str
+        npe2 file name
+    
+    Returns
+    -------
+    bool(display_name_data): bool
+        True if Display Name is found, False on the contrary
+    """
     console = Console()
 
     git_repo_username,git_repo_name, git_repo_link,git_base_branch = getGitInfo(path)
@@ -109,7 +143,3 @@ def name_metadata_npe2file(path, npe2file):
     display_name_data = re.findall(NPE2_DISPLAY_NAME_PATTERN, npe2_scraped_text, flags=re.DOTALL)
    
     return bool(display_name_data)
-
-
-# npe2_napari_file = npe2_file_location(repo_path)
-# print(name_metadata_npe2file(repo_path, npe2_napari_file))

@@ -6,10 +6,19 @@ from rich import print
 from rich.console import Console
 
 
-# repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/CZI-29-test'
-
 
 def check_for_citation( path: str, name: str) -> bool:
+    """Checks for a specific file in a GitHub repository
+    Parameters
+    ----------
+    path : str
+        local path to the plugin
+    name : str
+        name of the file to look for
+    Returns
+    -------
+    bool: True if the file exists, False if it doesn't
+    """
     console = Console()
     console.print('Checking citation file...')
     git_repo_username,git_repo_name, git_repo_link,git_base_branch = getGitInfo(path)
@@ -25,4 +34,3 @@ def check_for_citation( path: str, name: str) -> bool:
     except Exception:
             return False
 
-# print(check_for_citation( repo_path, 'CITATION.CFF'))
