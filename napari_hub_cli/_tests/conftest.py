@@ -5,6 +5,9 @@ import pytest
 
 import napari_hub_cli
 
+import git
+from git import Repo, rmtree
+
 from .config_enum import CONFIG
 
 RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
@@ -31,3 +34,8 @@ def make_pkg_dir(tmpdir, request):
         with open(current_fn) as template:
             new_fn.write(template.read())
     return root_dir
+
+@pytest.fixture
+def delete_test_repo():
+    yield
+    rmtree('./CZI-29-test')
