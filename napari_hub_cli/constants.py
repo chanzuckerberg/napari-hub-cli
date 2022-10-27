@@ -41,10 +41,10 @@ SOURCES_CSV = f"{_PARENT_PATH}/resources/metadata_sources.csv"
 USAGE_CSV = f"{_PARENT_PATH}/resources/metadata_usage.csv"
 
 # standard paths from root folder to the various metadata files
-DESC_PTH = "/.napari/DESCRIPTION.md"
-YML_PTH = "/.napari/config.yml"
-SETUP_CFG_PTH = "/setup.cfg"
-SETUP_PY_PTH = "/setup.py"
+DESC_PTH = ".napari/DESCRIPTION.md"
+YML_PTH = ".napari/config.yml"
+SETUP_CFG_PTH = "setup.cfg"
+SETUP_PY_PTH = "setup.py"
 
 # max characters to print for the description
 DESC_LENGTH = 250

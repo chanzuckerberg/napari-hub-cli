@@ -169,7 +169,7 @@ def get_pkg_version(given_meta, root_pth):
     version_file_regex = r"^_*version_*(.py)?$"
     pkg_version = (
         "We could not parse the version of your package."
-        + " Check PyPi for your latest version."
+        " Check PyPi for your latest version."
     )
 
     # literal version resolved in meta

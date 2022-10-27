@@ -11,7 +11,7 @@ def assert_cfg_src(meta, missing):
         if field != "Version" and field not in meta:
             assert field in missing
             if field != "Description" and field not in YML_META:
-                assert missing[field].src_file == "/setup.cfg"
+                assert missing[field].src_file == "setup.cfg"
 
 
 def test_cfg_fields_non_empty():
@@ -30,8 +30,8 @@ name = test-plugin-name
     """
     )
 
-    meta = load_meta(f"{root_dir}")
-    missing = get_missing(meta, f"{root_dir}")
+    meta = load_meta(root_dir)
+    missing = get_missing(meta, root_dir)
 
     assert_cfg_src(meta, missing)
 
@@ -70,13 +70,13 @@ setup(
 )
     """
     )
-    meta = load_meta(f"{root_dir}")
-    missing = get_missing(meta, f"{root_dir}")
+    meta = load_meta(root_dir)
+    missing = get_missing(meta, root_dir)
     for field in FIELDS:
         if field not in meta:
             assert field in missing
             if field != "Description" and field not in YML_META:
-                assert missing[field].src_file == "/setup.py"
+                assert missing[field].src_file == "setup.py"
 
 
 def test_no_missing_in_full_config(make_pkg_dir):
@@ -95,7 +95,7 @@ def test_description_src(make_pkg_dir):
 
     assert "Description" in missing
     file_pth, _, _ = missing["Description"].unpack()
-    assert file_pth == "/.napari/DESCRIPTION.md"
+    assert file_pth == ".napari/DESCRIPTION.md"
 
 
 @pytest.mark.required_configs([CONFIG.CFG])
@@ -103,7 +103,7 @@ def test_proj_urls_src(make_pkg_dir):
     root_dir = make_pkg_dir
     meta = load_meta(root_dir)
     missing = get_missing(meta, root_dir)
-    f_pth = "/.napari/config.yml"
+    f_pth = ".napari/config.yml"
     section = "project_urls"
 
     for url in PROJECT_URLS:

@@ -21,7 +21,7 @@ def test_config_yml(make_pkg_dir):
         # all project urls have been read and are sourced from config yml
         assert proj_url in meta_dict
         f_pth, section, key = meta_dict[proj_url].source.unpack()
-        assert f_pth == "/.napari/config.yml"
+        assert f_pth == ".napari/config.yml"
         assert section == "project_urls"
         assert key == proj_url
 
@@ -34,7 +34,7 @@ def test_config_yml(make_pkg_dir):
     assert meta_dict["Authors"].value[0]["name"] == "Jane Doe"
     assert len(meta_dict["Authors"].value) == 2
     f_pth, section, key = meta_dict["Authors"].source.unpack()
-    assert f_pth == "/.napari/config.yml"
+    assert f_pth == ".napari/config.yml"
     assert section == "authors"
     assert key is None
 
@@ -48,7 +48,7 @@ def test_config_yml_not_overriden(make_pkg_dir):
         # all project urls have been read and are sourced from config yml
         assert proj_url in meta_dict
         f_pth, section, key = meta_dict[proj_url].source.unpack()
-        assert f_pth == "/.napari/config.yml"
+        assert f_pth == ".napari/config.yml"
         assert section == "project_urls"
         assert key == proj_url
 
@@ -66,7 +66,7 @@ def test_description_not_overriden(make_pkg_dir):
 
     assert meta_dict["Description"].value == "Test .napari Description."
     f_pth, section, key = meta_dict["Description"].source.unpack()
-    assert f_pth == "/.napari/DESCRIPTION.md"
+    assert f_pth == ".napari/DESCRIPTION.md"
     assert section is None
     assert key is None
 
@@ -78,7 +78,7 @@ def test_cfg_description(make_pkg_dir):
 
     assert meta_dict["Description"].value == "Test README Description."
     f_pth, section, key = meta_dict["Description"].source.unpack()
-    assert f_pth == "/setup.cfg"
+    assert f_pth == "setup.cfg"
     assert section == "metadata"
     assert key == "long_description"
 
@@ -172,7 +172,7 @@ def test_long_description_trimmed(make_pkg_dir):
     desc = root_dir.mkdir(".napari").join("DESCRIPTION.md")
     desc.write(long_desc)
     meta = load_meta(root_dir)
-    assert meta["Description"].source.src_file == "/.napari/DESCRIPTION.md"
+    assert meta["Description"].source.src_file == ".napari/DESCRIPTION.md"
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
 

@@ -51,7 +51,7 @@ def load_meta(pth):
     meta_dict = {}
 
     # try to read .napari/DESCRIPTION.md if available
-    desc_pth = pth + DESC_PTH
+    desc_pth = f"{pth}/{DESC_PTH}"
     if os.path.exists(desc_pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
@@ -61,17 +61,17 @@ def load_meta(pth):
                 meta_dict[desc_item.field_name] = desc_item
 
     # read .napari/config.yml for authors and project urls
-    yml_pth = pth + YML_PTH
+    yml_pth = f"{pth}/{YML_PTH}"
     if os.path.exists(yml_pth):
         read_yml_config(meta_dict, yml_pth)
 
     # read all metadata available in setup.cfg
-    cfg_pth = pth + SETUP_CFG_PTH
+    cfg_pth = f"{pth}/{SETUP_CFG_PTH}"
     if os.path.exists(cfg_pth):
         read_setup_cfg(meta_dict, cfg_pth, pth)
 
     # finally, try to read from setup.py
-    py_pth = pth + SETUP_PY_PTH
+    py_pth = f"{pth}/{SETUP_PY_PTH}"
     if os.path.exists(py_pth):
         read_setup_py(meta_dict, py_pth, pth)
 
@@ -311,8 +311,8 @@ def get_missing(meta, pth):
         src_item = MetaSource(DESC_PTH)
         missing_meta["Description"] = src_item
 
-    cfg_pth = pth + SETUP_CFG_PTH
-    py_pth = pth + SETUP_PY_PTH
+    cfg_pth = f"{pth}/{SETUP_CFG_PTH}"
+    py_pth = f"{pth}/{SETUP_PY_PTH}"
     # if we already have a cfg or if we don't have setup.py, we prefer setup.cfg
     if os.path.exists(cfg_pth) or not os.path.exists(py_pth):
         suggested_cfg = SETUP_CFG_PTH
