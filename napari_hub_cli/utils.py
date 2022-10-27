@@ -3,9 +3,9 @@ import glob
 import json
 import os
 import re
-import setuptools
 
 import requests
+import setuptools
 from requests.exceptions import HTTPError
 
 from .constants import GITHUB_PATTERN

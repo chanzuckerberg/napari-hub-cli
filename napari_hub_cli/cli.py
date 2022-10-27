@@ -4,8 +4,12 @@ import argparse
 import os
 import sys
 
-from .formatting import (format_meta, format_missing, print_meta_interactive,
-                         print_missing_interactive)
+from .formatting import (
+    format_meta,
+    format_missing,
+    print_meta_interactive,
+    print_missing_interactive,
+)
 from .napari_hub_cli import get_missing, load_meta
 
 
