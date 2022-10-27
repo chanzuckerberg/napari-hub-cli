@@ -176,10 +176,11 @@ def test_long_description_trimmed(make_pkg_dir):
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
 
-def test_long_description_cfg(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
-    setup_cfg_file.write(
+def test_long_description_cfg(tmp_path):
+    root_dir = tmp_path / "test-long-description"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 name = test-plugin-name
@@ -187,19 +188,20 @@ long_description = {'*' * DESC_LENGTH*2}
     """
     )
 
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     assert "Description" in meta
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
 
-def test_setup_py_proj_urls(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_setup_py_proj_urls(tmp_path):
+    root_dir = tmp_path / "test-setup-py-proj-urls"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
     proj_site = "https://test-plugin-name.com"
     twitter = "https://twitter.com/test-plugin-name"
     bug_tracker = "https://github.com/user/test-plugin-name"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         f"""
 from setuptools import setup
 
@@ -213,7 +215,7 @@ setup(
 )
     """
     )
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     for key, value in zip(
         ["Project Site", "Bug Tracker", "Twitter"], [proj_site, bug_tracker, twitter]
     ):
@@ -221,14 +223,15 @@ setup(
         assert meta[key].value == value
 
 
-def test_setup_cfg_proj_urls(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
+def test_setup_cfg_proj_urls(tmp_path):
+    root_dir = tmp_path / "test-setup-cfg-proj-urls"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
     proj_site = "https://test-plugin-name.com"
     twitter = "https://twitter.com/test-plugin-name"
     bug_tracker = "https://github.com/user/test-plugin-name"
 
-    setup_cfg_file.write(
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 url = {proj_site}
@@ -237,7 +240,7 @@ project_urls =
     Twitter = {twitter}
     """
     )
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     for key, value in zip(
         ["Project Site", "Bug Tracker", "Twitter"], [proj_site, bug_tracker, twitter]
     ):
@@ -245,12 +248,13 @@ project_urls =
         assert meta[key].value == value
 
 
-def test_source_code_url(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_source_code_url(tmp_path):
+    root_dir = tmp_path / "test-source-code-url"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
     proj_site = "https://github.com/user/test-plugin-name"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         f"""
 from setuptools import setup
 
@@ -261,7 +265,7 @@ setup(
     """
     )
 
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     assert "Project Site" not in meta
     assert "Source Code" in meta
     assert meta["Source Code"].value == proj_site
@@ -275,11 +279,12 @@ def test_github_license():
     assert github_api_license == "BSD-3-Clause"
 
 
-def test_github_license_overrides_local(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
+def test_github_license_overrides_local(tmp_path):
+    root_dir = tmp_path / "test-github-license-overrides-local"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
 
-    setup_cfg_file.write(
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 license = MIT
@@ -287,8 +292,7 @@ project_urls =
     Source Code = {DEMO_GITHUB_REPO}
 """
     )
-    meta = load_meta(root_dir)
-
+    meta = load_meta(f"{root_dir}")
     assert "License" in meta
     license_src = meta["License"].source
     assert license_src.src_file == "GitHub Repository"

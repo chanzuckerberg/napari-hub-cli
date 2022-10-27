@@ -1,8 +1,8 @@
 import codecs
 import glob
-import json
 import os
 import re
+from contextlib import suppress
 
 import requests
 import setuptools
@@ -117,17 +117,15 @@ def get_github_license(meta):
         api_url = repo_url.replace(
             "https://github.com/", "https://api.github.com/repos/"
         )
-        try:
+        with suppress(HTTPError):
             response = requests.get(f"{api_url}/license", headers=auth_header)
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()
-            response_json = json.loads(response.text.strip())
+            response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
                 if spdx_id != "NOASSERTION":
                     return spdx_id
-        except HTTPError:
-            return None
 
 
 def get_init_version(rel_path):

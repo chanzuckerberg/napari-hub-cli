@@ -48,7 +48,7 @@ def load_meta(pth):
     Dict[str, MetaItem]
         dictionary of loaded metadata
     """
-    meta_dict = defaultdict(lambda: None)
+    meta_dict = {}
 
     # try to read .napari/DESCRIPTION.md if available
     desc_pth = pth + DESC_PTH

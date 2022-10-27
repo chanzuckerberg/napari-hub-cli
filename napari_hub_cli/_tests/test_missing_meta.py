@@ -14,19 +14,24 @@ def assert_cfg_src(meta, missing):
                 assert missing[field].src_file == "/setup.cfg"
 
 
-def test_suggested_src_cfg(tmpdir):
+def test_cfg_fields_non_empty():
+    assert len(FIELDS) > 0  # necessary to avoid potential rotten green tests
+
+
+def test_suggested_src_cfg(tmp_path):
     """Test when cfg exists, we suggest cfg as source"""
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
-    setup_cfg_file.write(
+    root_dir = tmp_path / "test-suggested-src-cfg"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
+    setup_cfg_file.write_text(
         """
 [metadata]
 name = test-plugin-name
     """
     )
 
-    meta = load_meta(root_dir)
-    missing = get_missing(meta, root_dir)
+    meta = load_meta(f"{root_dir}")
+    missing = get_missing(meta, f"{root_dir}")
 
     assert_cfg_src(meta, missing)
 
@@ -51,11 +56,12 @@ def test_both_setup_suggest_cfg(make_pkg_dir):
     assert_cfg_src(meta, missing)
 
 
-def test_setup_py_no_cfg_suggest_py(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_setup_py_no_cfg_suggest_py(tmp_path):
+    root_dir = tmp_path / "test-plugin-name"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         """
 from setuptools import setup
 
@@ -64,8 +70,8 @@ setup(
 )
     """
     )
-    meta = load_meta(root_dir)
-    missing = get_missing(meta, root_dir)
+    meta = load_meta(f"{root_dir}")
+    missing = get_missing(meta, f"{root_dir}")
     for field in FIELDS:
         if field not in meta:
             assert field in missing
