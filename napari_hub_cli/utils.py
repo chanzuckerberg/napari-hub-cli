@@ -3,6 +3,7 @@ import glob
 import json
 import os
 import re
+import setuptools
 
 import requests
 from requests.exceptions import HTTPError
@@ -296,3 +297,30 @@ def is_canonical(version):
         )
         is not None
     )
+
+
+# TODO Improve me by mocking failing imports
+# In the meantime, if setup.py includes other imports that perform computation
+# over the parameters that are passed to "setup(...)", this function
+# or any library relying on monkey patching of "setup(...)" will give bad results.
+def parse_setup(filename):
+
+    result = []
+    setup_path = os.path.abspath(filename)
+    old_setup = setuptools.setup
+    setuptools.setup = lambda **kwargs: result.append(kwargs)
+    with open(setup_path, "r") as f:
+        try:
+            exec(
+                f.read(),
+                {
+                    "__name__": "__main__",
+                    "__builtins__": __builtins__,
+                    "__file__": setup_path,
+                },
+            )
+        finally:
+            setuptools.setup = old_setup
+    if result:
+        return result[0]
+    raise ValueError("setup wasn't called from setup.py")

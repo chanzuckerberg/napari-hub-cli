@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 from configparser import ConfigParser
 
-import parsesetup
+from .utils import parse_setup
 from yaml import full_load
 
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
@@ -164,7 +164,7 @@ def read_setup_py(meta_dict, setup_path, root_pth):
     root_pth : str
         path to root of package, used to try searching version
     """
-    setup_args = parsesetup.parse_setup(os.path.abspath(setup_path), trusted=True)
+    setup_args = parse_setup(os.path.abspath(setup_path))
     for field, (section, key) in SETUP_PY_INFO.items():
         if field not in meta_dict:
             if section:
