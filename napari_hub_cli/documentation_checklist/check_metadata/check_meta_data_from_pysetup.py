@@ -2,23 +2,7 @@ from .githubInfo import *
 from .htmlScraper import *
 from rich import print
 from rich.console import Console
-
-repo_path = '/Users/simaosa/Desktop/MetaCell/Projects/CZI/CLI_29/brainreg-napari'
-
-SETUPPY_DISPLAY_NAME_PATTERN = '(?:\sname\=\")(.*?)(?=\")'
-SETUPPY_SUMMARY_SENTENCE_PATTERN = '(?:\sdescription\=\")(.*?)(?=\")'
-SETUPPY_LONG_DESCRIPTION_PATTERN = '(?:long_description\s\=\s)(.*?)(?=\s\n)'
-SETUPPY_SOURCE_CODE_PATTERN = '(?:\"Source\sCode\"\:)(.*?)(?=\"\,)'
-SETUPPY_AUTHOR_PATTERN = '(?:author\=\")(.*?)(?=\")'
-SETUPPY_BUG_TRACKER_PATTERN = '(?:\"Bug\sTracker\"\:)(.*?)(?=\"\,)'
-SETUPPY_USER_SUPPORT_PATTERN = '(?:\"User\sSupport\"\:)(.*?)(?=\"\,)'
-
-FILE_IN_LONG_DESCRIPTION_PATTERN = '(?:file\:\s)(.*?)(?=\s)'
-
-IMAGE_STYLE_PATTERN = '(?:max-width\:\s)(.*?)(?=\%)'
-IMAGE_WIDTH_PATTERN ='(?:width\=\")(.*?)(?=\")'
-
-SHIELDS_IO_PATTERN = '(?:img.shields.io)'
+from .patterns_doc_checklist import *
 
         
 def setuppy_soup(path):
@@ -38,13 +22,15 @@ def setuppy_soup(path):
     """
     console = Console()
     console.print('Checking setup.py file...')
+    #get Git information from the local plugin path
     git_repo_username,git_repo_name, git_repo_link,git_base_branch = getGitInfo(path)
+    #URL for the setup.py file location
     SET_UP_PY_LINK = git_repo_link + '/blob/%s/setup.py'%(git_base_branch)
-
+    #get scraped HTML text
     soup = get_html(SET_UP_PY_LINK)
-
     setup_py_scraped_text = soup.find_all("table", {'class': 'highlight tab-size js-file-line-container js-code-nav-container js-tagsearch-file'})
     setup_py_scraped_text = str(setup_py_scraped_text)
+    #strip the HTML tags
     setup_py_scraped_text = strip_tags(setup_py_scraped_text)
 
     return setup_py_scraped_text, git_repo_link
@@ -63,6 +49,7 @@ def name_metadata_pysetupfile(scraped_text):
     display_name_value: bool
         True if Display Name is found, False on the contrary
     """
+    #check if a display name metadata field exists
     display_name_data = re.findall(SETUPPY_DISPLAY_NAME_PATTERN, scraped_text, flags=re.DOTALL)
     display_name_value = False
     if(bool(display_name_data)):
@@ -83,6 +70,7 @@ def summary_metadata_pysetupfile(scraped_text):
     summary_sentence_check: bool
         True if Summary Sentence is found, False on the contrary
     """
+    #check if a summary sentence metadata field exists
     summary_sentence_data = re.findall(SETUPPY_SUMMARY_SENTENCE_PATTERN, scraped_text, flags=re.DOTALL)
     summary_sentence_check = False
     if(bool(summary_sentence_data)):
@@ -102,6 +90,7 @@ def sourcecode_metadata_pysetupfile(scraped_text):
     source_code_check: bool
         True if Source Code Link is found, False on the contrary
     """
+    #check if a source code metadata field exists
     source_code_check = False
     source_code_data = re.findall(SETUPPY_SOURCE_CODE_PATTERN, scraped_text, flags=re.DOTALL)
     if(bool(source_code_data)):
@@ -122,6 +111,7 @@ def author_metadata_pysetupfile(scraped_text):
     author_check: bool
         True if Author is found, False on the contrary
     """
+    #check if a author metadata field exists
     author_check = False
     author_data = re.findall(SETUPPY_AUTHOR_PATTERN, scraped_text, flags=re.DOTALL)
     if(bool(author_data)):
@@ -142,8 +132,8 @@ def bug_metadata_pysetupfile(scraped_text):
     bug_tracker_check: bool
         True if Bug Tracker Link is found, False on the contrary
     """
+    #check if a bug tracker link metadata field exists
     bug_tracker_data = re.findall(SETUPPY_BUG_TRACKER_PATTERN, scraped_text, flags=re.DOTALL)
-
     bug_tracker_check = False
     if(bool(bug_tracker_data)):
         bug_tracker_check = True
@@ -164,8 +154,8 @@ def usersupport_metadata_pysetupfile(scraped_text):
     user_support_check: bool
         True if User Support Link is found, False on the contrary
     """
+    #check if a user support link metadata field exists
     user_support_data = re.findall(SETUPPY_USER_SUPPORT_PATTERN, scraped_text, flags=re.DOTALL)
-
     user_support_check = False
     if(bool(user_support_data)):
         user_support_check = True
@@ -189,22 +179,22 @@ def long_description_pysetupfile(scraped_text, repo_link):
         scraped text from the file location referenced in the long_description field
     """
     console = Console()
-    
+    #check if a long description metadata field exists, which redirects to another file
     long_description_data = re.findall(SETUPPY_LONG_DESCRIPTION_PATTERN, scraped_text, flags=re.DOTALL)
     link_data_soup = []
     if(bool(long_description_data)):
         console.print('Checking setup.py long_description associated file....')
         for data in long_description_data:
+            #file to which the long description redirects to
             long_description_file = re.findall(FILE_IN_LONG_DESCRIPTION_PATTERN, data, flags=re.DOTALL)
-            
+            #if a file is indicated, go to its location and scrape the HTML text
             if bool(long_description_file):
-            
                 long_description_file = ''.join(long_description_file)
                 LONG_DESCRIPTION_LINK = repo_link + '#%s'%(long_description_file)
                 long_description_soup = get_html(LONG_DESCRIPTION_LINK)
                 link_data_soup = long_description_soup.find_all("article",{'class': 'markdown-body entry-content container-lg'})
                 link_data_soup = link_data_soup[0]
-            
+            #otherwise, scrape the HTML text from the READ.ME
             else:
                 LONG_DESCRIPTION_LINK = repo_link + '#readme'
                 long_description_soup = get_html(LONG_DESCRIPTION_LINK)
@@ -226,8 +216,10 @@ def video_metadata_pysetupfile(description_file_soup):
         True if Video is found, False on the contrary
     """
     intro_video_check = False
+    #getting all video tags found in the scraped text
     if(bool(description_file_soup)):
         video_data = description_file_soup.find_all("video")
+        #if there's video data then it gets checked for the documentation checklist
         if len(video_data)>0:
                 intro_video_check = True
     return intro_video_check
@@ -247,20 +239,24 @@ def screenshot_metadata_pysetupfile(description_file_soup):
     """
     intro_screenshot_check = False
     if(bool(description_file_soup)):
+        #getting all image tags found in the scraped text
         screenshot_data = description_file_soup.find_all("img")
         for data in screenshot_data:
-            # print(data)
             data = str(data)
+            #getting the found images max width percentage
             image_maxwidth_percentage = re.findall(IMAGE_STYLE_PATTERN, data, flags=re.DOTALL)
+            #getting the found images width value
             image_width = re.findall(IMAGE_WIDTH_PATTERN, data, flags=re.DOTALL)
+            #checking for shields.io image (logos and status)
             shields_io_image = re.findall(SHIELDS_IO_PATTERN, data, flags=re.DOTALL)
             
+            #if an image width is bigger than 200 and is not a shields.io logo image then it's considered an actual image
             if(bool(image_width) and not bool(shields_io_image)):
                 for i in image_width:
                     width_number = int(str(i))
                     if width_number > 200 :
                         intro_screenshot_check = True
-
+            #if an image max width percentage is bigger than 30% and is not a shields.io logo image then it's considered an actual image
             if not bool(image_width) and (bool(image_maxwidth_percentage)and not bool(shields_io_image)):
                 for i in image_maxwidth_percentage:
                     percentage_number = int(str(i))
@@ -285,7 +281,9 @@ def usage_metadata_pysetupfile(description_file_soup):
         True if Usage section is found, False on the contrary
     """
     usage_check = False
+    #getting all usage title tags found in the scraped text
     if(bool(description_file_soup)):
+        #if there's a usage section found then the checklist value for usage is True
         usage_data = description_file_soup.find_all("a", {'href':'#usage'})
         if bool(usage_data):
                 usage_check = True
@@ -307,11 +305,13 @@ def intro_metadata_pysetupfile(description_file_soup):
     """
     intro_paragraph_check = False
     if(bool(description_file_soup)):
+        #intro paragraph is the first paragraph found, so it precedes a h2 tag
         possible_intro_paragraph = description_file_soup.select_one('h2').find_all_previous('p', {'dir':'auto'})
         actual_text_in_p_count = 0
         for intro_paragraph in possible_intro_paragraph:
                 if(bool(intro_paragraph.text)):
                     actual_text_in_p_count += + 1
+        # if there's text found then the checklist value for intro paragraph is True
         if actual_text_in_p_count > 0:
                 intro_paragraph_check = True
 
