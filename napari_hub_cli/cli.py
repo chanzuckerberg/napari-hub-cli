@@ -56,6 +56,21 @@ def check_missing(args):
                 formatted_missing = format_missing(missing_meta)
                 print(formatted_missing)
 
+def documentation_checklist(args):
+    """Creates a documentation checklist based on the available metadata for the plugin at args.plugin_path
+    Parameters
+    ----------
+    args : List[str]
+        List of command line arguments
+    """
+    from documentation_checklist.create_doc_checklist import create_checklist
+
+    pth = args.plugin_path
+    if not os.path.exists(pth):
+        print(f"Nothing found at path: {pth}")
+    else:
+        create_checklist(pth)
+
 
 def parse_args(args):
     parser = argparse.ArgumentParser()
@@ -82,6 +97,17 @@ def parse_args(args):
         help="Wait for user input after each field",
     )
     parser_check_missing.set_defaults(func=check_missing)
+
+    parser_doc_checklist = subparsers.add_parser("create-doc-checklist")
+    parser_doc_checklist.add_argument("plugin_path", help="Local path to your plugin")
+    parser_doc_checklist.add_argument(
+        "-i",
+        default=False,
+        action="store_true",
+        help="Wait for user input after each field",
+    )
+    parser_doc_checklist.set_defaults(func=documentation_checklist) 
+
     return parser.parse_args(args)
 
 
