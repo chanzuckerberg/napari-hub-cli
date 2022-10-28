@@ -52,7 +52,9 @@ To create the Napari Documentation Checklist for your plugin run
 having first installed all the requirements for ```napari-hub-cli```.
 
 
-Example of Documentation Checklist:
+Example of Documentation Checklist, with both suggestion cases:
+
+![image](https://user-images.githubusercontent.com/99416933/198534059-766c0cd0-0c2f-425c-91d6-c7592bee0e29.png)
 
 
 
