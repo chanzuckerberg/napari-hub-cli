@@ -86,8 +86,8 @@ def test_cfg_description(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.INIT])
 def test_version_init_setup_cfg(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.cfg")
-    stup.write("[metadata]\nname = test-plugin-name")
+    stup = root_dir / "setup.cfg"
+    stup.write_text("[metadata]\nname = test-plugin-name")
 
     meta = load_meta(root_dir)
 
@@ -100,8 +100,8 @@ def test_version_init_setup_cfg(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.INIT])
 def test_version_init_setup_py(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -114,8 +114,8 @@ def test_version_init_setup_py(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.SCM_VERS])
 def test_version_scm(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -128,8 +128,8 @@ def test_version_scm(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.VERS])
 def test_version_file(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -161,16 +161,18 @@ def test_fields_have_source(make_pkg_dir):
 def test_long_description_trimmed(make_pkg_dir):
     root_dir = make_pkg_dir
     long_desc = "*" * DESC_LENGTH * 2
-    readme = root_dir.join("README.md")
-    readme.write(long_desc)
+    readme = root_dir / "README.md"
+    readme.write_text(long_desc)
 
     meta = load_meta(root_dir)
     # trimmed description plus the dots
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
     # same for DESCRIPTION.md
-    desc = root_dir.mkdir(".napari").join("DESCRIPTION.md")
-    desc.write(long_desc)
+    napari_dir = root_dir / ".napari"
+    napari_dir.mkdir()
+    desc = napari_dir / "DESCRIPTION.md"
+    desc.write_text(long_desc)
     meta = load_meta(root_dir)
     assert meta["Description"].source.src_file == ".napari/DESCRIPTION.md"
     assert len(meta["Description"].value) == DESC_LENGTH + 3
