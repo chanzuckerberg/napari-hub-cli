@@ -7,9 +7,7 @@ from napari_hub_cli.meta_classes import MetaItem
 from napari_hub_cli.napari_hub_cli import load_meta
 from napari_hub_cli.utils import get_github_license
 
-from .config_enum import CONFIG
-
-DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
+from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
 
 @pytest.mark.required_configs([CONFIG.YML])

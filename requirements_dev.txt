@@ -2,3 +2,4 @@ pre-commit
 tox
 pytest
 pytest-cov
+requests-mock

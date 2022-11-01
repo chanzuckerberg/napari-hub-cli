@@ -10,3 +10,6 @@ class CONFIG(Enum):
     SCM_VERS = ("test_plugin_name", "_version.py")
     VERS = "VERSION"
     README = "README.md"
+
+
+DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
