@@ -36,7 +36,7 @@ jobs:
           pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
-        run: tox -r
+        run: tox -r -e py
         env:
           PLATFORM: ${{ matrix.platform }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
