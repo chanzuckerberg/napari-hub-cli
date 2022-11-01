@@ -5,7 +5,7 @@ import pytest
 from napari_hub_cli.constants import DESC_LENGTH, FIELDS, PROJECT_URLS
 from napari_hub_cli.meta_classes import MetaItem
 from napari_hub_cli.napari_hub_cli import load_meta
-from napari_hub_cli.utils import get_github_license
+from napari_hub_cli.utils import get_github_license, parse_setup
 
 from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
@@ -297,3 +297,14 @@ project_urls =
     license_src = meta["License"].source
     assert license_src.src_file == "GitHub Repository"
     assert meta["License"].value == "BSD-3-Clause"
+
+
+def test_parse_wrong_setup_py(tmp_path):
+    root_dir = tmp_path / "test-parse-wrong-setup-file"
+    root_dir.mkdir()
+    setup_file = root_dir / "other.py"
+
+    setup_file.write_text("print('do nothing')")
+
+    with pytest.raises(ValueError):
+        parse_setup(setup_file)
