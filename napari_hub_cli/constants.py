@@ -63,3 +63,5 @@ usage_df = pd.read_csv(USAGE_CSV)
 HUB_USES = dict(
     zip(usage_df.Field, zip(usage_df.Filterable, usage_df.Sortable, usage_df.Searched))
 )
+
+NAPARI_HUB_API_LINK = "https://api.napari-hub.org/plugins"

@@ -1,4 +1,5 @@
 import codecs
+import difflib
 import glob
 import json
 import os
@@ -7,7 +8,7 @@ import re
 import requests
 from requests.exceptions import HTTPError
 
-from .constants import GITHUB_PATTERN
+from .constants import GITHUB_PATTERN, NAPARI_HUB_API_LINK
 
 
 def flatten(config_parser):
@@ -296,3 +297,82 @@ def is_canonical(version):
         )
         is not None
     )
+
+
+class NonExistingNapariPluginError(Exception):
+    def __init__(self, plugin_name, closest=None, *args, **kwargs):
+        self.plugin_name = plugin_name
+        self.closest = closest
+        additional_msg = f", did you mean '{closest}'?" if closest else ""
+        self.message = (
+            f"The plugin: '{plugin_name}' does not exist in napari-hub{additional_msg}"
+        )
+        super().__init__(
+            self.message,
+            *args,
+            **kwargs,
+        )
+
+
+def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_LINK):
+    """Returns the plugin name the closest to the one entered as parameter.
+    The search of the closest name considers all registered plugin in the Napari HUB api.
+
+    Parameters
+    ----------
+    plugin_name: str
+        The plugin name to search for.
+
+    api_url: Optional[str] = NAPARI_HUB_API_LINK
+        The Napari HUB api url, default value is NAPARI_HUB_API_LINK from the 'napari_hub_cli.constants' module
+
+    Returns
+    -------
+    str | None
+        The closest plugin name found in the Napari HUB api, None if no closest match could be found
+    """
+    plugin_names = requests.get(api_url).json().keys()
+    closest = difflib.get_close_matches(plugin_name, plugin_names, n=1)
+    if closest:
+        return closest[0]
+    return None
+
+
+def get_repository_url(plugin_name, api_url=NAPARI_HUB_API_LINK):
+    """Returns the git repository url of a Napari plugin.
+    The function searches directly from the Napari HUB api.
+
+    Parameters
+    ----------
+    plugin_name : str
+        The plugin name to get the repository url for.
+
+    api_url: Optional[str] = NAPARI_HUB_API_LINK
+        The Napari HUB api url, default value is NAPARI_HUB_API_LINK from the 'napari_hub_cli.constants' module
+
+    Returns
+    -------
+    str
+        The git repository url.
+
+    Raises
+    ------
+    NonExistingNapariPluginError
+        If the plugin does not exist in the Naparai HUB api
+    """
+    napari_hub_plugin_url = f"{api_url}/{plugin_name}"
+    plugin_info_req = requests.get(napari_hub_plugin_url)
+
+    if plugin_info_req.status_code != 200:
+        # This line is never called, api.napari-hub.org never gives a status code != 200 even if the plugin doesn't exist
+        # let it there in case they fix that in the future.
+        closest_name = closest_plugin_name(plugin_name)
+        raise NonExistingNapariPluginError(plugin_name, closest=closest_name)
+
+    plugin_info = plugin_info_req.json()
+    if not plugin_info:
+        # If the plugin doesn't exist, an empty json is returned by the current version of the API
+        closest_name = closest_plugin_name(plugin_name)
+        raise NonExistingNapariPluginError(plugin_name, closest=closest_name)
+
+    return plugin_info["code_repository"]
