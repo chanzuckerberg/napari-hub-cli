@@ -6,8 +6,9 @@ from pathlib import Path
 from git import Repo
 from rich.progress import Progress
 
-from .constants import NAPARI_HUB_API_LINK
-from .utils import NonExistingNapariPluginError, get_repository_url
+from ..constants import NAPARI_HUB_API_LINK
+from ..utils import NonExistingNapariPluginError, get_repository_url
+from .create_doc_checklist import create_checklist
 
 
 def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
@@ -31,7 +32,7 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
 
             with Progress() as p:
                 task = p.add_task(
-                    f"Cloning repository [bold]{plugin_name}[/bold] - {plugin_url} in {test_repo}"
+                    f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]"
                 )
                 Repo.clone_from(
                     plugin_url,
@@ -46,7 +47,8 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
             # We launch the equivalent of the local analysis here
             #  |
             #  V
-            ...
-
+            create_checklist(test_repo)
+            return True  # if the operation was a success
     except NonExistingNapariPluginError as e:
         print(e.message)
+        return False
