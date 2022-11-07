@@ -8,12 +8,27 @@ from yaml import full_load
 
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
 
-from .constants import (DESC_LENGTH, DESC_PTH, GITHUB_PATTERN, SETUP_CFG_INFO,
-                        SETUP_CFG_PTH, SETUP_PY_INFO, SETUP_PY_PTH, YML_INFO,
-                        YML_PTH)
-from .utils import (filter_classifiers, flatten, get_github_license,
-                    get_long_description, get_pkg_version, is_canonical,
-                    split_dangling_list, split_project_urls)
+from .constants import (
+    DESC_LENGTH,
+    DESC_PTH,
+    GITHUB_PATTERN,
+    SETUP_CFG_INFO,
+    SETUP_CFG_PTH,
+    SETUP_PY_INFO,
+    SETUP_PY_PTH,
+    YML_INFO,
+    YML_PTH,
+)
+from .utils import (
+    filter_classifiers,
+    flatten,
+    get_github_license,
+    get_long_description,
+    get_pkg_version,
+    is_canonical,
+    split_dangling_list,
+    split_project_urls,
+)
 
 
 def load_meta(pth):

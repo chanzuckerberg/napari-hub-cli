@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
 
+import git
 import pytest
+from git import Repo, rmtree
 
 import napari_hub_cli
-
-import git
-from git import Repo, rmtree
 
 from .config_enum import CONFIG
 
@@ -35,7 +34,8 @@ def make_pkg_dir(tmpdir, request):
             new_fn.write(template.read())
     return root_dir
 
+
 @pytest.fixture
 def delete_test_repo():
     yield
-    rmtree('./CZI-29-test')
+    rmtree("./CZI-29-test")

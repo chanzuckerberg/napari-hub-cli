@@ -12,10 +12,16 @@ import os
 import sys
 
 from .documentation_checklist.analysis import analyse_remote_plugin
-from .documentation_checklist.create_doc_checklist import (create_checklist,
-                                                           display_checklist)
-from .formatting import (format_meta, format_missing, print_meta_interactive,
-                         print_missing_interactive)
+from .documentation_checklist.create_doc_checklist import (
+    create_checklist,
+    display_checklist,
+)
+from .formatting import (
+    format_meta,
+    format_missing,
+    print_meta_interactive,
+    print_missing_interactive,
+)
 from .napari_hub_cli import get_missing, load_meta
 
 

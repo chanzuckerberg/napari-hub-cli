@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pytest
 
 from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
