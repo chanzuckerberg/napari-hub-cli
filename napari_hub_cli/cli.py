@@ -65,7 +65,7 @@ def create_citation(args):
     args : List[str]
         List of command line arguments
     """
-    from create_citation.citation import cff_citation
+    from napari_hub_cli.create_citation.citation import cff_citation
 
     pth = args.plugin_path
     if not os.path.exists(pth):
