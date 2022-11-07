@@ -12,13 +12,10 @@ import os
 import sys
 
 from .documentation_checklist.analysis import analyse_remote_plugin
-from .documentation_checklist.create_doc_checklist import create_checklist
-from .formatting import (
-    format_meta,
-    format_missing,
-    print_meta_interactive,
-    print_missing_interactive,
-)
+from .documentation_checklist.create_doc_checklist import (create_checklist,
+                                                           display_checklist)
+from .formatting import (format_meta, format_missing, print_meta_interactive,
+                         print_missing_interactive)
 from .napari_hub_cli import get_missing, load_meta
 
 
@@ -68,17 +65,18 @@ def check_missing(plugin_path, i):
     """
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
-        exit(1)
+        return 1
     meta = load_meta(plugin_path)
     if len(meta) == 0 or len(meta) == 1 and "Version" in meta:
         print(f"Found no metadata. Is {plugin_path} the root of a Python package?")
-        exit(2)
+        return 2
     missing_meta = get_missing(meta, plugin_path)
     if i:
         print_missing_interactive(missing_meta)
-    else:
-        formatted_missing = format_missing(missing_meta)
-        print(formatted_missing)
+        return 0
+    formatted_missing = format_missing(missing_meta)
+    print(formatted_missing)
+    return 0
 
 
 def documentation_checklist(plugin_path, i):
@@ -96,8 +94,10 @@ def documentation_checklist(plugin_path, i):
     """
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
-        exit(1)
-    create_checklist(plugin_path)
+        return 1
+    check_list = create_checklist(plugin_path)
+    display_checklist(check_list)
+    return 0
 
 
 def remote_documentation_checklist(plugin_name):
