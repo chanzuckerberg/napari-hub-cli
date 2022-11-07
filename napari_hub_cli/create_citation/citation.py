@@ -206,4 +206,4 @@ def cff_citation(repo_path):
             f.writelines(template_ref_othwr_work)
             f.write('\n#Full Citation Template for Credit Redirection:')
             f.writelines(template_cred_redirect)
-
+            print('\nCITATION.CFF file created at: '+ getattr(f, 'name') + '\n')
