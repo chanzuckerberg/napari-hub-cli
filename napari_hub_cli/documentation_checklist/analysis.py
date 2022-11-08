@@ -25,6 +25,15 @@ class MissingRepositoryURL(Exception):
         )
 
 
+class NonAccessibleRepositoryURL(Exception):
+    def __init__(self, plugin, url):
+        self.plugin = plugin
+        self.url = url
+        super().__init__(
+            f"Repository URL {url!r} for plugin {plugin!r} is not accessible (private repository?)"
+        )
+
+
 def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
@@ -41,6 +50,10 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
         plugin_url = get_repository_url(plugin_name, api_url=api_url)
         if not plugin_url:
             raise MissingRepositoryURL(plugin_name)
+
+        access = requests.get(plugin_url)
+        if access.status_code != 200:
+            raise NonAccessibleRepositoryURL(plugin_name, plugin_url)
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmp_dir = Path(tmpdirname)
@@ -66,19 +79,28 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
             return create_checklist(test_repo)  # if the operation was a success
     except NonExistingNapariPluginError as e:
         print(e.message)
-        return PluginAnalysisResult([])
+        return PluginAnalysisResult([], None)
 
 
-def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_LINK):
+def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_LINK, display_info=False):
     all_results = []
     missing_urls = []
+    non_accessible_urls = []
     plugins_name = requests.get(api_url).json().keys()
+
     for name in plugins_name:
         try:
             all_results.append(analyse_remote_plugin(name))
         except MissingRepositoryURL:
-            print(
-                f"** Plugin {name} does not have repository URL on the Naparay-HUB plateform"
-            )
+            if display_info:
+                print(
+                    f"** Plugin {name} does not have repository URL on the Naparay-HUB plateform"
+                )
             missing_urls.append(name)
-    return all_results, missing_urls
+        except NonAccessibleRepositoryURL as e:
+            if display_info:
+                print(
+                    f"** Repository URL for plugin {e.plugin!r} is not accessible (private repository?)"
+                )
+            non_accessible_urls.append((e.plugin, e.url))
+    return all_results, missing_urls, non_accessible_urls
