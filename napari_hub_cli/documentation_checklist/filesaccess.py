@@ -97,7 +97,12 @@ class ConfigFile(object):
     def __init__(self, file):
         self.file = file
         if self.exists:
-            self.data = format_parsers[file.suffix](file)
+            try:
+                self.data = format_parsers[file.suffix](file)
+                self.is_valid = True
+            except Exception:
+                self.data = {}
+                self.is_valid = False
         else:
             self.data = {}
 
