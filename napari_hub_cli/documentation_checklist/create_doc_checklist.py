@@ -31,6 +31,7 @@ class Feature(object):
 @dataclass
 class PluginAnalysisResult(object):
     features: List[Feature]
+    repository: Optional[Path]
 
 
 DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml")
@@ -49,6 +50,7 @@ VIDEO_SCREENSHOT = MetaFeature(
 USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md")
 INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md")
 CITATION = MetaFeature("Citation", "exists", "CITATION.CFF")
+CITATION_VALID = MetaFeature("Citation Format is Valid", "is_valid", "CITATION.CFF")
 
 
 def check_feature(meta, main_file, fallbacks):
@@ -107,17 +109,18 @@ def create_checklist(repopath):
                 fallbacks=(long_descr_setup_cfg, long_descr_setup_py),
             )
         )
-    result.append(
-        check_feature(CITATION, main_file=plugin_repo.citation_file, fallbacks=())
-    )
-    return PluginAnalysisResult(result)
+    for meta_feature in (CITATION, CITATION_VALID):
+        result.append(
+            check_feature(
+                meta_feature, main_file=plugin_repo.citation_file, fallbacks=()
+            )
+        )
+    return PluginAnalysisResult(result, repo)
 
 
 def display_checklist(analysis_result):
-
-    # setting styles for the checklist
-    checked_element, checked_style = CHECKLIST_STYLE[True]
-    non_checked_element, unchecked_style = CHECKLIST_STYLE[False]
+    # get repository for display
+    repo = analysis_result.repository.parent
 
     # create the Console Documentation Checklist
     console = Console()
@@ -140,7 +143,7 @@ def display_checklist(analysis_result):
             continue
         console.print()
         console.print(
-            f"- {feature.meta.name} found only in the fallback file (found in '{feature.found_in}')",
+            f"- {feature.meta.name.capitalize()} found only in the fallback file (found in '{feature.found_in.relative_to(repo)}')",
             style="yellow",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
@@ -149,10 +152,13 @@ def display_checklist(analysis_result):
     for feature in analysis_result.features:
         if feature.found:
             continue
-        files = [f"{f.file}" for f in feature.scanned_files]
+        files = [
+            f"{f.file.relative_to(repo)}" for f in feature.scanned_files if f.exists
+        ]
+        scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()
         console.print(
-            f"- {feature.meta.name} not found (scanned files: {', '.join(files)})",
+            f"- {feature.meta.name.capitalize()} not found{scanned_files}",
             style="red",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
