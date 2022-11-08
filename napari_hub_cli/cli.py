@@ -12,9 +12,10 @@ import os
 import sys
 
 from .documentation_checklist.analysis import (
-    analyse_remote_plugin,
     analyze_all_remote_plugins,
+    build_csv_dict,
     display_remote_analysis,
+    write_csv,
 )
 from .documentation_checklist.create_doc_checklist import (
     create_checklist,
@@ -125,17 +126,17 @@ def remote_documentation_checklist(plugin_name):
     return 0 if success else 3
 
 
-def generate_report_all_plugins():
+def generate_report_all_plugins(output_csv):
     """Creates a CSV with missing artifacts for all plugins of the Napari HUB plateform.
     Returns
     -------
     int
-        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB plateform
+        the status of the result, 0 = OK
     """
     results = analyze_all_remote_plugins(display_info=True)
-    import ipdb
-
-    ipdb.set_trace()
+    rows = build_csv_dict(results)
+    write_csv(rows, output_csv)
+    return 0
 
 
 def parse_args(args):
@@ -164,7 +165,9 @@ def parse_args(args):
     )
     parser_check_missing.set_defaults(func=check_missing)
 
-    parser_doc_checklist = subparsers.add_parser("create-doc-checklist")
+    parser_doc_checklist = subparsers.add_parser(
+        "create-doc-checklist", help="Checks consistency of a local plugin"
+    )
     parser_doc_checklist.add_argument("plugin_path", help="Local path to your plugin")
     parser_doc_checklist.add_argument(
         "-i",
@@ -174,13 +177,21 @@ def parse_args(args):
     )
     parser_doc_checklist.set_defaults(func=documentation_checklist)
 
-    parser_doc_checklist = subparsers.add_parser("check-plugin")
+    parser_doc_checklist = subparsers.add_parser(
+        "check-plugin", help="Checks consistency of a remote plugin"
+    )
     parser_doc_checklist.add_argument(
         "plugin_name", help="Name of the plugin in Napari HUB"
     )
     parser_doc_checklist.set_defaults(func=remote_documentation_checklist)
 
-    parser_doc_checklist = subparsers.add_parser("all-plugins-report")
+    parser_doc_checklist = subparsers.add_parser(
+        "all-plugins-report",
+        help="Generates a CSV report with consistency analysis of all plugins in the Napari-HUB plateform",
+    )
+    parser_doc_checklist.add_argument(
+        "output_csv", help="Output file name (e.g: 'output.csv')"
+    )
     parser_doc_checklist.set_defaults(func=generate_report_all_plugins)
 
     return parser.parse_args(args)

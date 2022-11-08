@@ -26,6 +26,7 @@ class Feature(object):
     found: bool
     found_in: Optional[Path]
     only_in_fallback: bool
+    has_fallback_files: bool
     scanned_files: List[Path]
 
 
@@ -71,13 +72,14 @@ CITATION_VALID = MetaFeature("Citation Format is Valid", "is_valid", "CITATION.C
 
 def check_feature(meta, main_file, fallbacks):
     scanned_files = [main_file, *fallbacks]
+    has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
     if getattr(main_file, key, False):
-        return Feature(meta, True, main_file.file, False, scanned_files)
+        return Feature(meta, True, main_file.file, False, has_fallback, scanned_files)
     for fallback in fallbacks:
         if getattr(fallback, key, False):
-            return Feature(meta, True, fallback.file, True, scanned_files)
-    return Feature(meta, False, None, False, scanned_files)
+            return Feature(meta, True, fallback.file, True, True, scanned_files)
+    return Feature(meta, False, None, False, has_fallback, scanned_files)
 
 
 def create_checklist(repopath):
