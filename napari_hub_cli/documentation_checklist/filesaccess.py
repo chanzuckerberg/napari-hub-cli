@@ -22,6 +22,8 @@ format_parsers = {}
 def parse_setup(filename):
     result = []
     setup_path = os.path.abspath(filename)
+    wd = os.getcwd()  # save current directory
+    os.chdir(os.path.dirname(setup_path))  # we change there
     old_setup = setuptools.setup
     setuptools.setup = lambda **kwargs: result.append(kwargs)
     with open(setup_path, "r") as f:
@@ -35,7 +37,10 @@ def parse_setup(filename):
                 },
             )
         finally:
-            setuptools.setup = old_setup
+            setuptools.setup = (
+                old_setup  # we reset setuptools function to the original one
+            )
+            os.chdir(wd)  # we go back to our working directory
     if result:
         return result[0]
     raise ValueError("setup wasn't called from setup.py")
@@ -83,7 +88,9 @@ def parse_py(py_file):
 def parse_yaml(yml_file):
     with yml_file.open() as fp:
         content = yaml.safe_load(fp)
-    return content
+    if content is not None:
+        return content
+    return {}
 
 
 class ConfigFile(object):
@@ -165,9 +172,15 @@ class SetupPy(Metadata, ConfigFile):
         entry_points = self.data["entry_points"]
         if "napari.manifest" not in entry_points:
             return None
-        import ipdb
-
-        ipdb.set_trace()
+        manifest_files = entry_points["napari.manifest"]
+        pattern = re.compile(r"[^=]+\s*=\s*(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
+        for file in manifest_files:
+            result = pattern.match(file)
+            if result:
+                parsed = result.groupdict()
+                modules = [m for m in parsed["modules"].split(":") if m]
+                return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
+        return None
 
 
 class NapariConfig(Metadata, ConfigFile):
@@ -260,9 +273,7 @@ class PyProjectToml(Metadata, ConfigFile):
         if "napari.manifest" not in self.data:
             return None
         # TODO Implement me
-        import ipdb
-
-        ipdb.set_trace()
+        # Currently, this file is not used
 
 
 class Npe2Yaml(Metadata, ConfigFile):

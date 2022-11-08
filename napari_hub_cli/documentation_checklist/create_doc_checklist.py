@@ -81,7 +81,7 @@ def create_checklist(repopath):
     setup_cfg = plugin_repo.setup_cfg
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description
-    pyproject_toml = plugin_repo.pyproject_toml
+    # pyproject_toml = plugin_repo.pyproject_toml  # not used?
     npe2_yaml = plugin_repo.npe2_yaml
 
     long_descr_setup_cfg = setup_cfg.long_description()
