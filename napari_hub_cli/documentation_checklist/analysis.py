@@ -1,12 +1,10 @@
 # https://api.napari-hub.org/plugins
 
 import tempfile
-from dataclasses import dataclass
 from pathlib import Path
 
 import requests
 from git import GitCommandError, Repo
-from regex import P
 from rich.progress import Progress
 
 from ..constants import NAPARI_HUB_API_LINK

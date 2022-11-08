@@ -2,14 +2,13 @@ import os
 import re
 from configparser import ConfigParser
 from functools import lru_cache
-from importlib.metadata import entry_points
 
 import setuptools
 import tomli
 import yaml
 from iguala import cond, match, regex
 from mistletoe import Document
-from mistletoe.block_token import Heading, Paragraph
+from mistletoe.block_token import Heading
 from mistletoe.span_token import RawText
 
 format_parsers = {}
