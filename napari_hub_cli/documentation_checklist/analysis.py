@@ -1,20 +1,17 @@
 # https://api.napari-hub.org/plugins
 
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
-from git import Repo
-from regex import P
 import requests
+from git import GitCommandError, Repo
+from regex import P
 from rich.progress import Progress
 
 from ..constants import NAPARI_HUB_API_LINK
 from ..utils import NonExistingNapariPluginError, get_repository_url
-from .create_doc_checklist import (
-    PluginAnalysisResult,
-    create_checklist,
-    display_checklist,
-)
+from .create_doc_checklist import AnalysisStatus, PluginAnalysisResult, create_checklist
 
 
 class MissingRepositoryURL(Exception):
@@ -49,11 +46,13 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
     try:
         plugin_url = get_repository_url(plugin_name, api_url=api_url)
         if not plugin_url:
-            raise MissingRepositoryURL(plugin_name)
+            return PluginAnalysisResult.with_status(AnalysisStatus.MISSING_URL)
 
         access = requests.get(plugin_url)
         if access.status_code != 200:
-            raise NonAccessibleRepositoryURL(plugin_name, plugin_url)
+            return PluginAnalysisResult.with_status(
+                AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
+            )
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmp_dir = Path(tmpdirname)
@@ -63,44 +62,59 @@ def analyse_remote_plugin(plugin_name, api_url=NAPARI_HUB_API_LINK):
                 task = p.add_task(
                     f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]"
                 )
-                Repo.clone_from(
-                    plugin_url,
-                    test_repo,
-                    depth=1,
-                    progress=lambda _, step, total, *args: p.update(
-                        task,
-                        total=total,
-                        advance=step,
-                    ),
-                )
-            # We launch the equivalent of the local analysis here
-            #                |
-            #                V
-            return create_checklist(test_repo)  # if the operation was a success
+                try:
+                    Repo.clone_from(
+                        plugin_url,
+                        test_repo,
+                        depth=1,
+                        progress=lambda _, step, total, *args: p.update(
+                            task,
+                            total=total,
+                            advance=step,
+                        ),
+                    )
+                    # We launch the equivalent of the local analysis here
+                    #                |
+                    #                V
+                    return create_checklist(test_repo)  # if the operation was a success
+                except GitCommandError:
+                    return PluginAnalysisResult.with_status(
+                        AnalysisStatus.BAD_URL, url=plugin_url
+                    )
     except NonExistingNapariPluginError as e:
         print(e.message)
-        return PluginAnalysisResult([], None)
+        return PluginAnalysisResult.with_status(AnalysisStatus.NON_EXISTING_PLUGIN)
+
+
+def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_LINK):
+    result = analyse_remote_plugin(plugin_name, api_url=api_url)
+    _display_error_message(plugin_name, result)
+    return result.status == AnalysisStatus.SUCCESS
 
 
 def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_LINK, display_info=False):
-    all_results = []
-    missing_urls = []
-    non_accessible_urls = []
+    all_results = {}
     plugins_name = requests.get(api_url).json().keys()
 
     for name in plugins_name:
-        try:
-            all_results.append(analyse_remote_plugin(name))
-        except MissingRepositoryURL:
-            if display_info:
-                print(
-                    f"** Plugin {name} does not have repository URL on the Naparay-HUB plateform"
-                )
-            missing_urls.append(name)
-        except NonAccessibleRepositoryURL as e:
-            if display_info:
-                print(
-                    f"** Repository URL for plugin {e.plugin!r} is not accessible (private repository?)"
-                )
-            non_accessible_urls.append((e.plugin, e.url))
-    return all_results, missing_urls, non_accessible_urls
+        result = analyse_remote_plugin(name)
+        all_results[name] = result
+        if not display_info:
+            continue
+        _display_error_message(name, result)
+    return all_results
+
+
+def _display_error_message(plugin_name, result):
+    if result.status == AnalysisStatus.BAD_URL:
+        print(
+            f"\N{BALLOT X} Repository URL format for plugin {plugin_name!r} is wrong (url: {result.url})"
+        )
+    elif result.status == AnalysisStatus.MISSING_URL:
+        print(
+            f"\N{BALLOT X} Plugin {plugin_name} does not have repository URL on the Naparay-HUB plateform"
+        )
+    elif result.status == AnalysisStatus.UNACCESSIBLE_REPOSITORY:
+        print(
+            f"\N{BALLOT X} Repository URL for plugin {plugin_name!r} is not accessible (private repository?) - url: {result.url}"
+        )

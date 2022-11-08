@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum, unique
 from pathlib import Path
 from typing import List, Optional
 
@@ -28,10 +29,25 @@ class Feature(object):
     scanned_files: List[Path]
 
 
+@unique
+class AnalysisStatus(Enum):
+    SUCCESS = "Success"
+    MISSING_URL = "Missing repository URL"
+    NON_EXISTING_PLUGIN = "Plugin is not existing in the Napari-HUB plateform"
+    UNACCESSIBLE_REPOSITORY = "Repository URL is not accessible"
+    BAD_URL = "Repository URL does not have right format"
+
+
 @dataclass
 class PluginAnalysisResult(object):
     features: List[Feature]
+    status: AnalysisStatus
     repository: Optional[Path]
+    url: Optional[str]
+
+    @classmethod
+    def with_status(cls, status, url=None):
+        return cls([], status, None, url)
 
 
 DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml")
@@ -115,7 +131,7 @@ def create_checklist(repopath):
                 meta_feature, main_file=plugin_repo.citation_file, fallbacks=()
             )
         )
-    return PluginAnalysisResult(result, repo)
+    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, repo, None)
 
 
 def display_checklist(analysis_result):

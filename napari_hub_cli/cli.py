@@ -14,6 +14,7 @@ import sys
 from .documentation_checklist.analysis import (
     analyse_remote_plugin,
     analyze_all_remote_plugins,
+    display_remote_analysis,
 )
 from .documentation_checklist.create_doc_checklist import (
     create_checklist,
@@ -118,13 +119,10 @@ def remote_documentation_checklist(plugin_name):
     Returns
     -------
     int
-        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB plateform
+        the status of the result, 0 = OK, 3 = something went wrong, probably non-existing plugin in the Napari HUB plateform
     """
-    check_list = analyse_remote_plugin(plugin_name)
-    if not check_list.features:
-        return 3
-    display_checklist(check_list)
-    return 0
+    success = display_remote_analysis(plugin_name)
+    return 0 if success else 3
 
 
 def generate_report_all_plugins():
@@ -134,7 +132,7 @@ def generate_report_all_plugins():
     int
         the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB plateform
     """
-    results = analyze_all_remote_plugins()
+    results = analyze_all_remote_plugins(display_info=True)
     import ipdb
 
     ipdb.set_trace()
