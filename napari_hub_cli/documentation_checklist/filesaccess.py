@@ -104,6 +104,7 @@ class ConfigFile(object):
                 self.is_valid = False
         else:
             self.data = {}
+            self.is_valid = False
 
     @property
     def exists(self):
@@ -220,36 +221,38 @@ class NapariConfig(Metadata, ConfigFile):
 
 class SetupCfg(Metadata, ConfigFile):
     @property
+    @lru_cache()
+    def metadata(self):
+        return self.data.get("metadata", {})
+
+    @property
+    @lru_cache()
+    def project_urls(self):
+        return self.metadata.get("project_urls", "")
+
+    @property
     def has_name(self):
-        return "name" in self.data.get(
-            "metadata", {}
-        ) or "display_name" in self.data.get("metadata", {})
+        return "name" in self.metadata or "display_name" in self.metadata
 
     @property
     def has_author(self):
-        metadata = self.data.get("metadata", {})
-        return "author" in metadata or "authors" in metadata
+        return "author" in self.metadata or "authors" in self.metadata
 
     @property
     def has_sourcecode(self):
-        metadata = self.data.get("metadata", {})
-        return "Source Code" in metadata.get("project_urls", "")
+        return "Source Code" in self.project_urls or "Source" in self.project_urls
 
     @property
     def has_bugtracker(self):
-        metadata = self.data.get("metadata", {})
-        return "Bug Tracker" in metadata.get("project_urls", "")
+        return "Bug Tracker" in self.project_urls or "Tracker" in self.project_urls
 
     @property
     def has_usersupport(self):
-        metadata = self.data.get("metadata", {})
-        return "User Support" in metadata.get("project_urls", "")
+        return "User Support" in self.project_urls or "Support" in self.project_urls
 
     @property
     def has_summary(self):
-        return "summary" in self.data.get(
-            "metadata", {}
-        ) or "description" in self.data.get("metadata", {})
+        return "summary" in self.metadata or "description" in self.metadata
 
     @lru_cache()
     def long_description(self):
@@ -283,11 +286,61 @@ class SetupCfg(Metadata, ConfigFile):
 
 
 class PyProjectToml(Metadata, ConfigFile):
+    @property
+    @lru_cache
+    def project_data(self):
+        return self.data.get("project", {})
+
+    @property
+    @lru_cache
+    def project_urls(self):
+        return self.project_data.get("urls", {})
+
+    @property
+    def has_name(self):
+        return "name" in self.project_data or "display_name" in self.project_data
+
+    @property
+    def has_sourcecode(self):
+        return "Source Code" in self.project_urls or "Source" in self.project_urls
+
+    @property
+    def has_author(self):
+        return "authors" in self.project_data or "author" in self.project_data
+
+    @property
+    def has_bugtracker(self):
+        return "Bug Tracker" in self.project_urls or "Tracker" in self.project_urls
+
+    @property
+    def has_usersupport(self):
+        return "User Support" in self.project_urls or "Support" in self.project_urls
+
+    @property
+    def has_summary(self):
+        return "description" in self.project_data
+
+    def _find_src_location(self):
+        try:
+            return self.data["tool"]["setuptools"]["packages"]["find"]["where"]
+        except KeyError:
+            return []
+
     def find_npe2(self):
-        if "napari.manifest" not in self.data:
+        try:
+            manifest_entry = self.project_data["entry-points"]["napari.manifest"]
+        except KeyError:
             return None
-        # TODO Implement me
-        # Currently, this file is not used
+        project_name = self.project_data.get("name", "")
+        manifest = manifest_entry[project_name]
+        modules = self._find_src_location()
+        pattern = re.compile(r"(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
+        result = pattern.match(manifest)
+        if result:
+            parsed = result.groupdict()
+            modules.extend(m for m in parsed["modules"].split(":") if m)
+            return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
+        return None
 
 
 class Npe2Yaml(Metadata, ConfigFile):

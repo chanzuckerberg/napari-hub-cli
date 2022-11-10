@@ -74,10 +74,10 @@ def check_feature(meta, main_file, fallbacks):
     scanned_files = [main_file, *fallbacks]
     has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
-    if getattr(main_file, key, False):
+    if getattr(main_file, key):
         return Feature(meta, True, main_file.file, False, has_fallback, scanned_files)
     for fallback in fallbacks:
-        if getattr(fallback, key, False):
+        if getattr(fallback, key):
             return Feature(meta, True, fallback.file, True, True, scanned_files)
     return Feature(meta, False, None, False, has_fallback, scanned_files)
 
@@ -101,7 +101,7 @@ def create_checklist(repopath):
     setup_cfg = plugin_repo.setup_cfg
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description
-    # pyproject_toml = plugin_repo.pyproject_toml  # not used?
+    pyproject_toml = plugin_repo.pyproject_toml
     npe2_yaml = plugin_repo.npe2_yaml
 
     long_descr_setup_cfg = setup_cfg.long_description()
@@ -110,13 +110,17 @@ def create_checklist(repopath):
     result = []
     result.append(
         check_feature(
-            DISPLAY_NAME, main_file=npe2_yaml, fallbacks=(setup_cfg, setup_py)
+            DISPLAY_NAME,
+            main_file=npe2_yaml,
+            fallbacks=(setup_cfg, setup_py, pyproject_toml),
         )
     )
     for meta_feature in (SUMMARY, SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT):
         result.append(
             check_feature(
-                meta_feature, main_file=napari_cfg, fallbacks=(setup_cfg, setup_py)
+                meta_feature,
+                main_file=napari_cfg,
+                fallbacks=(pyproject_toml, setup_cfg, setup_py),
             )
         )
     for meta_feature in (VIDEO_SCREENSHOT, USAGE, INTRO):
