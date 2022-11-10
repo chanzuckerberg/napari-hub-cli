@@ -153,7 +153,10 @@ def display_checklist(analysis_result):
             console.print()
             console.print("OPTIONAL ", style="underline")
         mark, style = CHECKLIST_STYLE[feature.found]
-        console.print(f"{mark} {feature.meta.name}", style=style)
+        found_localisation = (
+            f" ({feature.found_in.relative_to(repo)})" if feature.found else ""
+        )
+        console.print(f"{mark} {feature.meta.name}{found_localisation}", style=style)
 
     # Display detailed information
     for feature in analysis_result.features:

@@ -2,7 +2,6 @@ import os
 import re
 from configparser import ConfigParser
 from functools import lru_cache
-from webbrowser import get
 
 import setuptools
 import tomli
@@ -300,8 +299,8 @@ class Npe2Yaml(Metadata, ConfigFile):
 class MarkdownDescription(object):
     def __init__(self, raw_content, file):
         self.file = file
-        self.raw_content = raw_content
-        self.content = Document(raw_content)
+        self.raw_content = re.sub("(<!--.*?-->)", "", raw_content, flags=re.DOTALL)
+        self.content = Document(self.raw_content)
 
     @classmethod
     def from_file(cls, file):
