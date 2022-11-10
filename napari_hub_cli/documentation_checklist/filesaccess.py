@@ -2,6 +2,7 @@ import os
 import re
 from configparser import ConfigParser
 from functools import lru_cache
+from webbrowser import get
 
 import setuptools
 import tomli
@@ -143,7 +144,7 @@ class Metadata(object):
 class SetupPy(Metadata, ConfigFile):
     @property
     def has_name(self):
-        return "name" in self.data
+        return "name" in self.data or "display_name" in self.data
 
     @property
     def has_author(self):
@@ -183,6 +184,11 @@ class SetupPy(Metadata, ConfigFile):
             if result:
                 parsed = result.groupdict()
                 modules = [m for m in parsed["modules"].split(":") if m]
+                src_location = self.data.get("options.packages.find", {}).get(
+                    "where", ""
+                )
+                if src_location:
+                    modules.insert(0, src_location)
                 return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
 
@@ -216,7 +222,9 @@ class NapariConfig(Metadata, ConfigFile):
 class SetupCfg(Metadata, ConfigFile):
     @property
     def has_name(self):
-        return "name" in self.data.get("metadata", {})
+        return "name" in self.data.get(
+            "metadata", {}
+        ) or "display_name" in self.data.get("metadata", {})
 
     @property
     def has_author(self):
@@ -268,6 +276,9 @@ class SetupCfg(Metadata, ConfigFile):
         if result:
             parsed = result.groupdict()
             modules = [m for m in parsed["modules"].split(":") if m]
+            src_location = self.data.get("options.packages.find", {}).get("where", "")
+            if src_location:
+                modules.insert(0, src_location)
             return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
 
@@ -283,7 +294,7 @@ class PyProjectToml(Metadata, ConfigFile):
 class Npe2Yaml(Metadata, ConfigFile):
     @property
     def has_name(self):
-        return "name" in self.data
+        return "name" in self.data or "display_name" in self.data
 
 
 class MarkdownDescription(object):
