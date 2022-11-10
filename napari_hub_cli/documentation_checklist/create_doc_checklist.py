@@ -124,9 +124,14 @@ def create_checklist(repopath):
             fallbacks=[pyproject_toml, setup_cfg, setup_py],
         ),
         Requirement(
-            features=[SUMMARY, SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
+            features=[SUMMARY],
             main_files=[napari_cfg],
             fallbacks=[pyproject_toml, setup_cfg, setup_py],
+        ),
+        Requirement(
+            features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
+            main_files=[pyproject_toml, setup_cfg, setup_py],
+            fallbacks=[],
         ),
         Requirement(
             features=[VIDEO_SCREENSHOT, USAGE, INTRO],
