@@ -11,7 +11,12 @@ from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_LINK
 from ..utils import NonExistingNapariPluginError, get_repository_url
-from .create_doc_checklist import AnalysisStatus, PluginAnalysisResult, create_checklist
+from .create_doc_checklist import (
+    AnalysisStatus,
+    PluginAnalysisResult,
+    create_checklist,
+    display_checklist,
+)
 
 
 class FakeProgress(object):
@@ -91,6 +96,7 @@ def analyse_remote_plugin(
 
 def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_LINK):
     result = analyse_remote_plugin(plugin_name, api_url=api_url, display_info=True)
+    display_checklist(result)
     _display_error_message(plugin_name, result)
     return result.status == AnalysisStatus.SUCCESS
 
