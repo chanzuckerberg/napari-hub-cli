@@ -432,7 +432,7 @@ class MarkdownDescription(object):
     def has_installation(self):
         pattern = match(Document) % {
             "children+>content": regex(
-                r"^.*?pip\s+install"  # Must contain "pip install"
+                r"^.*?(pip|conda)\s+install"  # Must contain "pip install"
             ),
         }
         result = pattern.match(self.content)

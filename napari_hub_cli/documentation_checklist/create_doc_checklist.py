@@ -75,6 +75,9 @@ USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md")
 INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md")
 CITATION = MetaFeature("Citation", "exists", "CITATION.CFF")
 CITATION_VALID = MetaFeature("Citation Format is Valid", "is_valid", "CITATION.CFF")
+INSTALLATION = MetaFeature(
+    "Installation", "has_installation", ".napari-hub/DESCRIPTION.md"
+)
 
 
 def check_feature(meta, main_files, fallbacks):
@@ -135,7 +138,7 @@ def create_checklist(repopath):
             fallbacks=[],
         ),
         Requirement(
-            features=[VIDEO_SCREENSHOT, USAGE, INTRO],
+            features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
             main_files=[description],
             fallbacks=[
                 long_descr_setup_cfg,
