@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from rich.console import Console
 
-from .filesaccess import NapariPlugin
+from .filesaccess import ConfigFile, MarkdownDescription, NapariPlugin
 
 CHECKLIST_STYLE = {
     True: ("\N{CHECK MARK}", "bold green"),
@@ -51,6 +51,13 @@ class PluginAnalysisResult(object):
         return cls([], status, None, url)
 
 
+@dataclass
+class Requirement(object):
+    features: List[MetaFeature]
+    main_files: List[Union[ConfigFile, MarkdownDescription]]
+    fallbacks: List[Union[ConfigFile, MarkdownDescription]]
+
+
 DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml")
 SUMMARY = MetaFeature("Summary Sentence", "has_summary", ".napari-hub/config.yml")
 SOURCECODE = MetaFeature("Source Code", "has_sourcecode", ".napari-hub/config.yml")
@@ -70,12 +77,15 @@ CITATION = MetaFeature("Citation", "exists", "CITATION.CFF")
 CITATION_VALID = MetaFeature("Citation Format is Valid", "is_valid", "CITATION.CFF")
 
 
-def check_feature(meta, main_file, fallbacks):
-    scanned_files = [main_file, *fallbacks]
+def check_feature(meta, main_files, fallbacks):
+    scanned_files = [*main_files, *fallbacks]
     has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
-    if getattr(main_file, key):
-        return Feature(meta, True, main_file.file, False, has_fallback, scanned_files)
+    for main_file in main_files:
+        if getattr(main_file, key):
+            return Feature(
+                meta, True, main_file.file, False, has_fallback, scanned_files
+            )
     for fallback in fallbacks:
         if getattr(fallback, key):
             return Feature(meta, True, fallback.file, True, True, scanned_files)
@@ -107,36 +117,39 @@ def create_checklist(repopath):
     long_descr_setup_cfg = setup_cfg.long_description()
     long_descr_setup_py = setup_py.long_description()
 
+    requirements = [
+        Requirement(
+            features=[DISPLAY_NAME],
+            main_files=[npe2_yaml],
+            fallbacks=[pyproject_toml, setup_cfg, setup_py],
+        ),
+        Requirement(
+            features=[SUMMARY, SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
+            main_files=[napari_cfg],
+            fallbacks=[pyproject_toml, setup_cfg, setup_py],
+        ),
+        Requirement(
+            features=[VIDEO_SCREENSHOT, USAGE, INTRO],
+            main_files=[description],
+            fallbacks=[long_descr_setup_cfg, long_descr_setup_py],
+        ),
+        Requirement(
+            features=[CITATION, CITATION_VALID],
+            main_files=[plugin_repo.citation_file],
+            fallbacks=[],
+        ),
+    ]
+
     result = []
-    result.append(
-        check_feature(
-            DISPLAY_NAME,
-            main_file=npe2_yaml,
-            fallbacks=(setup_cfg, setup_py, pyproject_toml),
-        )
-    )
-    for meta_feature in (SUMMARY, SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT):
-        result.append(
-            check_feature(
-                meta_feature,
-                main_file=napari_cfg,
-                fallbacks=(pyproject_toml, setup_cfg, setup_py),
+    for requirement in requirements:
+        for feature in requirement.features:
+            result.append(
+                check_feature(
+                    feature,
+                    main_files=requirement.main_files,
+                    fallbacks=requirement.fallbacks,
+                )
             )
-        )
-    for meta_feature in (VIDEO_SCREENSHOT, USAGE, INTRO):
-        result.append(
-            check_feature(
-                meta_feature,
-                main_file=description,
-                fallbacks=(long_descr_setup_cfg, long_descr_setup_py),
-            )
-        )
-    for meta_feature in (CITATION, CITATION_VALID):
-        result.append(
-            check_feature(
-                meta_feature, main_file=plugin_repo.citation_file, fallbacks=()
-            )
-        )
     return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, repo, None)
 
 
