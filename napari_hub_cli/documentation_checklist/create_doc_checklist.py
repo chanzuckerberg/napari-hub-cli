@@ -116,6 +116,7 @@ def create_checklist(repopath):
 
     long_descr_setup_cfg = setup_cfg.long_description()
     long_descr_setup_py = setup_py.long_description()
+    long_descr_pyproject_toml = pyproject_toml.long_description()
 
     requirements = [
         Requirement(
@@ -136,7 +137,11 @@ def create_checklist(repopath):
         Requirement(
             features=[VIDEO_SCREENSHOT, USAGE, INTRO],
             main_files=[description],
-            fallbacks=[long_descr_setup_cfg, long_descr_setup_py],
+            fallbacks=[
+                long_descr_setup_cfg,
+                long_descr_setup_py,
+                long_descr_pyproject_toml,
+            ],
         ),
         Requirement(
             features=[CITATION, CITATION_VALID],

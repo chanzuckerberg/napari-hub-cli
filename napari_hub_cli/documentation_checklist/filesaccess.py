@@ -320,6 +320,15 @@ class PyProjectToml(Metadata, ConfigFile):
     def has_summary(self):
         return "description" in self.project_data
 
+    @lru_cache()
+    def long_description(self):
+        try:
+            readme_name = self.project_data["readme"]
+            readme = self.file.parent / readme_name
+            return MarkdownDescription.from_file(readme)
+        except KeyError:
+            return MarkdownDescription("", self.file)
+
     def _find_src_location(self):
         try:
             return self.data["tool"]["setuptools"]["packages"]["find"]["where"]
@@ -420,6 +429,16 @@ class MarkdownDescription(object):
         return result.is_match
 
     @property
+    def has_installation(self):
+        pattern = match(Document) % {
+            "children+>content": regex(
+                r"^.*?pip\s+install"  # Must contain "pip install"
+            ),
+        }
+        result = pattern.match(self.content)
+        return result.is_match
+
+    @property
     def has_intro(self):
         pattern = match(Document) % {
             "children": [
@@ -435,6 +454,8 @@ class MarkdownDescription(object):
             paragraphs = result.bindings[0]["paragraphs"]
 
             def is_txt(p):
+                if not hasattr(p, "children"):
+                    return False
                 for child in p.children:
                     if not isinstance(child, RawText):
                         continue
