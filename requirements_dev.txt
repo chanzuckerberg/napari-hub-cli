@@ -1,8 +1,5 @@
-pip
-wheel
-flake8
+pre-commit
 tox
-coverage
 pytest
 pytest-cov
-parsesetup
+requests-mock

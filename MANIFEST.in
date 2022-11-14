@@ -1,4 +1,4 @@
-inclue napari_hub_cli/resources/metadata_sources.csv
+include napari_hub_cli/resources/metadata_sources.csv
 include napari_hub_cli/resources/metadata_usage.csv
 
 include README.md
