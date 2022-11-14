@@ -11,14 +11,19 @@ def assert_cfg_src(meta, missing):
         if field != "Version" and field not in meta:
             assert field in missing
             if field != "Description" and field not in YML_META:
-                assert missing[field].src_file == "/setup.cfg"
+                assert missing[field].src_file == "setup.cfg"
 
 
-def test_suggested_src_cfg(tmpdir):
+def test_cfg_fields_non_empty():
+    assert len(FIELDS) > 0  # necessary to avoid potential rotten green tests
+
+
+def test_suggested_src_cfg(tmp_path):
     """Test when cfg exists, we suggest cfg as source"""
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
-    setup_cfg_file.write(
+    root_dir = tmp_path / "test-suggested-src-cfg"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
+    setup_cfg_file.write_text(
         """
 [metadata]
 name = test-plugin-name
@@ -51,11 +56,12 @@ def test_both_setup_suggest_cfg(make_pkg_dir):
     assert_cfg_src(meta, missing)
 
 
-def test_setup_py_no_cfg_suggest_py(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_setup_py_no_cfg_suggest_py(tmp_path):
+    root_dir = tmp_path / "test-plugin-name"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         """
 from setuptools import setup
 
@@ -70,7 +76,7 @@ setup(
         if field not in meta:
             assert field in missing
             if field != "Description" and field not in YML_META:
-                assert missing[field].src_file == "/setup.py"
+                assert missing[field].src_file == "setup.py"
 
 
 def test_no_missing_in_full_config(make_pkg_dir):
@@ -89,7 +95,7 @@ def test_description_src(make_pkg_dir):
 
     assert "Description" in missing
     file_pth, _, _ = missing["Description"].unpack()
-    assert file_pth == "/.napari/DESCRIPTION.md"
+    assert file_pth == ".napari/DESCRIPTION.md"
 
 
 @pytest.mark.required_configs([CONFIG.CFG])
@@ -97,7 +103,7 @@ def test_proj_urls_src(make_pkg_dir):
     root_dir = make_pkg_dir
     meta = load_meta(root_dir)
     missing = get_missing(meta, root_dir)
-    f_pth = "/.napari/config.yml"
+    f_pth = ".napari/config.yml"
     section = "project_urls"
 
     for url in PROJECT_URLS:

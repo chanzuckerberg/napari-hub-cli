@@ -5,11 +5,9 @@ import pytest
 from napari_hub_cli.constants import DESC_LENGTH, FIELDS, PROJECT_URLS
 from napari_hub_cli.meta_classes import MetaItem
 from napari_hub_cli.napari_hub_cli import load_meta
-from napari_hub_cli.utils import get_github_license
+from napari_hub_cli.utils import get_github_license, parse_setup
 
-from .config_enum import CONFIG
-
-DEMO_GITHUB_REPO = "https://github.com/DragaDoncila/example-plugin"
+from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
 
 @pytest.mark.required_configs([CONFIG.YML])
@@ -21,7 +19,7 @@ def test_config_yml(make_pkg_dir):
         # all project urls have been read and are sourced from config yml
         assert proj_url in meta_dict
         f_pth, section, key = meta_dict[proj_url].source.unpack()
-        assert f_pth == "/.napari/config.yml"
+        assert f_pth == ".napari/config.yml"
         assert section == "project_urls"
         assert key == proj_url
 
@@ -34,7 +32,7 @@ def test_config_yml(make_pkg_dir):
     assert meta_dict["Authors"].value[0]["name"] == "Jane Doe"
     assert len(meta_dict["Authors"].value) == 2
     f_pth, section, key = meta_dict["Authors"].source.unpack()
-    assert f_pth == "/.napari/config.yml"
+    assert f_pth == ".napari/config.yml"
     assert section == "authors"
     assert key is None
 
@@ -48,7 +46,7 @@ def test_config_yml_not_overriden(make_pkg_dir):
         # all project urls have been read and are sourced from config yml
         assert proj_url in meta_dict
         f_pth, section, key = meta_dict[proj_url].source.unpack()
-        assert f_pth == "/.napari/config.yml"
+        assert f_pth == ".napari/config.yml"
         assert section == "project_urls"
         assert key == proj_url
 
@@ -66,7 +64,7 @@ def test_description_not_overriden(make_pkg_dir):
 
     assert meta_dict["Description"].value == "Test .napari Description."
     f_pth, section, key = meta_dict["Description"].source.unpack()
-    assert f_pth == "/.napari/DESCRIPTION.md"
+    assert f_pth == ".napari/DESCRIPTION.md"
     assert section is None
     assert key is None
 
@@ -78,7 +76,7 @@ def test_cfg_description(make_pkg_dir):
 
     assert meta_dict["Description"].value == "Test README Description."
     f_pth, section, key = meta_dict["Description"].source.unpack()
-    assert f_pth == "/setup.cfg"
+    assert f_pth == "setup.cfg"
     assert section == "metadata"
     assert key == "long_description"
 
@@ -86,8 +84,8 @@ def test_cfg_description(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.INIT])
 def test_version_init_setup_cfg(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.cfg")
-    stup.write("[metadata]\nname = test-plugin-name")
+    stup = root_dir / "setup.cfg"
+    stup.write_text("[metadata]\nname = test-plugin-name")
 
     meta = load_meta(root_dir)
 
@@ -100,8 +98,8 @@ def test_version_init_setup_cfg(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.INIT])
 def test_version_init_setup_py(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -114,8 +112,8 @@ def test_version_init_setup_py(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.SCM_VERS])
 def test_version_scm(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -128,8 +126,8 @@ def test_version_scm(make_pkg_dir):
 @pytest.mark.required_configs([CONFIG.VERS])
 def test_version_file(make_pkg_dir):
     root_dir = make_pkg_dir
-    stup = root_dir.join("setup.py")
-    stup.write("from setuptools import setup\nsetup()")
+    stup = root_dir / "setup.py"
+    stup.write_text("from setuptools import setup\nsetup()")
 
     meta = load_meta(root_dir)
 
@@ -161,25 +159,28 @@ def test_fields_have_source(make_pkg_dir):
 def test_long_description_trimmed(make_pkg_dir):
     root_dir = make_pkg_dir
     long_desc = "*" * DESC_LENGTH * 2
-    readme = root_dir.join("README.md")
-    readme.write(long_desc)
+    readme = root_dir / "README.md"
+    readme.write_text(long_desc)
 
     meta = load_meta(root_dir)
     # trimmed description plus the dots
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
     # same for DESCRIPTION.md
-    desc = root_dir.mkdir(".napari").join("DESCRIPTION.md")
-    desc.write(long_desc)
+    napari_dir = root_dir / ".napari"
+    napari_dir.mkdir()
+    desc = napari_dir / "DESCRIPTION.md"
+    desc.write_text(long_desc)
     meta = load_meta(root_dir)
-    assert meta["Description"].source.src_file == "/.napari/DESCRIPTION.md"
+    assert meta["Description"].source.src_file == ".napari/DESCRIPTION.md"
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
 
-def test_long_description_cfg(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
-    setup_cfg_file.write(
+def test_long_description_cfg(tmp_path):
+    root_dir = tmp_path / "test-long-description"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 name = test-plugin-name
@@ -187,19 +188,20 @@ long_description = {'*' * DESC_LENGTH*2}
     """
     )
 
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     assert "Description" in meta
     assert len(meta["Description"].value) == DESC_LENGTH + 3
 
 
-def test_setup_py_proj_urls(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_setup_py_proj_urls(tmp_path):
+    root_dir = tmp_path / "test-setup-py-proj-urls"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
     proj_site = "https://test-plugin-name.com"
     twitter = "https://twitter.com/test-plugin-name"
     bug_tracker = "https://github.com/user/test-plugin-name"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         f"""
 from setuptools import setup
 
@@ -213,7 +215,7 @@ setup(
 )
     """
     )
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     for key, value in zip(
         ["Project Site", "Bug Tracker", "Twitter"], [proj_site, bug_tracker, twitter]
     ):
@@ -221,14 +223,15 @@ setup(
         assert meta[key].value == value
 
 
-def test_setup_cfg_proj_urls(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
+def test_setup_cfg_proj_urls(tmp_path):
+    root_dir = tmp_path / "test-setup-cfg-proj-urls"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
     proj_site = "https://test-plugin-name.com"
     twitter = "https://twitter.com/test-plugin-name"
     bug_tracker = "https://github.com/user/test-plugin-name"
 
-    setup_cfg_file.write(
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 url = {proj_site}
@@ -237,7 +240,7 @@ project_urls =
     Twitter = {twitter}
     """
     )
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     for key, value in zip(
         ["Project Site", "Bug Tracker", "Twitter"], [proj_site, bug_tracker, twitter]
     ):
@@ -245,12 +248,13 @@ project_urls =
         assert meta[key].value == value
 
 
-def test_source_code_url(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_py_file = root_dir.join("setup.py")
+def test_source_code_url(tmp_path):
+    root_dir = tmp_path / "test-source-code-url"
+    root_dir.mkdir()
+    setup_py_file = root_dir / "setup.py"
     proj_site = "https://github.com/user/test-plugin-name"
 
-    setup_py_file.write(
+    setup_py_file.write_text(
         f"""
 from setuptools import setup
 
@@ -261,7 +265,7 @@ setup(
     """
     )
 
-    meta = load_meta(root_dir)
+    meta = load_meta(f"{root_dir}")
     assert "Project Site" not in meta
     assert "Source Code" in meta
     assert meta["Source Code"].value == proj_site
@@ -275,11 +279,12 @@ def test_github_license():
     assert github_api_license == "BSD-3-Clause"
 
 
-def test_github_license_overrides_local(tmpdir):
-    root_dir = tmpdir.mkdir("test-plugin-name")
-    setup_cfg_file = root_dir.join("setup.cfg")
+def test_github_license_overrides_local(tmp_path):
+    root_dir = tmp_path / "test-github-license-overrides-local"
+    root_dir.mkdir()
+    setup_cfg_file = root_dir / "setup.cfg"
 
-    setup_cfg_file.write(
+    setup_cfg_file.write_text(
         f"""
 [metadata]
 license = MIT
@@ -287,9 +292,19 @@ project_urls =
     Source Code = {DEMO_GITHUB_REPO}
 """
     )
-    meta = load_meta(root_dir)
-
+    meta = load_meta(f"{root_dir}")
     assert "License" in meta
     license_src = meta["License"].source
     assert license_src.src_file == "GitHub Repository"
     assert meta["License"].value == "BSD-3-Clause"
+
+
+def test_parse_wrong_setup_py(tmp_path):
+    root_dir = tmp_path / "test-parse-wrong-setup-file"
+    root_dir.mkdir()
+    setup_file = root_dir / "other.py"
+
+    setup_file.write_text("print('do nothing')")
+
+    with pytest.raises(ValueError):
+        parse_setup(setup_file)

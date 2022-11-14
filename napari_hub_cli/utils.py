@@ -1,11 +1,12 @@
 import codecs
 import difflib
 import glob
-import json
 import os
 import re
+from contextlib import suppress
 
 import requests
+import setuptools
 from requests.exceptions import HTTPError
 
 from .constants import GITHUB_PATTERN, NAPARI_HUB_API_LINK
@@ -117,17 +118,15 @@ def get_github_license(meta):
         api_url = repo_url.replace(
             "https://github.com/", "https://api.github.com/repos/"
         )
-        try:
+        with suppress(HTTPError):
             response = requests.get(f"{api_url}/license", headers=auth_header)
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()
-            response_json = json.loads(response.text.strip())
+            response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
                 if spdx_id != "NOASSERTION":
                     return spdx_id
-        except HTTPError:
-            return None
 
 
 def get_init_version(rel_path):
@@ -171,7 +170,7 @@ def get_pkg_version(given_meta, root_pth):
     version_file_regex = r"^_*version_*(.py)?$"
     pkg_version = (
         "We could not parse the version of your package."
-        + " Check PyPi for your latest version."
+        " Check PyPi for your latest version."
     )
 
     # literal version resolved in meta
@@ -297,6 +296,33 @@ def is_canonical(version):
         )
         is not None
     )
+
+
+# TODO Improve me by mocking failing imports
+# In the meantime, if setup.py includes other imports that perform computation
+# over the parameters that are passed to "setup(...)", this function
+# or any library relying on monkey patching of "setup(...)" will give bad results.
+def parse_setup(filename):
+
+    result = []
+    setup_path = os.path.abspath(filename)
+    old_setup = setuptools.setup
+    setuptools.setup = lambda **kwargs: result.append(kwargs)
+    with open(setup_path, "r") as f:
+        try:
+            exec(
+                f.read(),
+                {
+                    "__name__": "__main__",
+                    "__builtins__": __builtins__,
+                    "__file__": setup_path,
+                },
+            )
+        finally:
+            setuptools.setup = old_setup
+    if result:
+        return result[0]
+    raise ValueError("setup wasn't called from setup.py")
 
 
 class NonExistingNapariPluginError(Exception):

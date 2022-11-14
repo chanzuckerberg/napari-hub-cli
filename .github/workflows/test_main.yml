@@ -1,6 +1,6 @@
 name: tests
 
-on: 
+on:
   push:
     branches:
       - master
@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, "3.10"]
 
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
           pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
-        run: tox -r
+        run: tox -r -e py
         env:
           PLATFORM: ${{ matrix.platform }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
