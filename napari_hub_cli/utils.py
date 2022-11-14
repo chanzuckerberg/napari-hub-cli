@@ -298,33 +298,6 @@ def is_canonical(version):
     )
 
 
-# TODO Improve me by mocking failing imports
-# In the meantime, if setup.py includes other imports that perform computation
-# over the parameters that are passed to "setup(...)", this function
-# or any library relying on monkey patching of "setup(...)" will give bad results.
-def parse_setup(filename):
-
-    result = []
-    setup_path = os.path.abspath(filename)
-    old_setup = setuptools.setup
-    setuptools.setup = lambda **kwargs: result.append(kwargs)
-    with open(setup_path, "r") as f:
-        try:
-            exec(
-                f.read(),
-                {
-                    "__name__": "__main__",
-                    "__builtins__": __builtins__,
-                    "__file__": setup_path,
-                },
-            )
-        finally:
-            setuptools.setup = old_setup
-    if result:
-        return result[0]
-    raise ValueError("setup wasn't called from setup.py")
-
-
 class NonExistingNapariPluginError(Exception):
     def __init__(self, plugin_name, closest=None, *args, **kwargs):
         self.plugin_name = plugin_name
@@ -402,3 +375,34 @@ def get_repository_url(plugin_name, api_url=NAPARI_HUB_API_LINK):
         raise NonExistingNapariPluginError(plugin_name, closest=closest_name)
 
     return plugin_info["code_repository"]
+
+
+# TODO Improve me by mocking failing imports
+# In the meantime, if setup.py includes other imports that perform computation
+# over the parameters that are passed to "setup(...)", this function
+# or any library relying on monkey patching of "setup(...)" will give bad results.
+def parse_setup(filename):
+    result = []
+    setup_path = os.path.abspath(filename)
+    wd = os.getcwd()  # save current directory
+    os.chdir(os.path.dirname(setup_path))  # we change there
+    old_setup = setuptools.setup
+    setuptools.setup = lambda **kwargs: result.append(kwargs)
+    with open(setup_path, "r") as f:
+        try:
+            exec(
+                f.read(),
+                {
+                    "__name__": "__main__",
+                    "__builtins__": __builtins__,
+                    "__file__": setup_path,
+                },
+            )
+        finally:
+            setuptools.setup = (
+                old_setup  # we reset setuptools function to the original one
+            )
+            os.chdir(wd)  # we go back to our working directory
+    if result:
+        return result[0]
+    raise ValueError("setup wasn't called from setup.py")

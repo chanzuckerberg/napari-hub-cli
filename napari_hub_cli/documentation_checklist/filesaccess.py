@@ -1,9 +1,7 @@
-import os
 import re
 from configparser import ConfigParser
 from functools import lru_cache
 
-import setuptools
 import tomli
 import yaml
 from iguala import cond, match, regex
@@ -11,38 +9,9 @@ from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.span_token import RawText
 
+from ..utils import parse_setup
+
 format_parsers = {}
-
-
-# TODO Improve me by mocking failing imports
-# In the meantime, if setup.py includes other imports that perform computation
-# over the parameters that are passed to "setup(...)", this function
-# or any library relying on monkey patching of "setup(...)" will give bad results.
-def parse_setup(filename):
-    result = []
-    setup_path = os.path.abspath(filename)
-    wd = os.getcwd()  # save current directory
-    os.chdir(os.path.dirname(setup_path))  # we change there
-    old_setup = setuptools.setup
-    setuptools.setup = lambda **kwargs: result.append(kwargs)
-    with open(setup_path, "r") as f:
-        try:
-            exec(
-                f.read(),
-                {
-                    "__name__": "__main__",
-                    "__builtins__": __builtins__,
-                    "__file__": setup_path,
-                },
-            )
-        finally:
-            setuptools.setup = (
-                old_setup  # we reset setuptools function to the original one
-            )
-            os.chdir(wd)  # we go back to our working directory
-    if result:
-        return result[0]
-    raise ValueError("setup wasn't called from setup.py")
 
 
 def register_parser(extensions):
