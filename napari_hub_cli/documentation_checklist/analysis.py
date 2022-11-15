@@ -36,7 +36,7 @@ def analyse_remote_plugin(
     plugin_name,
     api_url=NAPARI_HUB_API_LINK,
     display_info=False,
-):
+):  # pragma: no cover
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
 
