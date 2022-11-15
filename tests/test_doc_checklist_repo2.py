@@ -3,6 +3,12 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
+from napari_hub_cli.documentation_checklist.metadata_checklist import (
+    DISPLAY_NAME,
+    VIDEO_SCREENSHOT,
+    create_checklist,
+    display_checklist,
+)
 
 
 @pytest.fixture(scope="module")
@@ -85,3 +91,28 @@ def test_check_citation(test_repo):
     citation = test_repo.citation_file
 
     assert citation.exists is False
+
+
+def test_create_checkist(test_repo):
+    result = create_checklist(test_repo.path)
+
+    assert len(result.features) == 12
+
+    disp_name = result.features[0]
+    assert disp_name.meta is DISPLAY_NAME
+    assert disp_name.found is True
+    assert disp_name.found_in == test_repo.npe2_yaml.file
+    assert disp_name.only_in_fallback is False
+    assert disp_name.has_fallback_files is True
+
+    description = result.features[6]
+    assert description.meta is VIDEO_SCREENSHOT
+    assert description.found is True
+    assert description.found_in == test_repo.description.file
+    assert description.only_in_fallback is False
+    assert description.has_fallback_files is True
+
+
+def test_display_checklist(test_repo):
+    result = create_checklist(test_repo.path)
+    display_checklist(result)
