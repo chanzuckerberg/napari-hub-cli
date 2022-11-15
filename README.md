@@ -230,7 +230,11 @@ Author | ```PyPI``` | ```n/a```
 Citation | ```CITATION.cff``` | ```n/a```  
 
 
-Example output:
+Example output (with all possible scenarios):
+
+<img width="556" alt="Screenshot at Nov 15 18-32-57" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
+
+
 
 ## Citation
 
