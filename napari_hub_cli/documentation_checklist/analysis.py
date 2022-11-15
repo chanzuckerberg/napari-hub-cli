@@ -2,7 +2,6 @@
 
 import csv
 import tempfile
-from operator import le
 from pathlib import Path
 
 import requests
@@ -48,6 +47,9 @@ def analyse_remote_plugin(
 
     api_url: Optional[str] = NAPARI_HUB_API_LINK
         The Napari HUB api url, default value is NAPARI_HUB_API_LINK from the 'napari_hub_cli.constants' module
+
+    display_info: Optional[bool] = False
+        If activated, a progress bar will display information about the running operation
     """
     try:
         plugin_url = get_repository_url(plugin_name, api_url=api_url)

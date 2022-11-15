@@ -81,6 +81,21 @@ INSTALLATION = MetaFeature(
 
 
 def check_feature(meta, main_files, fallbacks):
+    """Checks for a metadata presence in primary and secondary sources
+    Parameters
+    ----------
+    meta: MetaFeature
+        the feature that needs to be checked
+    main_files: Iterable[ConfigFile]
+        the primary source files list
+    fallbacks: Iterable[ConfigFile]
+        the secondary source files
+
+    Returns
+    -------
+    Feature:
+        the result of the analysis of the metadata presence
+    """
     scanned_files = [*main_files, *fallbacks]
     has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
@@ -104,8 +119,8 @@ def create_checklist(repopath):
 
     Returns
     -------
-        Console Checklist and Suggestions
-
+    PluginAnalysisResult:
+        the result of the analysis ran against the local repository
     """
     repo = Path(repopath)
     plugin_repo = NapariPlugin(repo)
@@ -167,6 +182,12 @@ def create_checklist(repopath):
 
 
 def display_checklist(analysis_result):
+    """Displays to the screen the result of the analysis of a plugin
+    Parameters
+    ----------
+    analysis_result: PluginAnalysisResult
+        the result of the analysis ran against the local repository
+    """
     # get repository for display
     repo = analysis_result.repository.parent
 
