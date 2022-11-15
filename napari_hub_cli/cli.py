@@ -17,7 +17,7 @@ from .documentation_checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .documentation_checklist.create_doc_checklist import (
+from .documentation_checklist.metadata_checklist import (
     create_checklist,
     display_checklist,
 )

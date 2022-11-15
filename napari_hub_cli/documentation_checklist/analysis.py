@@ -10,7 +10,7 @@ from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_LINK
 from ..utils import NonExistingNapariPluginError, get_repository_url
-from .create_doc_checklist import (
+from .metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
     create_checklist,
