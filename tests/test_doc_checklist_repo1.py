@@ -1,6 +1,11 @@
 from pathlib import Path
 
 import pytest
+from napari_hub_cli.documentation_checklist.create_doc_checklist import (
+    DISPLAY_NAME,
+    Feature,
+    check_feature,
+)
 
 from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
 
@@ -85,3 +90,27 @@ def test_check_citation(test_repo):
     citation = test_repo.citation_file
 
     assert citation.exists is False
+
+
+def test_check_feature(test_repo):
+    setup_cfg = test_repo.setup_cfg
+
+    result = check_feature(DISPLAY_NAME, (setup_cfg,), ())
+
+    assert isinstance(result, Feature)
+    assert result.meta is DISPLAY_NAME
+    assert result.found is True
+    assert result.found_in is setup_cfg.file
+    assert result.only_in_fallback is False
+    assert result.has_fallback_files is False
+    assert result.scanned_files == [setup_cfg]
+
+    result = check_feature(DISPLAY_NAME, (), (setup_cfg,))
+
+    assert isinstance(result, Feature)
+    assert result.meta is DISPLAY_NAME
+    assert result.found is True
+    assert result.found_in is setup_cfg.file
+    assert result.only_in_fallback is True
+    assert result.has_fallback_files is True
+    assert result.scanned_files == [setup_cfg]

@@ -7,7 +7,7 @@ import napari_hub_cli
 
 from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
-RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
+RESOURCES = Path(f"{Path(__file__).parent}/resources")
 MOCK_REQUESTS = None
 
 
