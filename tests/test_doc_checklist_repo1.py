@@ -92,7 +92,7 @@ def test_check_citation(test_repo):
     assert citation.exists is False
 
 
-def test_check_feature(test_repo):
+def test_check_feature_primary(test_repo):
     setup_cfg = test_repo.setup_cfg
 
     result = check_feature(DISPLAY_NAME, (setup_cfg,), ())
@@ -105,6 +105,10 @@ def test_check_feature(test_repo):
     assert result.has_fallback_files is False
     assert result.scanned_files == [setup_cfg]
 
+
+def test_check_feature_secondary(test_repo):
+    setup_cfg = test_repo.setup_cfg
+
     result = check_feature(DISPLAY_NAME, (), (setup_cfg,))
 
     assert isinstance(result, Feature)
@@ -114,3 +118,16 @@ def test_check_feature(test_repo):
     assert result.only_in_fallback is True
     assert result.has_fallback_files is True
     assert result.scanned_files == [setup_cfg]
+
+
+def test_check_feature_missing(test_repo):
+    setup_py = test_repo.setup_py
+    result = check_feature(DISPLAY_NAME, (), (setup_py,))
+
+    assert isinstance(result, Feature)
+    assert result.meta is DISPLAY_NAME
+    assert result.found is False
+    assert result.found_in is None
+    assert result.only_in_fallback is False
+    assert result.has_fallback_files is True
+    assert result.scanned_files == [setup_py]
