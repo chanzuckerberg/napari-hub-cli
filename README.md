@@ -1,8 +1,10 @@
 # napari-hub-cli
 
-**This package is not being updated or maintained with the latest napari hub metadata. To view a preview of your plugin listing for the napari hub, we recommend using the [napari hub preview page service](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md).**
+
 
 Command line utilities for inspecting and validating plugins for the napari hub.
+
+
 
 # Installation
 
@@ -12,161 +14,150 @@ From your console, you can install the napari hub CLI through pip
 $ pip install napari-hub-cli
 ```
 
-# Usage (**Not Maintained**)
 
-## Metadata
 
-This package provides two utilities for previewing and validating the metadata we 
-will inspect from your plugin and display on the napari hub. 
+# Usage 
 
-### Previewing Metadata
 
+## Documentation Checklist
+
+The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
+With this, it creates a Documentation Checklist identifying if a plugin has the following metadata:
+
+- Display Name
+- Summary Sentence
+- Intro Paragraph
+- Intro Video
+- Intro Scrennshot
+- Usage Section
+- Installation section
+- Source Code Link
+- User Support Link
+- Bug Tracker Link
+- Author
+- Citation
+
+Additionally, the recommended file locations for each metadata are suggested in different cases:
+
+- when the metadata is not found in either the Napari recommended file location and a fallback file location
+- when the metadata is not found at the Napari recommended file location
+
+To create the Napari Documentation Checklist for your plugin there are two alternatives:
+
+- creating the Documentation Checklist from the local plugin path, useful before a release
+- creating the Documentation Checklist from the remote plugin path, requiring the plugin to be released into Napari-Hub
+
+For the first, the command used to create the Documentation Checklist is
 ```
-$ napari-hub-cli preview-metadata /tmp/example-plugin
-```
-
-or
-
-```
-# display one field at a time and wait for input
-$ napari-hub-cli preview-metadata /tmp/example-plugin -i
-```
-
-This utility will inspect the plugin at the given path for metadata and display it for preview.
-
-Each field of metadata is accompanied by the file and attribute where it was found.
-When fields are missing, they are accompanied instead by a suggested source.
-When a field is sourced from `setup.py`, it is always an argument to the `setup` method.
-
-**Version** - Depending on how you manage versioning for your package, we may not be able to
-parse its latest version. The version of your package displayed on
-the napari hub will always be the latest version released on PyPI.
-
-**Project Site** - If your `url` or `Project Site` metadata is a GitHub url, 
-it will be displayed as the Source Code field instead.
-
-Example output:
-
-```
---------------------------------------------------------------------------------
-Authors
---------------------------------------------------------------------------------
-Draga Doncila Pop
-        ------
-        Source
-        ------
-        /setup.cfg: metadata, author
-
---------------------------------------------------------------------------------
-Description
---------------------------------------------------------------------------------
-This is my napari-hub specific description. It is detailed, and comprehensive.
-        ------
-        Source
-        ------
-        /.napari/DESCRIPTION.md
-
---------------------------------------------------------------------------------
-Source Code
---------------------------------------------------------------------------------
-https://github.com/DragaDoncila/example-plugin
-        ------
-        Source
-        ------
-        /.napari/config.yml: project_urls, Source Code
-
---------------------------------------------------------------------------------
-Summary
---------------------------------------------------------------------------------
-~~Not Found~~
-        ------
-        Suggested Source
-        ------
-        /setup.cfg: metadata, summary
-
---------------------------------------------------------------------------------
-User Support
---------------------------------------------------------------------------------
-https://github.com/DragaDoncila/example-plugin/issues
-        ------
-        Source
-        ------
-        /.napari/config.yml: project_urls, User Support
+ $ napari-hub-cli create-doc-checklist /tmp/example-plugin 
 ```
 
-You can then use `check-missing` to get a display of just the missing metadata. 
-See [Customizing Your Plugin Listing](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md) for a detailed guide on how you can add this metadata
-to your project.
-
-### Checking Missing Metadata
+while for the latter, the command used to create the Documentation Checklist is
 
 ```
-$ napari-hub-cli check-missing /tmp/example-plugin
-```
-or
-```
-# display one field at a time and wait for input
-$ napari-hub-cli check-missing /tmp/example-plugin -i
+ $ napari-hub-cli check-plugin example-plugin 
 ```
 
-This utility will only display the metadata missing from your plugin, and will also suggest where you can add it.
-All metadata listed here will be displayed on your plugin's napari hub page. When this metadata might also be used
-for sorting, filtering or searching for plugins, this information is also displayed.
+having first installed all the requirements for napari-hub-cli.
 
-Example output:
+Below you can find a table with the Napari recommended file locations and fallback files where the metadata is checked:
+
+
+Metadata / Files | Recommended File | Fallback File(s) 
+--- | --- | --- | 
+Display Name | ```npe2 - napari.manifest``` | ```PyPI```
+Summary Sentence | ```napari-hub/config.yml``` | ```PyPI``` 
+Intro Paragraph | ```napari-hub/description.md``` | ```PyPI``` 
+Intro Video | ```napari-hub/description.md``` | ```PyPI``` 
+Intro Screenshot | ```napari-hub/description.md``` | ```PyPI``` 
+Usage Section | ```napari-hub/description.md``` | ```PyPI``` 
+Source Code Link | ```PyPI``` | ```n/a```  
+User Support Link | ```PyPI``` | ```n/a```  
+Bug Tracker Link | ```PyPI``` | ```n/a```  
+Author | ```PyPI``` | ```n/a```  
+Citation | ```CITATION.cff``` | ```n/a```  
+
+
+Example output (with all possible scenarios):
+
+<img width="556" alt="Screenshot at Nov 15 18-32-57" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
+
+
+
+
+## Citation
+
+This utility works by looking into:
+
+- GitHub Repository metadata
+- ```README.md```
+
+and creating a ```CITATION.CFF```, a plain text file with human- and machine-readable citation information for software and datasets.
+
+For citations to be parsed from the ```README.md``` these need to have either the **APA**(American Psychological Association) style or **BibTex** style format.
+
+The ```CITATION.CFF``` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
+
+To create the CITATION.CFF for your plugin run
+```
+ $ napari-hub-cli create-cff-citation /tmp/example-plugin 
+```
+having first installed all the requirements for napari-hub-cli.
+
+The format for the CITATION.CFF is the following:
+
+- The first citation that appears references the software
+- The preffered citation, the one used in GitHub, references an article/publisher, preferring an article citation when both exist
+- when both article and publisher information exist, publisher information is written as a sub-reference
+
+
+### Citation references
+
+
+Below you can find some examples of how to use the CITATION.CFF.
+
+Referencing other work:
+```
+authors:
+  - family-names: Druskat
+    given-names: Stephan
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+references:
+  - authors:
+      - family-names: Spaaks
+        given-names: "Jurriaan H."
+    title: "The foundation of Research Software"
+    type: software
+  - authors:
+      - family-names: Haines
+        given-names: Robert
+    title: "Ruby CFF Library"
+    type: software
+    version: 1.0
+title: "My Research Software"
+```
+
+Credit Redirection:
 
 ```
---------------------------------------------------------------------------------
-MISSING: Twitter
---------------------------------------------------------------------------------
-        SUGGESTED SOURCE:       /.napari/config.yml: project_urls, Twitter
-
---------------------------------------------------------------------------------
-MISSING: Summary
---------------------------------------------------------------------------------
-        SUGGESTED SOURCE:       /setup.cfg: metadata, summary
-        ------
-        Used For
-        ------
-        Searching
-
+authors:
+  - family-names: Druskat
+    given-names: Stephan
+cff-version: 1.2.0
+message: "If you use this software, please cite both the article from preferred-citation and the software itself."
+preferred-citation:
+  authors:
+    - family-names: Druskat
+      given-names: Stephan
+  title: "Software paper about My Research Software"
+  type: article
+title: "My Research Software"
 ```
 
-For more information on how you can add metadata to your package, and how we use it on the napari hub, check out [Customizing Your Plugin Listing](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/customizing-plugin-listing.md).
+Some more information regarding .CFF can be found here https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files 
 
-## Development Information
 
-The main logic of metadata loading proceeds from the [`load_meta` function](https://github.com/chanzuckerberg/napari-hub-cli/blob/602811b19b11543179d5e22410759be2b305b0b6/napari_hub_cli/napari_hub_cli.py#L34), and each filetype has its own parsing
-function. In addition, we use a [`parse_complex_metadata` function](https://github.com/chanzuckerberg/napari-hub-cli/blob/main/napari_hub_cli/napari_hub_cli.py#L137) to handle edge case parsing of certain fields that
-may be found in `setup.py` and `setup.cfg`.
-
-### Where do we look for metadata?
-
-The source of truth for both reading metadata and suggesting its source locations is found in [metadata_sources.csv](https://github.com/chanzuckerberg/napari-hub-cli/blob/main/napari_hub_cli/resources/metadata_sources.csv).
-
-Metadata can be found in the following files, with paths given from the root directory, 
-and these files are preferentially searched in order:
-- `.napari/config.yml`
-        - Author information, project URLs
-- `.napari/DESCRIPTION.md`
-        - Long description
-- `setup.cfg`
-        - All packaging metadata and potentially long description (could also be a pointer to README.md)
-- `setup.py`
-        - All packaging metadata and potentially long description. Only used if `setup.cfg` is not present, or not complete.
-
-In addition to these files, we may also search module `__init__.py` files and any `_version.py` files we find for the version number.
-
-### Why so complex?
-
-The main source of complexity for loading this metadata arises from the requirements:
-- metadata needs to be parsed before the package is released, so we cannot rely on PyPI
-- we prefer not to install the package into the active environment to read the metadata
-- we would like to show users where their metadata is being read from, and where they can go to change it
-
-These requirements mean we cannot just build a wheel/inspect package metadata from its distribution,
-because its source file will then be irretrievable. As a result, we rely on inspecting
-the contents of files individually, and parse `config.yml`, `setup.py` and `setup.cfg` independently.
 
 ## Code of Conduct
 
