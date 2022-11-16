@@ -135,7 +135,7 @@ class SetupPy(Metadata, ConfigFile):
     def has_summary(self):
         return "summary" in self.data or "description" in self.data
 
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def long_description(self):
         content = self.data.get("long_description", "")
         return MarkdownDescription(content, self.file)
@@ -183,12 +183,12 @@ class NapariConfig(Metadata, ConfigFile):
 
 class SetupCfg(Metadata, ConfigFile):
     @property
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def metadata(self):
         return self.data.get("metadata", {})
 
     @property
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def project_urls(self):
         return self.metadata.get("project_urls", "")
 
@@ -216,7 +216,7 @@ class SetupCfg(Metadata, ConfigFile):
     def has_summary(self):
         return "summary" in self.metadata or "description" in self.metadata
 
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def long_description(self):
         try:
             descr = f"{self.data['metadata']['long_description']}"
@@ -247,12 +247,12 @@ class SetupCfg(Metadata, ConfigFile):
 
 class PyProjectToml(Metadata, ConfigFile):
     @property
-    @lru_cache
+    @lru_cache(maxsize=1)
     def project_data(self):
         return self.data.get("project", {})
 
     @property
-    @lru_cache
+    @lru_cache(maxsize=1)
     def project_urls(self):
         return self.project_data.get("urls", {})
 
@@ -280,7 +280,7 @@ class PyProjectToml(Metadata, ConfigFile):
     def has_summary(self):
         return "description" in self.project_data
 
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def long_description(self):
         try:
             readme_name = self.project_data["readme"]
@@ -449,7 +449,7 @@ class NapariPlugin(object):
         self.citation_file = CitationFile(path / "CITATION.cff")
 
     @property
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def npe2_yaml(self):
         location = self.npe2_file_location()
         return Npe2Yaml(location)
