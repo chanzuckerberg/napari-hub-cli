@@ -79,7 +79,7 @@ Tyson, A. L., Velez-Fort, M., Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi,
 
 text after
 
-Grady, J. S., Her, M., Moreno, G., Perez, C., & Yelinek, J. (2019). Emotions in storybooks: A comparison of storybooks that represent ethnic and racial groups in the United States. Psychology of Popular Media Culture, 8(3), 207–217. https://doi.org/10.1037/ppm0000185
+Grady, J. S., Her, M., Moreno, G., Perez, C., & Yelinek, J. (2019). Emotions in storybooks: A comparison of storybooks that represent ethnic and racial groups in the United States. Psychology of Popular Media Culture, 8(3), 207-217. https://doi.org/10.1037/ppm0000185
 
 
 Stegmeir, M. (2016). Climate change: New discipline practices promote college access. The Journal of College Admission, (231), 44–47.
@@ -104,4 +104,4 @@ Ganster, D. C., Schaubroeck, J., Sime, W. E., & Mayes, B. T. (1991). The nomolog
 
 Freeberg, T. M. (2019). From simple rules of individual proximity, complex and coordinated collective movement [Supplemental material]. Journal of Comparative Psychology, 133(2), 141–142. https://doi.org/10.1037/com0000181
 
-Freeberg, T. M. (2019). From simple rules of individual proximity, complex and coordinated collective movement [Supplemental material]. Journal of Comparative Psychology, 133(2), 141–142. 10.1037/com0000181
+Freeberg, T. M. (2019). From simple rules of individual proximity, complex and coordinated collective movement [Supplemental material]. Journal of Comparative Psychology, 133(2), 141-142. 10.1037/com0000181

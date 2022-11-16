@@ -93,7 +93,7 @@ def test_apa_extraction(citations_dir):
     assert cit2.year == "2019"
     assert cit2.journal == "Psychology of Popular Media Culture"
     assert cit2.issue_number == "8(3)"
-    assert cit2.pages == "207–217"
+    assert cit2.pages == "207-217"
     assert cit2.doi == "https://doi.org/10.1037/ppm0000185"
 
     assert (
@@ -105,7 +105,7 @@ def test_apa_extraction(citations_dir):
     assert cit12.additional == "Supplemental material"
     assert cit12.journal == "Journal of Comparative Psychology"
     assert cit12.issue_number == "133(2)"
-    assert cit12.pages == "141–142"
+    assert cit12.pages == "141-142"
     assert cit12.doi == "10.1037/com0000181"
 
 
