@@ -2,14 +2,17 @@ import re
 from configparser import ConfigParser
 from functools import lru_cache
 
+import bibtexparser
 import tomli
 import yaml
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.customization import convert_to_unicode
 from iguala import cond, match, regex
 from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.span_token import RawText
 
-from ..utils import parse_setup
+from .utils import parse_setup
 
 format_parsers = {}
 
@@ -429,6 +432,27 @@ class MarkdownDescription(object):
             return len(paragraphs) > 0 and any(is_txt(p) for p in paragraphs)
         return False
 
+    def extract_bibtex_citations(self):
+        parser = BibTexParser(customization=convert_to_unicode)
+        bib_database = bibtexparser.loads(self.raw_content, parser=parser)
+        return [BibtexCitation(bib) for bib in bib_database.entries]
+
+    def extract_apa_citations(self):
+        # Pattern about "how a markdown document with APA citation" should be:
+        pattern = match(Document) % {  # it should be an instance of Document
+            "children+>content": (  # where somewhere in the content of it's children
+                regex(APA_REGEXP)  # a line matches the general APA regex
+                >> "raw_apa_match"  # and we store the results of the regex matcher in the "raw_apa_match" variable
+            )
+        }
+        result = pattern.match(self.content)
+        if result.is_match:
+            return [
+                APACitation(m.groupdict())
+                for m in (r["raw_apa_match"] for r in result.bindings)
+            ]
+        return []
+
 
 class CitationFile(ConfigFile):
     ...
@@ -464,3 +488,39 @@ class NapariPlugin(object):
     @property
     def has_citation(self):
         return self.citation_file.exists
+
+
+class Citation(object):
+    def __init__(self, data):
+        self.data = data
+
+    def __getattr__(self, key):
+        return self.data[key]
+
+
+class BibtexCitation(Citation):
+    ...
+
+
+class APACitation(Citation):
+    ...
+
+
+# General APA named regex
+APA_REGEXP = re.compile(
+    r"^(?=\w)"  # The apa reference has to start by an alphanum symbol
+    r"(?P<author>[^(]+)"  # starts by the authors
+    r" \((?P<year>\d+)\)"  # followed by the date between brackets
+    r"\.\s+"  # finishing with a dot and a space
+    r"(?P<title>[^(.[]+)"  # followed by the title of the paper (all chars until we reach a '(' or  a '.')
+    r"(?P<edition>\([^)]+\))?"  # optionnaly, an edition could be there (all chars between "()" after the title)
+    r"(\s+\[(?P<additional>[^]]+)+\])?"  # optionaly, additional information (all chars between "[]") after the title
+    r"\.\s+"  # following the title and the optional edition number, there's a dot
+    r"(?P<publisher>(.(?!, [\d(]))+.)"  # followed by the editor (a char that is not followed by a comma with a number or a parenthesis)
+    r"(, (?P<issue_number>[^,.]+))?"  # followed by an optional number of volume
+    r"(, (?P<pages>[^ ,.]+))?"  # followed by an optional number of page
+    # r"([ ,.]+http(s)?://(?P<url>[^ ]+))?"  # followed by an optional location url
+    # r"((?=[ ,.]http(s)?://)[ ,.]+(http(s)?://)(doi\.org/)(?P<doi>[^ ]+))?"  # followed by an optional DOI (non DOI location url not supported)
+    r"([ ,.]+(?P<doi>[^ ]+))?"  # OR followed by an optional DOI
+    r"( \((?P<retraction>[^)]+)\))?"  # followed by an optional retraction
+)

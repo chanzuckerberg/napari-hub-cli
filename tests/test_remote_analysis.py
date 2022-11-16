@@ -10,7 +10,7 @@ from napari_hub_cli.checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from napari_hub_cli.checklist.filesaccess import NapariPlugin
+from napari_hub_cli.filesaccess import NapariPlugin
 from napari_hub_cli.checklist.metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
