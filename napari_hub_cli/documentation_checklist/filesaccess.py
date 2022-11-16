@@ -40,11 +40,11 @@ def parse_toml(toml_file):
     return content
 
 
-@register_parser([".md", ".MD"])
-def parse_md(md):
-    with md.open():
-        content = md.read_text()
-    return Document(content)
+# @register_parser([".md", ".MD"])
+# def parse_md(md):
+#     with md.open():
+#         content = md.read_text()
+#     return Document(content)
 
 
 @register_parser([".py"])
@@ -80,7 +80,7 @@ class ConfigFile(object):
         return self.file is not None and self.file.exists()
 
 
-class Metadata(object):
+class Metadata(object):  # pragma: no cover
     @property
     def has_name(self):
         raise NotImplementedError()
@@ -97,13 +97,13 @@ class Metadata(object):
     def has_bugtracker(self):
         raise NotImplementedError()
 
-    @property
-    def has_long_description(self):
-        raise NotImplementedError()
+    # @property
+    # def has_long_description(self):
+    #     raise NotImplementedError()
 
-    @property
-    def has_description(self):
-        raise NotImplementedError()
+    # @property
+    # def has_description(self):
+    #     raise NotImplementedError()
 
     @property
     def has_author(self):
@@ -141,23 +141,16 @@ class SetupPy(Metadata, ConfigFile):
         return MarkdownDescription(content, self.file)
 
     def find_npe2(self):
-        if "entry_points" not in self.data:
+        try:
+            manifest_files = self.data["entry_points"]["napari.manifest"]
+        except KeyError:
             return None
-        entry_points = self.data["entry_points"]
-        if "napari.manifest" not in entry_points:
-            return None
-        manifest_files = entry_points["napari.manifest"]
         pattern = re.compile(r"[^=]+\s*=\s*(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
         for file in manifest_files:
             result = pattern.match(file)
             if result:
                 parsed = result.groupdict()
                 modules = [m for m in parsed["modules"].split(":") if m]
-                src_location = self.data.get("options.packages.find", {}).get(
-                    "where", ""
-                )
-                if src_location:
-                    modules.insert(0, src_location)
                 return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
 
@@ -225,10 +218,10 @@ class SetupCfg(Metadata, ConfigFile):
 
     @lru_cache()
     def long_description(self):
-        metadata = self.data.get("metadata", {})
-        if "long_description" not in metadata:
+        try:
+            descr = f"{self.data['metadata']['long_description']}"
+        except KeyError:
             return MarkdownDescription("", self.file)
-        descr = f"{metadata['long_description']}"
         if descr.startswith("file: "):
             readme_name = descr.replace("file: ", "").strip()
             readme = self.file.parent / readme_name
@@ -236,12 +229,10 @@ class SetupCfg(Metadata, ConfigFile):
         return MarkdownDescription("", self.file)
 
     def find_npe2(self):
-        if "options.entry_points" not in self.data:
+        try:
+            manifest = self.data["options.entry_points"]["napari.manifest"]
+        except KeyError:
             return None
-        entry_point = self.data["options.entry_points"]
-        if "napari.manifest" not in entry_point:
-            return None
-        manifest = entry_point["napari.manifest"]
         pattern = re.compile(r"[^=]+\s*=\s*(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
         result = pattern.match(manifest)
         if result:

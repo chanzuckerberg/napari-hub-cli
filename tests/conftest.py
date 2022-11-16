@@ -5,7 +5,7 @@ import requests_mock
 
 from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
-RESOURCES = Path(f"{Path(__file__).parent}/resources")
+RESOURCES = Path(__file__).parent / "resources"
 MOCK_REQUESTS = None
 
 
