@@ -3,15 +3,15 @@ import pytest
 import requests_mock
 
 from napari_hub_cli.constants import NAPARI_HUB_API_LINK
-from napari_hub_cli.documentation_checklist.analysis import (
+from napari_hub_cli.checklist.analysis import (
     analyse_remote_plugin,
     analyze_all_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
 )
-from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
-from napari_hub_cli.documentation_checklist.metadata_checklist import (
+from napari_hub_cli.checklist.filesaccess import NapariPlugin
+from napari_hub_cli.checklist.metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
     create_checklist,

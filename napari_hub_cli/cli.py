@@ -11,13 +11,13 @@ import argparse
 import os
 import sys
 
-from .documentation_checklist.analysis import (
+from .checklist.analysis import (
     analyze_all_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
 )
-from .documentation_checklist.metadata_checklist import (
+from .checklist.metadata_checklist import (
     create_checklist,
     display_checklist,
 )
@@ -28,7 +28,7 @@ from .formatting import (
     print_missing_interactive,
 )
 from .napari_hub_cli import get_missing, load_meta
-from napari_hub_cli.create_citation.citation import cff_citation
+from napari_hub_cli.citations.citation import cff_citation
 
 
 def preview_meta(plugin_path, i):
@@ -104,6 +104,7 @@ def create_citation(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
     else:
         cff_citation(plugin_path)
+
 
 def documentation_checklist(plugin_path, i):
     """Creates a documentation checklist based on the available metadata for the plugin at args.plugin_path
@@ -217,7 +218,7 @@ def parse_args(args):
         action="store_true",
         help="Wait for user input after each field",
     )
-    parser_create_citation.set_defaults(func=create_citation) 
+    parser_create_citation.set_defaults(func=create_citation)
 
     return parser.parse_args(args)
 

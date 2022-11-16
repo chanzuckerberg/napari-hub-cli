@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
-from napari_hub_cli.documentation_checklist.metadata_checklist import (
+from napari_hub_cli.checklist.filesaccess import NapariPlugin
+from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
     create_checklist,

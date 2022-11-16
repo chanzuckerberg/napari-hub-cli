@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from napari_hub_cli.documentation_checklist.filesaccess import (
+from napari_hub_cli.checklist.filesaccess import (
     ConfigFile,
     MarkdownDescription,
     PyProjectToml,
