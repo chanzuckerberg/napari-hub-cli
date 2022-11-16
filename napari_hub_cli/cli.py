@@ -5,6 +5,7 @@ Exit code status are the following:
 * 1 = unexisting path
 * 2 = missing metadata
 * 3 = non-existing plugin in the Napari HUB plateform
+* 4 = CFF citation file not created
 """
 
 import argparse
@@ -28,7 +29,7 @@ from .formatting import (
     print_missing_interactive,
 )
 from .napari_hub_cli import get_missing, load_meta
-from napari_hub_cli.citations.citation import cff_citation
+from .citations.citation import create_cff_citation
 
 
 def preview_meta(plugin_path, i):
@@ -96,14 +97,19 @@ def create_citation(plugin_path):
 
     Parameters
     ----------
-    plugin_path : List[str]
-        List of command line arguments
+    plugin_path: str
+        Local path to your plugin
+    Returns
+    -------
+    int
+        the status of the result, 0 = OK, 1 = unexisting path, 4 = CFF file not created
     """
 
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
-    else:
-        cff_citation(plugin_path)
+        return 1
+    ret = create_cff_citation(plugin_path)
+    return 0 if ret else 4
 
 
 def documentation_checklist(plugin_path, i):
@@ -212,12 +218,6 @@ def parse_args(args):
 
     parser_create_citation = subparsers.add_parser("create-cff-citation")
     parser_create_citation.add_argument("plugin_path", help="Local path to your plugin")
-    parser_create_citation.add_argument(
-        "-i",
-        default=False,
-        action="store_true",
-        help="Wait for user input after each field",
-    )
     parser_create_citation.set_defaults(func=create_citation)
 
     return parser.parse_args(args)

@@ -16,7 +16,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
 @pytest.fixture(scope="module")
 def test_repo():
     current_path = Path(__file__).parent.absolute()
-    return NapariPlugin(current_path / "resources/CZI-29-test")
+    return NapariPlugin(current_path / "resources" / "CZI-29-test")
 
 
 def test_check_napari_config(test_repo):
@@ -162,5 +162,5 @@ def test_display_checklist(test_repo):
     display_checklist(result)
 
 
-def test_has_citation(test_repo):
-    assert test_repo.has_citation is False
+def test_has_citation_file(test_repo):
+    assert test_repo.has_citation_file is False

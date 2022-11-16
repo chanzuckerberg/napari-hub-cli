@@ -1,12 +1,10 @@
 import pytest
 from pathlib import Path
 
-from napari_hub_cli.citations.citation_scraper.bibtexCitation import *
-from napari_hub_cli.citations.citation_scraper.apaCitation import *
-from napari_hub_cli.citations.citation_scraper.bibtex_from_doi import *
-from napari_hub_cli.citations.citation_scraper.githubInfo import *
-from napari_hub_cli.citations.create_dict import *
-from napari_hub_cli.filesaccess import MarkdownDescription
+import yaml
+from napari_hub_cli.citations.citation import create_cff_citation
+
+from napari_hub_cli.filesaccess import CitationFile, MarkdownDescription, NapariPlugin
 
 
 @pytest.fixture(scope="module")
@@ -20,6 +18,9 @@ def test_bibtex_extraction_empty(citations_dir):
     bibtex_db = readme.extract_bibtex_citations()
 
     assert bibtex_db == []
+    assert readme.has_citations is False
+    assert readme.has_bibtex_citations is False
+    assert readme.has_apa_citations is False
 
 
 def test_apa_extraction_empty(citations_dir):
@@ -28,6 +29,9 @@ def test_apa_extraction_empty(citations_dir):
     bibtex_db = readme.extract_apa_citations()
 
     assert bibtex_db == []
+    assert readme.has_citations is False
+    assert readme.has_bibtex_citations is False
+    assert readme.has_apa_citations is False
 
 
 def test_bibtex_extraction(citations_dir):
@@ -75,7 +79,7 @@ def test_apa_extraction(citations_dir):
         == "Tyson, A. L., Vélez-Fort, M., Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T., Margrie, T. W."
     )
     assert cit1.year == "2022"
-    assert cit1.publisher == "Scientific Reports"
+    assert cit1.journal == "Scientific Reports"
     assert cit1.issue_number == "12"
     assert cit1.pages == "867"
     assert cit1.doi == "doi.org/10.1038/s41598-021-04676-9"
@@ -86,7 +90,7 @@ def test_apa_extraction(citations_dir):
     )
     assert cit2.author == "Grady, J. S., Her, M., Moreno, G., Perez, C., & Yelinek, J."
     assert cit2.year == "2019"
-    assert cit2.publisher == "Psychology of Popular Media Culture"
+    assert cit2.journal == "Psychology of Popular Media Culture"
     assert cit2.issue_number == "8(3)"
     assert cit2.pages == "207–217"
     assert cit2.doi == "https://doi.org/10.1037/ppm0000185"
@@ -98,32 +102,117 @@ def test_apa_extraction(citations_dir):
     assert cit12.author == "Freeberg, T. M."
     assert cit12.year == "2019"
     assert cit12.additional == "Supplemental material"
-    assert cit12.publisher == "Journal of Comparative Psychology"
+    assert cit12.journal == "Journal of Comparative Psychology"
     assert cit12.issue_number == "133(2)"
     assert cit12.pages == "141–142"
     assert cit12.doi == "10.1037/com0000181"
 
 
-# def test_doi_method():
-#     all_bibtex_citations = get_citation_from_doi(DOI_README_LINK)
-#     for individual_citation in all_bibtex_citations:
-#         individual_citation = re.sub('"', "}", individual_citation)
-#         individual_citation = re.sub("= }", "= {", individual_citation)
-#         citation_family_names = get_bibtex_family_names(individual_citation)
-#         citation_given_names = get_bibtex_given_names(individual_citation)
-#         citation_title = get_bibtex_title(individual_citation)
-#         citation_year = get_bibtex_year(individual_citation)
-#         citation_publisher = get_bibtex_publisher(individual_citation)
-#         citation_journal = get_bibtex_journal(individual_citation)
-#         citation_url = get_bibtex_url(individual_citation)
-#         citation_doi = get_bibtex_doi(individual_citation)
+def test_create_cff_bibtex(tmp_path, citations_dir):
+    readme_file = citations_dir / "example.md"
+    readme = MarkdownDescription.from_file(readme_file)
 
-#     assert bool(get_citation_from_doi(DOI_README_LINK)) == True
-#     assert bool(get_citation_from_doi(BIBTEX_README_LINK)) == False
-#     assert bool(get_citation_from_doi(APA_README_LINK)) == True
+    cff_file = tmp_path / "CITATIONS.cff"
+    cff = CitationFile(cff_file)
 
-#     assert citation_year == "2022"
-#     assert citation_publisher == "Springer Science and Business Media {LLC"
-#     assert bool(citation_journal) == False
-#     assert citation_url == ["https://doi.org/10.1038%2Fs41598-021-04676-9"]
-#     assert citation_doi == "10.1038/s41598-021-04676-9"
+    bibtex_citations = readme.extract_bibtex_citations()
+
+    cff.override_with(bibtex_citations[0])
+
+    assert len(cff.data["authors"]) == 3
+    assert cff.data["authors"][0]["given-names"] == "Vlad"
+    assert cff.data["year"] == 2018
+
+    cff.save()
+    with cff.file.open(mode="r") as f:
+        result = yaml.safe_load(f)
+
+    assert len(result["authors"]) == 3
+    assert result["authors"][0]["given-names"] == "Vlad"
+    assert result["year"] == 2018
+
+
+def test_create_cff_apa(tmp_path, citations_dir):
+    readme_file = citations_dir / "example.md"
+    readme = MarkdownDescription.from_file(readme_file)
+
+    cff_file = tmp_path / "CITATIONS.cff"
+    cff = CitationFile(cff_file)
+
+    apa_citations = readme.extract_apa_citations()
+
+    cff.override_with(apa_citations[0])
+
+    assert len(cff.data["authors"]) == 10
+    assert cff.data["authors"][0]["family-names"] == "Tyson"
+    assert cff.data["year"] == 2022
+
+    cff.save()
+    with cff.file.open(mode="r") as f:
+        result = yaml.safe_load(f)
+
+    assert len(result["authors"]) == 10
+    assert result["authors"][0]["family-names"] == "Tyson"
+    assert result["year"] == 2022
+
+
+def test_cff_already_existing(tmp_path):
+    current_path = Path(__file__).parent.absolute()
+    repo_path = current_path / "resources" / "CZI-29-small"
+    repo = NapariPlugin(repo_path)
+
+    assert repo.citation_file.exists is True
+
+    res = create_cff_citation(repo_path)
+
+    assert repo.citation_file.exists is True
+    assert res is False
+
+
+def test_cff_no_information(tmp_path):
+    current_path = Path(__file__).parent.absolute()
+    repo_path = current_path / "resources" / "CZI-29-faulty"
+    repo = NapariPlugin(repo_path)
+
+    assert repo.citation_file.exists is False
+
+    res = create_cff_citation(repo_path)
+
+    assert res is False
+    assert repo.citation_file.exists is False
+
+
+def test_cff_bibtex(tmp_path):
+    current_path = Path(__file__).parent.absolute()
+    repo_path = current_path / "resources" / "CZI-29-test2"
+    repo = NapariPlugin(repo_path)
+
+    assert repo.citation_file.exists is False
+
+    res = create_cff_citation(repo_path)
+
+    assert res is True
+
+    repo = NapariPlugin(repo_path)  # force reload
+    assert repo.citation_file.exists is True
+    assert repo.citation_file.data != {}
+
+    repo.citation_file.file.unlink()
+
+
+def test_cff_apa(tmp_path):
+    current_path = Path(__file__).parent.absolute()
+    repo_path = current_path / "resources" / "CZI-29-test"
+    repo = NapariPlugin(repo_path)
+
+    assert repo.citation_file.exists is False
+
+    res = create_cff_citation(repo_path)
+
+    assert res is True
+
+    repo = NapariPlugin(repo_path)  # force reload
+    assert repo.citation_file.exists is True
+    assert repo.citation_file.data != {}
+
+    repo.citation_file.file.unlink()
