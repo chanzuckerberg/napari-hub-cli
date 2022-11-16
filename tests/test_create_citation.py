@@ -76,7 +76,7 @@ def test_apa_extraction(citations_dir):
     )
     assert (
         cit1.author
-        == "Tyson, A. L., Vélez-Fort, M., Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T., Margrie, T. W."
+        == "Tyson, A. L., Velez-Fort, M., Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T., Margrie, T. W."
     )
     assert cit1.year == "2022"
     assert cit1.journal == "Scientific Reports"
