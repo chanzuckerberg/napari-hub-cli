@@ -1,3 +1,4 @@
+# coding: utf8
 import pytest
 from pathlib import Path
 
