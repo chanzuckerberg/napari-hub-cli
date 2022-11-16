@@ -2,6 +2,8 @@ import pytest
 from pathlib import Path
 from napari_hub_cli.documentation_checklist.filesaccess import (
     ConfigFile,
+    MarkdownDescription,
+    PyProjectToml,
     SetupCfg,
     SetupPy,
 )
@@ -130,8 +132,79 @@ def test_setup3_cfg(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
-    assert file.find_npe2() is None
+    assert file.find_npe2() is not None
 
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
+
+
+def test_pyproject_toml(resources):
+    content = resources / "pyproject.toml"
+    file = PyProjectToml(content)
+
+    assert file.file is content
+    assert file.data != {}
+    assert file.is_valid is True
+    assert file.exists is True
+
+    assert file.has_name is True
+    assert file.has_author is False
+    assert file.has_bugtracker is False
+    assert file.has_summary is False
+
+    assert file.find_npe2() is not None
+
+    d = file.long_description()
+    assert d is file.long_description()
+    assert file.long_description().raw_content != ""
+
+
+def test_pyproject2_toml(resources):
+    content = resources / "pyproject2.toml"
+    file = PyProjectToml(content)
+
+    assert file.file is content
+    assert file.data != {}
+    assert file.is_valid is True
+    assert file.exists is True
+
+    assert file.has_name is True
+    assert file.has_author is False
+    assert file.has_bugtracker is False
+    assert file.has_summary is False
+
+    assert file.find_npe2() is None
+
+    d = file.long_description()
+    assert d is file.long_description()
+    assert file.long_description().raw_content != ""
+
+
+def test_pyproject3_toml(resources):
+    content = resources / "pyproject3.toml"
+    file = PyProjectToml(content)
+
+    assert file.file is content
+    assert file.data != {}
+    assert file.is_valid is True
+    assert file.exists is True
+
+    assert file.has_name is True
+    assert file.has_author is False
+    assert file.has_bugtracker is False
+    assert file.has_summary is False
+
+    assert file.find_npe2() is None
+
+    d = file.long_description()
+    assert d is file.long_description()
+    assert file.long_description().raw_content != ""
+
+
+def test_markdown_non_existingfile(resources):
+    content = resources / "nonexisting.md"
+    file = MarkdownDescription.from_file(content)
+
+    assert file.exists is False
+    assert file.raw_content == ""

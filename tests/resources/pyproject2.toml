@@ -1,0 +1,16 @@
+[project]
+name = "myproject"
+display_name = "myproject"
+readme = "README.md"
+
+[tool.poetry.scripts]
+mikro-napari = "mikro_napari.run:main"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pytest-aiohttp = "^0.3.0"
+pytest-cov = "^3.0.0"
+black = "^21.12b0"
+napari = "^0.4.16"
+PyQt5 = "^5.15.6"
+testcontainers = "^3.5.3"

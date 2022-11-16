@@ -156,6 +156,11 @@ def test_create_checkist(test_repo):
     assert description.has_fallback_files is True
 
 
+# smoke test
 def test_display_checklist(test_repo):
     result = create_checklist(test_repo.path)
     display_checklist(result)
+
+
+def test_has_citation(test_repo):
+    assert test_repo.has_citation is False

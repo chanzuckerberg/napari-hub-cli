@@ -414,7 +414,9 @@ class MarkdownDescription(object):
             paragraphs = result.bindings[0]["paragraphs"]
 
             def is_txt(p):
-                if not hasattr(p, "children"):
+                if not hasattr(
+                    p, "children"
+                ):  # pragma: no cover, weird behavior that only happens on one file for weird reasons
                     return False
                 for child in p.children:
                     if not isinstance(child, RawText):

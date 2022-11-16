@@ -42,8 +42,7 @@ def test_check_napari_description(test_repo):
 def test_check_npe2(test_repo):
     np2e_file = test_repo.npe2_yaml
 
-    assert np2e_file.exists is True
-    assert np2e_file.has_name is True
+    assert np2e_file.exists is False
 
 
 def test_check_pysetup(test_repo):
@@ -101,8 +100,8 @@ def test_create_checkist(test_repo):
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
     assert disp_name.found is True
-    assert disp_name.found_in == test_repo.npe2_yaml.file
-    assert disp_name.only_in_fallback is False
+    assert disp_name.found_in == test_repo.setup_cfg.file
+    assert disp_name.only_in_fallback is True
     assert disp_name.has_fallback_files is True
 
     description = result.features[6]
