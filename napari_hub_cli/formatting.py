@@ -103,8 +103,8 @@ def format_field(field, meta, missing_meta):
         val = meta_item.value
         src = meta_item.source
         if isinstance(val, list):
-            for i in range(len(val)):
-                rep_str += f"{val[i]}\n"
+            for v in val:
+                rep_str += f"{v}\n"
         else:
             rep_str += f"{val}\n"
         if src:

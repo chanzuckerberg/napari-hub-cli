@@ -3,17 +3,32 @@ import re
 from collections import defaultdict
 from configparser import ConfigParser
 
-import parsesetup
 from yaml import full_load
 
 from napari_hub_cli.meta_classes import MetaItem, MetaSource
 
-from .constants import (DESC_LENGTH, DESC_PTH, GITHUB_PATTERN, SETUP_CFG_INFO,
-                        SETUP_CFG_PTH, SETUP_PY_INFO, SETUP_PY_PTH, YML_INFO,
-                        YML_PTH)
-from .utils import (filter_classifiers, flatten, get_github_license,
-                    get_long_description, get_pkg_version, is_canonical,
-                    split_dangling_list, split_project_urls)
+from .constants import (
+    DESC_LENGTH,
+    DESC_PTH,
+    GITHUB_PATTERN,
+    SETUP_CFG_INFO,
+    SETUP_CFG_PTH,
+    SETUP_PY_INFO,
+    SETUP_PY_PTH,
+    YML_INFO,
+    YML_PTH,
+)
+from .utils import (
+    filter_classifiers,
+    flatten,
+    get_github_license,
+    get_long_description,
+    get_pkg_version,
+    is_canonical,
+    parse_setup,
+    split_dangling_list,
+    split_project_urls,
+)
 
 
 def load_meta(pth):
@@ -33,10 +48,10 @@ def load_meta(pth):
     Dict[str, MetaItem]
         dictionary of loaded metadata
     """
-    meta_dict = defaultdict(lambda: None)
+    meta_dict = {}
 
     # try to read .napari/DESCRIPTION.md if available
-    desc_pth = pth + DESC_PTH
+    desc_pth = f"{pth}/{DESC_PTH}"
     if os.path.exists(desc_pth):
         with open(desc_pth) as desc_file:
             full_desc = desc_file.read()
@@ -46,17 +61,17 @@ def load_meta(pth):
                 meta_dict[desc_item.field_name] = desc_item
 
     # read .napari/config.yml for authors and project urls
-    yml_pth = pth + YML_PTH
+    yml_pth = f"{pth}/{YML_PTH}"
     if os.path.exists(yml_pth):
         read_yml_config(meta_dict, yml_pth)
 
     # read all metadata available in setup.cfg
-    cfg_pth = pth + SETUP_CFG_PTH
+    cfg_pth = f"{pth}/{SETUP_CFG_PTH}"
     if os.path.exists(cfg_pth):
         read_setup_cfg(meta_dict, cfg_pth, pth)
 
     # finally, try to read from setup.py
-    py_pth = pth + SETUP_PY_PTH
+    py_pth = f"{pth}/{SETUP_PY_PTH}"
     if os.path.exists(py_pth):
         read_setup_py(meta_dict, py_pth, pth)
 
@@ -164,7 +179,7 @@ def read_setup_py(meta_dict, setup_path, root_pth):
     root_pth : str
         path to root of package, used to try searching version
     """
-    setup_args = parsesetup.parse_setup(os.path.abspath(setup_path), trusted=True)
+    setup_args = parse_setup(os.path.abspath(setup_path))
     for field, (section, key) in SETUP_PY_INFO.items():
         if field not in meta_dict:
             if section:
@@ -296,8 +311,8 @@ def get_missing(meta, pth):
         src_item = MetaSource(DESC_PTH)
         missing_meta["Description"] = src_item
 
-    cfg_pth = pth + SETUP_CFG_PTH
-    py_pth = pth + SETUP_PY_PTH
+    cfg_pth = f"{pth}/{SETUP_CFG_PTH}"
+    py_pth = f"{pth}/{SETUP_PY_PTH}"
     # if we already have a cfg or if we don't have setup.py, we prefer setup.cfg
     if os.path.exists(cfg_pth) or not os.path.exists(py_pth):
         suggested_cfg = SETUP_CFG_PTH

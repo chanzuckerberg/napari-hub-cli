@@ -4,4 +4,4 @@ markers = [
 ]
 
 [build-system]
-requires = ["setuptools", "wheel", "numpy"]
+requires = ["setuptools", "wheel"]

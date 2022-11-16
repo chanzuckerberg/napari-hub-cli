@@ -1,0 +1,25 @@
+{
+    "name": "LICENSE",
+    "path": "LICENSE",
+    "sha": "2310609d98a678e628dd468d6024a882add4b9ee",
+    "size": 1490,
+    "url": "https://api.github.com/repos/DragaDoncila/example-plugin/contents/LICENSE?ref=main",
+    "html_url": "https://github.com/DragaDoncila/example-plugin/blob/main/LICENSE",
+    "git_url": "https://api.github.com/repos/DragaDoncila/example-plugin/git/blobs/2310609d98a678e628dd468d6024a882add4b9ee",
+    "download_url": "https://raw.githubusercontent.com/DragaDoncila/example-plugin/main/LICENSE",
+    "type": "file",
+    "content": "CkNvcHlyaWdodCAoYykgMjAyMSwgRHJhZ2EgRG9uY2lsYSBQb3AKQWxsIHJp\nZ2h0cyByZXNlcnZlZC4KClJlZGlzdHJpYnV0aW9uIGFuZCB1c2UgaW4gc291\ncmNlIGFuZCBiaW5hcnkgZm9ybXMsIHdpdGggb3Igd2l0aG91dAptb2RpZmlj\nYXRpb24sIGFyZSBwZXJtaXR0ZWQgcHJvdmlkZWQgdGhhdCB0aGUgZm9sbG93\naW5nIGNvbmRpdGlvbnMgYXJlIG1ldDoKCiogUmVkaXN0cmlidXRpb25zIG9m\nIHNvdXJjZSBjb2RlIG11c3QgcmV0YWluIHRoZSBhYm92ZSBjb3B5cmlnaHQg\nbm90aWNlLCB0aGlzCiAgbGlzdCBvZiBjb25kaXRpb25zIGFuZCB0aGUgZm9s\nbG93aW5nIGRpc2NsYWltZXIuCgoqIFJlZGlzdHJpYnV0aW9ucyBpbiBiaW5h\ncnkgZm9ybSBtdXN0IHJlcHJvZHVjZSB0aGUgYWJvdmUgY29weXJpZ2h0IG5v\ndGljZSwKICB0aGlzIGxpc3Qgb2YgY29uZGl0aW9ucyBhbmQgdGhlIGZvbGxv\nd2luZyBkaXNjbGFpbWVyIGluIHRoZSBkb2N1bWVudGF0aW9uCiAgYW5kL29y\nIG90aGVyIG1hdGVyaWFscyBwcm92aWRlZCB3aXRoIHRoZSBkaXN0cmlidXRp\nb24uCgoqIE5laXRoZXIgdGhlIG5hbWUgb2YgZXhhbXBsZS1wbHVnaW4gbm9y\nIHRoZSBuYW1lcyBvZiBpdHMKICBjb250cmlidXRvcnMgbWF5IGJlIHVzZWQg\ndG8gZW5kb3JzZSBvciBwcm9tb3RlIHByb2R1Y3RzIGRlcml2ZWQgZnJvbQog\nIHRoaXMgc29mdHdhcmUgd2l0aG91dCBzcGVjaWZpYyBwcmlvciB3cml0dGVu\nIHBlcm1pc3Npb24uCgpUSElTIFNPRlRXQVJFIElTIFBST1ZJREVEIEJZIFRI\nRSBDT1BZUklHSFQgSE9MREVSUyBBTkQgQ09OVFJJQlVUT1JTICJBUyBJUyIK\nQU5EIEFOWSBFWFBSRVNTIE9SIElNUExJRUQgV0FSUkFOVElFUywgSU5DTFVE\nSU5HLCBCVVQgTk9UIExJTUlURUQgVE8sIFRIRQpJTVBMSUVEIFdBUlJBTlRJ\nRVMgT0YgTUVSQ0hBTlRBQklMSVRZIEFORCBGSVRORVNTIEZPUiBBIFBBUlRJ\nQ1VMQVIgUFVSUE9TRSBBUkUKRElTQ0xBSU1FRC4gSU4gTk8gRVZFTlQgU0hB\nTEwgVEhFIENPUFlSSUdIVCBIT0xERVIgT1IgQ09OVFJJQlVUT1JTIEJFIExJ\nQUJMRQpGT1IgQU5ZIERJUkVDVCwgSU5ESVJFQ1QsIElOQ0lERU5UQUwsIFNQ\nRUNJQUwsIEVYRU1QTEFSWSwgT1IgQ09OU0VRVUVOVElBTApEQU1BR0VTIChJ\nTkNMVURJTkcsIEJVVCBOT1QgTElNSVRFRCBUTywgUFJPQ1VSRU1FTlQgT0Yg\nU1VCU1RJVFVURSBHT09EUyBPUgpTRVJWSUNFUzsgTE9TUyBPRiBVU0UsIERB\nVEEsIE9SIFBST0ZJVFM7IE9SIEJVU0lORVNTIElOVEVSUlVQVElPTikgSE9X\nRVZFUgpDQVVTRUQgQU5EIE9OIEFOWSBUSEVPUlkgT0YgTElBQklMSVRZLCBX\nSEVUSEVSIElOIENPTlRSQUNULCBTVFJJQ1QgTElBQklMSVRZLApPUiBUT1JU\nIChJTkNMVURJTkcgTkVHTElHRU5DRSBPUiBPVEhFUldJU0UpIEFSSVNJTkcg\nSU4gQU5ZIFdBWSBPVVQgT0YgVEhFIFVTRQpPRiBUSElTIFNPRlRXQVJFLCBF\nVkVOIElGIEFEVklTRUQgT0YgVEhFIFBPU1NJQklMSVRZIE9GIFNVQ0ggREFN\nQUdFLgo=\n",
+    "encoding": "base64",
+    "_links": {
+      "self": "https://api.github.com/repos/DragaDoncila/example-plugin/contents/LICENSE?ref=main",
+      "git": "https://api.github.com/repos/DragaDoncila/example-plugin/git/blobs/2310609d98a678e628dd468d6024a882add4b9ee",
+      "html": "https://github.com/DragaDoncila/example-plugin/blob/main/LICENSE"
+    },
+    "license": {
+      "key": "bsd-3-clause",
+      "name": "BSD 3-Clause \"New\" or \"Revised\" License",
+      "spdx_id": "BSD-3-Clause",
+      "url": "https://api.github.com/licenses/bsd-3-clause",
+      "node_id": "MDc6TGljZW5zZTU="
+    }
+  }
