@@ -3,11 +3,9 @@ from pathlib import Path
 import pytest
 import requests_mock
 
-import napari_hub_cli
-
 from .config_enum import CONFIG, DEMO_GITHUB_REPO
 
-RESOURCES = Path(napari_hub_cli.__file__).parent / "_tests/resources/"
+RESOURCES = Path(__file__).parent / "resources"
 MOCK_REQUESTS = None
 
 
@@ -21,6 +19,10 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "online: mark test as being run online (making actual HTTP requests)",
+    )
     if config.getoption("--online"):
         return
     global MOCK_REQUESTS
@@ -35,6 +37,15 @@ def pytest_configure(config):
             "https://github.com/", "https://api.github.com/repos/"
         )
         MOCK_REQUESTS.register_uri("GET", f"{api_url}/license", text=license.read())
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--online"):
+        return
+    skip_online = pytest.mark.skip(reason="need --online option to run")
+    for item in items:
+        if "online" in item.keywords:
+            item.add_marker(skip_online)
 
 
 def pytest_unconfigure(config):

@@ -73,3 +73,5 @@ YML_META = YML_INFO
 
 usage = read_csv(USAGE_CSV)
 HUB_USES = extract_infos(usage, ("Filterable", "Sortable", "Searched"))
+
+NAPARI_HUB_API_LINK = "https://api.napari-hub.org/plugins"
