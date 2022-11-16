@@ -1,8 +1,13 @@
 import codecs
 import difflib
+import errno
 import glob
 import os
 import re
+import shutil
+import stat
+import tempfile
+import warnings
 from contextlib import suppress
 
 import requests
@@ -406,3 +411,38 @@ def parse_setup(filename):
     if result:
         return result[0]
     raise ValueError("setup wasn't called from setup.py")
+
+
+# Fix issue with tmpedir library with windows and Python 3.7
+# See: https://bugs.python.org/issue26660
+# Fix code is copied from https://github.com/copier-org/copier
+def handle_remove_readonly(func, path, exc):  # pragma: no cover
+    excvalue = exc[1]
+    if func in (os.rmdir, os.remove, os.unlink) and excvalue.errno == errno.EACCES:
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # 0777
+        func(path)
+    else:
+        raise
+
+
+class TemporaryDirectory(tempfile.TemporaryDirectory):
+    """A custom version of `tempfile.TemporaryDirectory` that handles read-only files better.
+    On Windows, before Python 3.8, `shutil.rmtree` does not handle read-only files very well.
+    This custom class makes use of a [special error handler][copier.tools.handle_remove_readonly]
+    to make sure that a temporary directory containing read-only files (typically created
+    when git-cloning a repository) is properly cleaned-up (i.e. removed) after using it
+    in a context manager.
+    """
+
+    @classmethod
+    def _cleanup(cls, name, warn_message):  # pragma: no cover
+        cls._robust_cleanup(name)
+        warnings.warn(warn_message, ResourceWarning)
+
+    def cleanup(self):
+        if self._finalizer.detach():
+            self._robust_cleanup(self.name)
+
+    @staticmethod
+    def _robust_cleanup(name):
+        shutil.rmtree(name, ignore_errors=False, onerror=handle_remove_readonly)

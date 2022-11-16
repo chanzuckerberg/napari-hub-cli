@@ -1,7 +1,6 @@
 # https://api.napari-hub.org/plugins
 
 import csv
-import tempfile
 from pathlib import Path
 
 import requests
@@ -9,7 +8,7 @@ from git import GitCommandError, Repo
 from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_LINK
-from ..utils import NonExistingNapariPluginError, get_repository_url
+from ..utils import NonExistingNapariPluginError, get_repository_url, TemporaryDirectory
 from .metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
@@ -62,7 +61,7 @@ def analyse_remote_plugin(
                 AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
             )
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with TemporaryDirectory() as tmpdirname:
             tmp_dir = Path(tmpdirname)
             test_repo = tmp_dir / plugin_name
 
