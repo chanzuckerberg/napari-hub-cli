@@ -189,7 +189,7 @@ def display_checklist(analysis_result):
         the result of the analysis ran against the local repository
     """
     # get repository for display
-    repo = analysis_result.repository.parent
+    repo = analysis_result.repository.parent if analysis_result.repository else ""
 
     # create the Console Documentation Checklist
     console = Console()

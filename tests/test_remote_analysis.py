@@ -1,10 +1,20 @@
+from pathlib import Path
 import pytest
 import requests_mock
 
 from napari_hub_cli.constants import NAPARI_HUB_API_LINK
+from napari_hub_cli.documentation_checklist.analysis import (
+    analyse_remote_plugin,
+    analyze_all_remote_plugins,
+    build_csv_dict,
+    display_remote_analysis,
+    write_csv,
+)
+from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
 from napari_hub_cli.documentation_checklist.metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
+    create_checklist,
 )
 from napari_hub_cli.utils import (
     NonExistingNapariPluginError,
@@ -33,14 +43,6 @@ def test_closest_plugin_name(napari_hub):
     assert closest_plugin_name("foo") is None
 
 
-@pytest.mark.online
-def test_closest_plugin_name__online():
-
-    assert closest_plugin_name("avidaq") == "avidaq"
-    assert closest_plugin_name("avida") == "avidaq"
-    assert closest_plugin_name("foo") is None
-
-
 def test_analysis_unexisting_plugin(napari_hub):
     napari_hub.get(
         f"{NAPARI_HUB_API_LINK}/avida",
@@ -62,15 +64,6 @@ def test_analysis_unexisting_plugin(napari_hub):
     assert e.value.closest == "avidaq"
 
 
-@pytest.mark.online
-def test_analysis_unexisting_plugin__online():
-    with pytest.raises(NonExistingNapariPluginError) as e:
-        get_repository_url("avida")
-
-    assert e.value.plugin_name == "avida"
-    assert e.value.closest == "avidaq"
-
-
 def test_get_plugin_url(napari_hub):
     napari_hub.get(
         f"{NAPARI_HUB_API_LINK}/avidaq",
@@ -82,13 +75,6 @@ def test_get_plugin_url(napari_hub):
     assert url == "my_repo_url"
 
 
-@pytest.mark.online
-def test_get_plugin_url__online():
-    url = get_repository_url("PartSeg")
-
-    assert url == "https://github.com/4DNucleome/PartSeg"
-
-
 def test_no_result_analysis():
     result = PluginAnalysisResult.with_status(AnalysisStatus.UNACCESSIBLE_REPOSITORY)
 
@@ -96,3 +82,138 @@ def test_no_result_analysis():
     assert result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY
     assert result.url is None
     assert result.repository is None
+
+
+def test_analyse_remote_plugin_bad_url(napari_hub):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get(
+        "http://my_repo_url",
+        json={},
+    )
+    results = analyse_remote_plugin("avidaq", display_info=False)
+
+    assert results.status is AnalysisStatus.BAD_URL
+
+
+def test_analyse_remote_plugin_unaccessible(napari_hub):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get("http://my_repo_url", json={}, status_code=404)
+    results = analyse_remote_plugin("avidaq", display_info=False)
+
+    assert results.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY
+
+
+# integration test
+def test_display_remote_analysis(napari_hub):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get("http://my_repo_url", json={}, status_code=404)
+    results = display_remote_analysis("avidaq")
+
+    assert results is False
+
+
+# integration test
+def test_analyze_all_remote_plugins(napari_hub):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/mikro-napari",
+        json={"code_repository": ""},
+    )
+    napari_hub.get(
+        f"{NAPARI_HUB_API_LINK}/napari-curtain",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get(
+        "http://my_repo_url",
+        json={},
+    )
+    results = analyze_all_remote_plugins()
+
+    assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
+
+    results = analyze_all_remote_plugins(display_info=True)
+
+    assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
+
+
+def test_build_csv_empty():
+    assert build_csv_dict({}) == []
+    assert build_csv_dict(None) == []
+
+
+def test_build_csv():
+    current_path = Path(__file__).parent.absolute()
+    checklist = create_checklist(current_path / "resources/CZI-29-test")
+    rows = build_csv_dict({"CZI-29-test": checklist})
+
+    assert rows != []
+
+
+def test_write_csv_empty(tmp_path):
+    output = tmp_path / "output.csv"
+
+    write_csv([], output)
+
+    assert output.exists() is False
+
+
+def test_write_csv(tmp_path):
+    output = tmp_path / "output.csv"
+    current_path = Path(__file__).parent.absolute()
+    checklist = create_checklist(current_path / "resources/CZI-29-test")
+    rows = build_csv_dict({"CZI-29-test": checklist})
+
+    write_csv(rows, output)
+
+    assert output.exists() is True
+
+
+@pytest.mark.online
+def test_closest_plugin_name__online():
+
+    assert closest_plugin_name("avidaq") == "avidaq"
+    assert closest_plugin_name("avida") == "avidaq"
+    assert closest_plugin_name("foo") is None
+
+
+@pytest.mark.online
+def test_analysis_unexisting_plugin__online():
+    with pytest.raises(NonExistingNapariPluginError) as e:
+        get_repository_url("avida")
+
+    assert e.value.plugin_name == "avida"
+    assert e.value.closest == "avidaq"
+
+
+@pytest.mark.online
+def test_get_plugin_url__online():
+    url = get_repository_url("PartSeg")
+
+    assert url == "https://github.com/4DNucleome/PartSeg"
+
+
+@pytest.mark.parametrize(
+    "name, status",
+    [
+        ("avidaq", AnalysisStatus.MISSING_URL),
+        ("mikro-napari", AnalysisStatus.SUCCESS),
+        ("foo", AnalysisStatus.NON_EXISTING_PLUGIN),
+    ],
+)
+@pytest.mark.online
+def test_analyse_remote_plugin__online(name, status):
+    results = analyse_remote_plugin(name, display_info=False)
+
+    assert results.status is status
