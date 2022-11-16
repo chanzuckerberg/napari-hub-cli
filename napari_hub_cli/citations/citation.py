@@ -1,5 +1,4 @@
 from pathlib import Path
-from pandas import to_datetime
 from rich.console import Console
 
 from napari_hub_cli.filesaccess import NapariPlugin

@@ -106,7 +106,7 @@ def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_LINK, display_info=False):
     all_results = {}
     plugins_name = requests.get(api_url).json().keys()
     total = len(plugins_name)
-    description = f"Analysing all plugins in Napari-HUB repository..."
+    description = "Analysing all plugins in Napari-HUB repository..."
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
