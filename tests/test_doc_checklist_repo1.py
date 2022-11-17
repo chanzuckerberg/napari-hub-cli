@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.filesaccess import NapariPlugin
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
@@ -11,6 +10,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
     create_checklist,
     display_checklist,
 )
+from napari_hub_cli.filesaccess import NapariPlugin
 
 
 @pytest.fixture(scope="module")

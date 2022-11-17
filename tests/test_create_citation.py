@@ -170,6 +170,19 @@ def test_cff_already_existing(tmp_path):
     assert res is False
 
 
+def test_cff_already_existing_no_display(tmp_path):
+    current_path = Path(__file__).parent.absolute()
+    repo_path = current_path / "resources" / "CZI-29-small"
+    repo = NapariPlugin(repo_path)
+
+    assert repo.citation_file.exists is True
+
+    res = create_cff_citation(repo_path, display_info=False)
+
+    assert repo.citation_file.exists is True
+    assert res is False
+
+
 def test_cff_no_information(tmp_path):
     current_path = Path(__file__).parent.absolute()
     repo_path = current_path / "resources" / "CZI-29-faulty"

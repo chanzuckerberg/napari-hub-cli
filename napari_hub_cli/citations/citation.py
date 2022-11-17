@@ -4,9 +4,16 @@ from rich.console import Console
 from napari_hub_cli.filesaccess import NapariPlugin
 
 
-def create_cff_citation(repo_path, save=True):
-    console = Console()
-    print = console.print
+def fake_print(*args):
+    ...
+
+
+def create_cff_citation(repo_path, save=True, display_info=True):
+    if display_info:
+        console = Console()
+        print = console.print
+    else:
+        print = fake_print
     print("[bold][yellow]Auto CFF Citation Creation[/yellow][/bold]")
 
     repo = NapariPlugin(Path(repo_path))
