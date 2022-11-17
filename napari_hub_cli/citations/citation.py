@@ -20,8 +20,12 @@ def scrap_git_infos(local_repo, url=None):
 
         url = repo.remote().url  # pragma: no cover
 
-    d = {"url": url, "name": url.split("/")[-1]}
+    return {"url": url, "title": [s for s in url.split("/") if s][-1]}
 
+
+def scrap_users(url):
+    if not url:
+        return {}
     github_token = os.environ.get("GITHUB_TOKEN")
     auth_header = None
     if github_token:
@@ -56,8 +60,7 @@ def scrap_git_infos(local_repo, url=None):
                     "given-names": f"{name}  # We cannot split your name automatically bewteen 'given-names' and 'family-names', we apologize for that. Please do it manually",
                 }
             )
-    d["authors"] = authors
-    return d
+    return {"authors": authors}
 
 
 def create_cff_citation(repo_path, save=True, display_info=True):
@@ -85,7 +88,8 @@ def create_cff_citation(repo_path, save=True, display_info=True):
         print(f"[yellow]- Using git repository metadata if possible")
 
         cff.add_header()
-
+        cff.update_data(git_infos)
+        cff.update_data(scrap_users(git_infos.get("url", None)))
         if save:
             cff.save()
         return True
@@ -115,7 +119,7 @@ def create_cff_citation(repo_path, save=True, display_info=True):
     cff.add_header()
     cff.update_data(git_infos)
     # We add authors of first citation as plugin author
-    cff.update_data(first_citation.authors)
+    cff.update_data({"authors": first_citation.authors})
     cff.append_citations(scrapped_citations)
     if save:
         cff.save()

@@ -445,7 +445,8 @@ class MarkdownDescription(object):
         pattern = match(Document) % {  # it should be an instance of Document
             "children+>content": (  # where somewhere in the content of it's children
                 regex(APA_REGEXP)  # a line matches the general APA regex
-                >> "raw_apa_match"  # and we store the results of the regex matcher in the "raw_apa_match" variable
+                >> "raw_apa_match"
+                # and we store the results of the regex matcher in the "raw_apa_match" variable
             )
         }
         result = pattern.match(self.content)
@@ -502,16 +503,16 @@ class CitationFile(ConfigFile):
             yaml.dump(self.data, stream=f, sort_keys=False)
             f.write(
                 f"""
-                # Please use the templates below if any of the citation information
-                # was not captured or is not available in the README.md
-                # Uncomment and Replace/Add the values as you see fit
-                # Full Citation Template for referencing other work:
+# Please use the templates below if any of the citation information
+# was not captured or is not available in the README.md
+# Uncomment and Replace/Add the values as you see fit
+# Full Citation Template for referencing other work:
                 """
             )
             f.writelines(TEMPLATE_REF_OTHER_WORK)
             f.write(
                 """
-                # Full Citation Template for Credit Redirection:
+# Full Citation Template for Credit Redirection:
                 """
             )
             f.writelines(TEMPLATE_CRED_REDIRECT)
@@ -564,11 +565,21 @@ class Citation(object):
         for field, _type in self.required_fields:
             with suppress(KeyError):
                 value = getattr(self, field)
+                if value is None:
+                    continue
                 try:
                     d[field] = _type(value)
                 except Exception:
                     d[field] = value
         return d
+
+    @property
+    def type(self):
+        return "article"
+
+    @property
+    def doi(self):
+        return self.data["doi"].replace("https://", "").replace("doi.org/", "")
 
 
 class BibtexCitation(Citation):
@@ -583,6 +594,7 @@ class BibtexCitation(Citation):
         ("volume", int),
         ("pages", int),
         ("issue", int),
+        ("type", str),
     ]
 
     @property
@@ -615,11 +627,14 @@ class APACitation(Citation):
         ("journal", str),
         ("volume", int),
         ("pages", int),
+        ("type", str),
     ]
 
     @property
     def authors(self):
-        authors_split = [a.strip() for a in self.author.split(",")]
+        authors_and = self.author.split(" and ")
+        authors_and = ", ".join(authors_and)
+        authors_split = [a.strip() for a in authors_and.split(",")]
         authors = []
         for family_names, given_names in zip(authors_split[::2], authors_split[1::2]):
             authors.append(
@@ -647,23 +662,8 @@ APA_REGEXP = re.compile(
     # r"([ ,.]+http(s)?://(?P<url>[^ ]+))?"  # followed by an optional location url
     # r"((?=[ ,.]http(s)?://)[ ,.]+(http(s)?://)(doi\.org/)(?P<doi>[^ ]+))?"  # followed by an optional DOI (non DOI location url not supported)
     r"([ ,.]+(?P<doi>[^ ]+))?"  # OR followed by an optional DOI
-    r"( \((?P<retraction>[^)]+)\))?"  # followed by an optional retraction
+    r"( \((?P<retraction>[^)]+)\))?"  # folloawed by an optional retraction
 )
-
-
-## For later
-# if doi in cache:
-#         return cache[doi]
-#     url = 'https://doi.org/' + urllib.request.quote(doi)
-#     header = {
-#         'Accept': 'application/x-bibtex',
-#     }
-#     #getting the bibtex text from the DOI url
-#     response = requests.get(url, headers=header)
-#     bibtext = response.text
-#     if bibtext:
-#         cache[doi] = bibtext
-#     return bibtext
 
 
 # TODO move those elsewhere

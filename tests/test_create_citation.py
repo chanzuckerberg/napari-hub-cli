@@ -1,11 +1,16 @@
 # coding: utf8
+import os
 from pathlib import Path
 
 import pytest
 import requests_mock
 import yaml
 
-from napari_hub_cli.citations.citation import create_cff_citation, scrap_git_infos
+from napari_hub_cli.citations.citation import (
+    create_cff_citation,
+    scrap_git_infos,
+    scrap_users,
+)
 from napari_hub_cli.filesaccess import CitationFile, MarkdownDescription, NapariPlugin
 
 
@@ -78,13 +83,13 @@ def test_apa_extraction(citations_dir):
     )
     assert (
         cit1.author
-        == "Tyson, A. L., Velez-Fort, M., Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T., Margrie, T. W."
+        == "Tyson, A. L., Velez-Fort, M. and  Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T. and  Margrie, T. W."
     )
     assert cit1.year == "2022"
     assert cit1.journal == "Scientific Reports"
     assert cit1.volume == "12"
     assert cit1.pages == "867"
-    assert cit1.doi == "doi.org/10.1038/s41598-021-04676-9"
+    assert cit1.doi == "10.1038/s41598-021-04676-9"
 
     assert (
         cit2.title
@@ -95,7 +100,7 @@ def test_apa_extraction(citations_dir):
     assert cit2.journal == "Psychology of Popular Media Culture"
     assert cit2.volume == "8(3)"
     assert cit2.pages == "207-217"
-    assert cit2.doi == "https://doi.org/10.1037/ppm0000185"
+    assert cit2.doi == "10.1037/ppm0000185"
 
     assert (
         cit12.title
@@ -364,6 +369,7 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
 
 
 def test_github_scrapping(requests_mock):
+    os.environ["GITHUB_TOKEN"] = "MYTOK"
     requests_mock.get(
         "https://api.github.com/repos/test/repo/contributors",
         json=[
@@ -378,13 +384,15 @@ def test_github_scrapping(requests_mock):
     requests_mock.get("https://api.github.com/users/u3", json={"name": "Jack Von B"})
 
     infos = scrap_git_infos(None, url="https://github.com/test/repo")
+    authors = scrap_users(infos["url"])
 
-    assert len(infos) == 3
+    assert len(infos) == 2
     assert infos["url"] == "https://github.com/test/repo"
-    assert infos["name"] == "repo"
-    assert len(infos["authors"]) == 3
+    assert infos["title"] == "repo"
 
-    a1, a2, a3 = infos["authors"]
+    assert len(authors["authors"]) == 3
+
+    a1, a2, a3 = authors["authors"]
     assert a1["given-names"] == "Jane"
     assert a2["given-names"] == "John"
     assert a3["given-names"].startswith("Jack Von B  #")
@@ -397,12 +405,14 @@ def test_github_scrapping(requests_mock):
 @pytest.mark.online
 def test_github_scrapping__online():
     infos = scrap_git_infos(None, url="https://github.com/aranega/iguala")
+    authors = scrap_users(infos["url"])
 
-    assert len(infos) == 3
+    assert len(infos) == 2
     assert infos["url"] == "https://github.com/aranega/iguala"
-    assert infos["name"] == "iguala"
-    assert len(infos["authors"]) == 1
+    assert infos["title"] == "iguala"
 
-    (a1,) = infos["authors"]
+    assert len(authors["authors"]) == 1
+
+    (a1,) = authors["authors"]
     assert a1["given-names"] == "Vincent"
     assert a1["family-names"] == "Aranega"
