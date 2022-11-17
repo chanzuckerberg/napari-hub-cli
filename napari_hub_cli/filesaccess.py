@@ -480,9 +480,22 @@ class CitationFile(ConfigFile):
         "message": "If you use this plugin, please cite it using these metadata",
     }
 
-    def override_with(self, citation):
+    def add_header(self):
         self.data.update(self.metadata)
-        self.data.update(citation.as_dict())
+
+    def update_data(self, d):
+        self.data.update(d)
+
+    def override_with(self, citation):
+        self.update_data(citation.as_dict())
+
+    def append_citations(self, citations):
+        if not citations:
+            return
+        preferred, *references = citations
+        self.data["preferred-citation"] = preferred.as_dict()
+        if references:
+            self.data["references"] = [r.as_dict() for r in references]
 
     def save(self):
         with self.file.open(mode="w") as f:

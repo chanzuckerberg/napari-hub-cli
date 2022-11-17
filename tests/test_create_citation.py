@@ -1,10 +1,11 @@
 # coding: utf8
-import pytest
 from pathlib import Path
 
+import pytest
+import requests_mock
 import yaml
-from napari_hub_cli.citations.citation import create_cff_citation
 
+from napari_hub_cli.citations.citation import create_cff_citation, scrap_git_infos
 from napari_hub_cli.filesaccess import CitationFile, MarkdownDescription, NapariPlugin
 
 
@@ -192,8 +193,9 @@ def test_cff_no_information(tmp_path):
 
     res = create_cff_citation(repo_path)
 
-    assert res is False
-    assert repo.citation_file.exists is False
+    assert res is True
+    assert repo.citation_file.exists is True
+    repo.citation_file.file.unlink()
 
 
 def test_cff_bibtex(tmp_path):
@@ -314,3 +316,93 @@ def test_bibtex_extraction_faulty_aythors(citations_dir):
     assert a5["given-names"] == "Talley"
 
     assert a6["given-names"] == "AICSImageIO Contributors"
+
+
+def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
+    readme_file = citations_dir / "example.md"
+    readme = MarkdownDescription.from_file(readme_file)
+
+    cff_file = tmp_path / "CITATIONS.cff"
+    cff = CitationFile(cff_file)
+
+    old = dict(cff.data)
+    cff.append_citations([])
+    assert old == cff.data
+
+    bibtex_citations = readme.extract_bibtex_citations()
+
+    cff.append_citations(bibtex_citations)
+
+    pref = cff.data["preferred-citation"]
+    assert len(pref["authors"]) == 3
+    assert pref["authors"][0]["given-names"] == "Vlad"
+    assert pref["year"] == 2018
+
+    refs = cff.data["references"]
+    assert len(refs) == 2
+
+    r1, r2 = cff.data["references"]
+    assert len(r1["authors"]) == 2
+    assert len(r2["authors"]) == 3
+
+    # tests round-trip
+    cff.save()
+    with cff.file.open(mode="r") as f:
+        result = yaml.safe_load(f)
+
+    pref = result["preferred-citation"]
+    assert len(pref["authors"]) == 3
+    assert pref["authors"][0]["given-names"] == "Vlad"
+    assert pref["year"] == 2018
+
+    refs = result["references"]
+    assert len(refs) == 2
+
+    r1, r2 = cff.data["references"]
+    assert len(r1["authors"]) == 2
+    assert len(r2["authors"]) == 3
+
+
+def test_github_scrapping(requests_mock):
+    requests_mock.get(
+        "https://api.github.com/repos/test/repo/contributors",
+        json=[
+            {"login": "u1", "type": "User"},
+            {"login": "u2", "type": "User"},
+            {"login": "u3", "type": "User"},
+            {"login": "u4", "type": "bot"},
+        ],
+    )
+    requests_mock.get("https://api.github.com/users/u1", json={"name": "Jane Doe"})
+    requests_mock.get("https://api.github.com/users/u2", json={"name": "John Doe"})
+    requests_mock.get("https://api.github.com/users/u3", json={"name": "Jack Von B"})
+
+    infos = scrap_git_infos(None, url="https://github.com/test/repo")
+
+    assert len(infos) == 3
+    assert infos["url"] == "https://github.com/test/repo"
+    assert infos["name"] == "repo"
+    assert len(infos["authors"]) == 3
+
+    a1, a2, a3 = infos["authors"]
+    assert a1["given-names"] == "Jane"
+    assert a2["given-names"] == "John"
+    assert a3["given-names"].startswith("Jack Von B  #")
+
+    assert a1["family-names"] == "Doe"
+    assert a2["family-names"] == "Doe"
+    assert "family-names" not in a3
+
+
+@pytest.mark.online
+def test_github_scrapping__online():
+    infos = scrap_git_infos(None, url="https://github.com/aranega/iguala")
+
+    assert len(infos) == 3
+    assert infos["url"] == "https://github.com/aranega/iguala"
+    assert infos["name"] == "iguala"
+    assert len(infos["authors"]) == 1
+
+    (a1,) = infos["authors"]
+    assert a1["given-names"] == "Vincent"
+    assert a1["family-names"] == "Aranega"
