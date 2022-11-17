@@ -570,14 +570,13 @@ class BibtexCitation(Citation):
 
     @property
     def authors(self):
-        authors_split = [a.strip() for a in self.author.split("and")]
+        authors_split = [a.strip().split(",") for a in self.author.split(" and ")]
         authors = []
-        for a in authors_split:
-            split_name = a.split(",")
+        for family_names, given_names in authors_split:
             authors.append(
                 {
-                    "family-names": split_name[0].strip(),
-                    "given-names": split_name[1].strip(),
+                    "family-names": family_names.strip(),
+                    "given-names": given_names.strip(),
                 }
             )
         return authors

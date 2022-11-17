@@ -217,3 +217,44 @@ def test_cff_apa(tmp_path):
     assert repo.citation_file.data != {}
 
     repo.citation_file.file.unlink()
+
+
+def test_bibtex_extraction_authors(citations_dir):
+    readme_file = citations_dir / "citation1.md"
+    readme = MarkdownDescription.from_file(readme_file)
+    bibtex_db = readme.extract_bibtex_citations()
+
+    assert len(bibtex_db) == 1
+
+    cit1 = bibtex_db[0]
+
+    assert cit1.ID == "10.1007/978-3-030-66415-2_30"
+    assert (
+        cit1.title
+        == "Registration of Multi-modal Volumetric Images by Establishing Cell Correspondence"
+    )
+    assert (
+        cit1.author
+        == "Lalit, Manan and Handberg-Thorsager, Mette and Hsieh, Yu-Wen and Jug, Florian and Tomancak, Pavel"
+    )
+    assert cit1.publisher == "Springer International Publishing"
+    assert cit1.year == "2020"
+
+    authors = cit1.authors
+    assert len(authors) == 5
+
+    a1, a2, a3, a4, a5 = authors
+    assert a1["family-names"] == "Lalit"
+    assert a1["given-names"] == "Manan"
+
+    assert a2["family-names"] == "Handberg-Thorsager"
+    assert a2["given-names"] == "Mette"
+
+    assert a3["family-names"] == "Hsieh"
+    assert a3["given-names"] == "Yu-Wen"
+
+    assert a4["family-names"] == "Jug"
+    assert a4["given-names"] == "Florian"
+
+    assert a5["family-names"] == "Tomancak"
+    assert a5["given-names"] == "Pavel"
