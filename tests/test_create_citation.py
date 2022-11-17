@@ -81,7 +81,7 @@ def test_apa_extraction(citations_dir):
     )
     assert cit1.year == "2022"
     assert cit1.journal == "Scientific Reports"
-    assert cit1.issue_number == "12"
+    assert cit1.volume == "12"
     assert cit1.pages == "867"
     assert cit1.doi == "doi.org/10.1038/s41598-021-04676-9"
 
@@ -92,7 +92,7 @@ def test_apa_extraction(citations_dir):
     assert cit2.author == "Grady, J. S., Her, M., Moreno, G., Perez, C., & Yelinek, J."
     assert cit2.year == "2019"
     assert cit2.journal == "Psychology of Popular Media Culture"
-    assert cit2.issue_number == "8(3)"
+    assert cit2.volume == "8(3)"
     assert cit2.pages == "207-217"
     assert cit2.doi == "https://doi.org/10.1037/ppm0000185"
 
@@ -104,7 +104,7 @@ def test_apa_extraction(citations_dir):
     assert cit12.year == "2019"
     assert cit12.additional == "Supplemental material"
     assert cit12.journal == "Journal of Comparative Psychology"
-    assert cit12.issue_number == "133(2)"
+    assert cit12.volume == "133(2)"
     assert cit12.pages == "141-142"
     assert cit12.doi == "10.1037/com0000181"
 
@@ -224,7 +224,7 @@ def test_bibtex_extraction_authors(citations_dir):
     readme = MarkdownDescription.from_file(readme_file)
     bibtex_db = readme.extract_bibtex_citations()
 
-    assert len(bibtex_db) == 1
+    assert len(bibtex_db) == 3
 
     cit1 = bibtex_db[0]
 
@@ -258,3 +258,46 @@ def test_bibtex_extraction_authors(citations_dir):
 
     assert a5["family-names"] == "Tomancak"
     assert a5["given-names"] == "Pavel"
+
+
+def test_bibtex_extraction_faulty_aythors(citations_dir):
+    readme_file = citations_dir / "citation1.md"
+    readme = MarkdownDescription.from_file(readme_file)
+    bibtex_db = readme.extract_bibtex_citations()
+
+    assert len(bibtex_db) == 3
+
+    _, cit2, _ = bibtex_db
+
+    assert cit2.ID == "aicsimageio"
+    assert (
+        cit2.title
+        == "AICSImageIO: Image Reading, Metadata Conversion, and Image Writing for Microscopy Images in Pure Python"
+    )
+    assert (
+        cit2.author
+        == "Brown, Eva Maxfield and Toloudis, Dan and Sherman, Jamie and Swain-Bowden, Madison and Lambert, Talley and AICSImageIO Contributors"
+    )
+    assert cit2.publisher == "GitHub"
+    assert cit2.year == "2021"
+
+    authors = cit2.authors
+    assert len(authors) == 6
+
+    a1, a2, a3, a4, a5, a6 = authors
+    assert a1["family-names"] == "Brown"
+    assert a1["given-names"] == "Eva Maxfield"
+
+    assert a2["family-names"] == "Toloudis"
+    assert a2["given-names"] == "Dan"
+
+    assert a3["family-names"] == "Sherman"
+    assert a3["given-names"] == "Jamie"
+
+    assert a4["family-names"] == "Swain-Bowden"
+    assert a4["given-names"] == "Madison"
+
+    assert a5["family-names"] == "Lambert"
+    assert a5["given-names"] == "Talley"
+
+    assert a6["given-names"] == "AICSImageIO Contributors"

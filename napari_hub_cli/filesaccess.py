@@ -551,7 +551,10 @@ class Citation(object):
         for field, _type in self.required_fields:
             with suppress(KeyError):
                 value = getattr(self, field)
-                d[field] = _type(value)
+                try:
+                    d[field] = _type(value)
+                except Exception:
+                    d[field] = value
         return d
 
 
@@ -565,6 +568,7 @@ class BibtexCitation(Citation):
         ("publisher", str),
         ("journal", str),
         ("volume", int),
+        ("pages", int),
         ("issue", int),
     ]
 
@@ -572,13 +576,20 @@ class BibtexCitation(Citation):
     def authors(self):
         authors_split = [a.strip().split(",") for a in self.author.split(" and ")]
         authors = []
-        for family_names, given_names in authors_split:
-            authors.append(
-                {
-                    "family-names": family_names.strip(),
-                    "given-names": given_names.strip(),
-                }
-            )
+        for family_names, *given_names in authors_split:
+            if given_names:
+                authors.append(
+                    {
+                        "family-names": family_names.strip(),
+                        "given-names": given_names[0].strip(),
+                    }
+                )
+            else:
+                authors.append(
+                    {
+                        "given-names": family_names.strip(),
+                    }
+                )
         return authors
 
 
@@ -590,6 +601,7 @@ class APACitation(Citation):
         ("doi", str),
         ("journal", str),
         ("volume", int),
+        ("pages", int),
     ]
 
     @property
@@ -617,7 +629,7 @@ APA_REGEXP = re.compile(
     r"(\s+\[(?P<additional>[^]]+)+\])?"  # optionaly, additional information (all chars between "[]") after the title
     r"\.\s+"  # following the title and the optional edition number, there's a dot
     r"(?P<journal>(.(?!, [\d(]))+.)"  # followed by the journal/publisher (a char that is not followed by a comma with a number or a parenthesis)
-    r"(, (?P<issue_number>[^,.]+))?"  # followed by an optional number of volume
+    r"(, (?P<volume>[^,.]+))?"  # followed by an optional number of volume
     r"(, (?P<pages>[^ ,.]+))?"  # followed by an optional number of page
     # r"([ ,.]+http(s)?://(?P<url>[^ ]+))?"  # followed by an optional location url
     # r"((?=[ ,.]http(s)?://)[ ,.]+(http(s)?://)(doi\.org/)(?P<doi>[^ ]+))?"  # followed by an optional DOI (non DOI location url not supported)

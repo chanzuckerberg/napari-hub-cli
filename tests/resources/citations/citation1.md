@@ -11,4 +11,20 @@ address="Cham",
 pages="458--473",
 isbn="978-3-030-66415-2"
 }
+
+@misc{aicsimageio,
+  author    = {Brown, Eva Maxfield and Toloudis, Dan and Sherman, Jamie and Swain-Bowden, Madison and Lambert, Talley and {AICSImageIO Contributors}},
+  title     = {AICSImageIO: Image Reading, Metadata Conversion, and Image Writing for Microscopy Images in Pure Python},
+  year      = {2021},
+  publisher = {GitHub},
+  url       = {https://github.com/AllenCellModeling/aicsimageio}
+}
+
+@misc{napari-aicsimageio,
+  author    = {Brown, Eva Maxfield and Lambert, Talley and Sobolewski, Peter and {Napari-AICSImageIO Contributors}},
+  title     = {Napari-AICSImageIO: Image Reading in Napari using AICSImageIO},
+  year      = {2021},
+  publisher = {GitHub},
+  url       = {https://github.com/AllenCellModeling/napari-aicsimageio}
+}
 ```
