@@ -164,3 +164,14 @@ def test_display_checklist(test_repo):
 
 def test_has_citation_file(test_repo):
     assert test_repo.has_citation_file is False
+
+
+def test_access_specific_result(test_repo):
+    result = create_checklist(test_repo.path)
+
+    specific = result[DISPLAY_NAME]
+    assert specific is not None
+    assert specific.meta is DISPLAY_NAME
+
+    with pytest.raises(StopIteration):
+        result[0]

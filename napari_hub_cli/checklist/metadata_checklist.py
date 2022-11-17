@@ -50,6 +50,9 @@ class PluginAnalysisResult(object):
     def with_status(cls, status, url=None):
         return cls([], status, None, url)
 
+    def __getitem__(self, meta):
+        return next((f for f in self.features if f.meta is meta))
+
 
 @dataclass
 class Requirement(object):
