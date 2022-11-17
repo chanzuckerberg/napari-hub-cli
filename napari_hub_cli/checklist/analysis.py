@@ -7,7 +7,7 @@ import requests
 from git import GitCommandError, Repo
 from rich.progress import Progress, TaskID
 
-from ..constants import NAPARI_HUB_API_LINK
+from ..constants import NAPARI_HUB_API_URL
 from ..utils import NonExistingNapariPluginError, get_repository_url, TemporaryDirectory
 from .metadata_checklist import (
     AnalysisStatus,
@@ -32,9 +32,7 @@ class FakeProgress(object):
 
 
 def analyse_remote_plugin(
-    plugin_name,
-    api_url=NAPARI_HUB_API_LINK,
-    display_info=False,
+    plugin_name, api_url=NAPARI_HUB_API_URL, display_info=False, cleanup=True
 ):
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
@@ -95,14 +93,14 @@ def analyse_remote_plugin(
         return PluginAnalysisResult.with_status(AnalysisStatus.NON_EXISTING_PLUGIN)
 
 
-def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_LINK):
+def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
     result = analyse_remote_plugin(plugin_name, api_url=api_url, display_info=True)
     display_checklist(result)
     _display_error_message(plugin_name, result)
     return result.status == AnalysisStatus.SUCCESS
 
 
-def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_LINK, display_info=False):
+def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False):
     all_results = {}
     plugins_name = requests.get(api_url).json().keys()
     total = len(plugins_name)

@@ -9,12 +9,13 @@ import stat
 import tempfile
 import warnings
 from contextlib import suppress
+import weakref
 
 import requests
 import setuptools
 from requests.exceptions import HTTPError
 
-from .constants import GITHUB_PATTERN, NAPARI_HUB_API_LINK
+from .constants import GITHUB_PATTERN, NAPARI_HUB_API_URL
 
 
 def flatten(config_parser):
@@ -318,7 +319,7 @@ class NonExistingNapariPluginError(Exception):
         )
 
 
-def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_LINK):
+def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_URL):
     """Returns the plugin name the closest to the one entered as parameter.
     The search of the closest name considers all registered plugin in the Napari HUB api.
 
@@ -342,7 +343,7 @@ def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_LINK):
     return None
 
 
-def get_repository_url(plugin_name, api_url=NAPARI_HUB_API_LINK):
+def get_repository_url(plugin_name, api_url=NAPARI_HUB_API_URL):
     """Returns the git repository url of a Napari plugin.
     The function searches directly from the Napari HUB api.
 
