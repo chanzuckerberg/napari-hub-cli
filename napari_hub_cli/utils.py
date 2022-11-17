@@ -435,8 +435,32 @@ class TemporaryDirectory(tempfile.TemporaryDirectory):
     in a context manager.
     """
 
+    def __init__(
+        self,
+        suffix=None,
+        prefix=None,
+        dir=None,
+        ignore_cleanup_errors=False,
+        delete=True,
+    ):
+        self.name = tempfile.mkdtemp(suffix, prefix, dir)
+        self._delete = delete
+        self._ignore_cleanup_errors = ignore_cleanup_errors
+        self._finalizer = weakref.finalize(
+            self,
+            self._cleanup,
+            self.name,
+            warn_message="Implicitly cleaning up {!r}".format(self),
+            ignore_errors=self._ignore_cleanup_errors,
+            delete=self._delete,
+        )
+
     @classmethod
-    def _cleanup(cls, name, warn_message):  # pragma: no cover
+    def _cleanup(
+        cls, name, warn_message, ignore_errors=False, delete=True
+    ):  # pragma: no cover
+        if not delete:
+            return
         cls._robust_cleanup(name)
         warnings.warn(warn_message, ResourceWarning)
 
@@ -447,3 +471,8 @@ class TemporaryDirectory(tempfile.TemporaryDirectory):
     @staticmethod
     def _robust_cleanup(name):
         shutil.rmtree(name, ignore_errors=False, onerror=handle_remove_readonly)
+
+    def __exit__(self, exc, value, tb):
+        if not self._delete:
+            return
+        self.cleanup()

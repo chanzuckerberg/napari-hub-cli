@@ -59,7 +59,7 @@ def analyse_remote_plugin(
                 AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
             )
 
-        with TemporaryDirectory() as tmpdirname:
+        with TemporaryDirectory(delete=cleanup) as tmpdirname:
             tmp_dir = Path(tmpdirname)
             test_repo = tmp_dir / plugin_name
 
