@@ -49,9 +49,8 @@ def scrap_users(local_repo):
         name = commiter.author.name
         name = name if name else ""
         # try to detect bots (simple detection)
-        if "[bot]" in email or "[bot]" in name or email.startswith("bot@"):
-            continue
-        contributors.setdefault(email, set()).add(name)
+        if not ("[bot]" in email or "[bot]" in name or email.startswith("bot@")):
+            contributors.setdefault(email, set()).add(name)
 
     # Now that we have users by email,
     # we group user names that are in various emails
