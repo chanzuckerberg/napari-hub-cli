@@ -73,7 +73,7 @@ def test_apa_extraction(citations_dir):
     readme = MarkdownDescription.from_file(readme_file)
     apa_db = readme.extract_apa_citations()
 
-    assert len(apa_db) == 12
+    assert len(apa_db) == 13
 
     cit1, cit2, *_, cit12 = apa_db
 
@@ -366,6 +366,53 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
     r1, r2 = cff.data["references"]
     assert len(r1["authors"]) == 2
     assert len(r2["authors"]) == 3
+
+
+def test_create_cff_apa_append_all(tmp_path, citations_dir):
+    readme_file = citations_dir / "example.md"
+    readme = MarkdownDescription.from_file(readme_file)
+
+    cff_file = tmp_path / "CITATIONS.cff"
+    cff = CitationFile(cff_file)
+
+    old = dict(cff.data)
+    cff.append_citations([])
+    assert old == cff.data
+
+    apa_citations = readme.extract_apa_citations()
+
+    cff.append_citations(apa_citations)
+
+    pref = cff.data["preferred-citation"]
+    assert len(pref["authors"]) == 10
+    assert pref["authors"][0]["given-names"] == "A. L."
+    assert pref["authors"][0]["family-names"] == "Tyson"
+    assert pref["year"] == 2022
+
+    refs = cff.data["references"]
+    assert len(refs) == 12
+
+    r1, r2, *_ = cff.data["references"]
+    assert len(r1["authors"]) == 5
+    assert len(r2["authors"]) == 1
+
+    # tests round-trip
+    cff.save()
+    with cff.file.open(mode="r") as f:
+        result = yaml.safe_load(f)
+
+    pref = result["preferred-citation"]
+    assert len(pref["authors"]) == 10
+    assert pref["authors"][0]["given-names"] == "A. L."
+    assert pref["authors"][0]["family-names"] == "Tyson"
+    assert pref["year"] == 2022
+
+    refs = result["references"]
+    assert len(refs) == 12
+
+    r1, r2, *_ = cff.data["references"]
+    assert len(r1["authors"]) == 5
+    assert len(r2["authors"]) == 1
 
 
 # This test needs to be rewritten

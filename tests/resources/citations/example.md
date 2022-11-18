@@ -99,6 +99,9 @@ The Editors of the Lancet. (2010). Retraction—Ileal-lymphoid-nodular hyperplas
 Hare, L. R., & O'Neill, K. (2000). Effectiveness and efficiency in small academic peer groups: A case study (Accession No. 200010185) [Abstract from Sociological Abstracts]. Small Group Research, 31(1), 24–53. https://doi.org/10.1177/104649640003100102
 
 
+> Tyson, A. L., Velez-Fort, M. and  Rousseau, C. V., Cossell, L., Tsitoura, C., Lenzi, S. C., Obenhaus, H. A., Claudi, F., Branco, T. and  Margrie, T. W. (2022). Accurate determination of marker location within whole-brain microscopy images. Scientific Reports, 12, 867 [doi.org/10.1038/s41598-021-04676-9](doi.org/10.1038/s41598-021-04676-9)
+
+
 Ganster, D. C., Schaubroeck, J., Sime, W. E., & Mayes, B. T. (1991). The nomological validity of the Type A personality among employed adults [Monograph]. Journal of Applied Psychology, 76(1), 143–168. http://doi.org/10.1037/0021-9010.76.1.143
 
 
