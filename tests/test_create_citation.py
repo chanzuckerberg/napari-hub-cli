@@ -368,6 +368,8 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
     assert len(r2["authors"]) == 3
 
 
+# This test needs to be rewritten
+@pytest.mark.skip(reason="Deactivate Github access for now")
 def test_github_scrapping(requests_mock):
     os.environ["GITHUB_TOKEN"] = "MYTOK"
     requests_mock.get(
@@ -383,7 +385,7 @@ def test_github_scrapping(requests_mock):
     requests_mock.get("https://api.github.com/users/u2", json={"name": "John Doe"})
     requests_mock.get("https://api.github.com/users/u3", json={"name": "Jack Von B"})
 
-    infos = scrap_git_infos(None, url="https://github.com/test/repo")
+    infos = scrap_git_infos(None)
     authors = scrap_users(infos["url"])
 
     assert len(infos) == 2
@@ -402,17 +404,46 @@ def test_github_scrapping(requests_mock):
     assert "family-names" not in a3
 
 
-@pytest.mark.online
-def test_github_scrapping__online():
-    infos = scrap_git_infos(None, url="https://github.com/aranega/iguala")
-    authors = scrap_users(infos["url"])
+def test_git_scrapping():
+    repo_path = Path(__file__).parent.parent
+
+    infos = scrap_git_infos(repo_path)
+    authors = scrap_users(repo_path)
 
     assert len(infos) == 2
-    assert infos["url"] == "https://github.com/aranega/iguala"
-    assert infos["title"] == "iguala"
+    assert infos["url"] in (
+        "https://github.com/chanzuckerberg/napari-hub-cli",
+        "git@github.com:chanzuckerberg/napari-hub-cli.git",
+    )
+    assert infos["title"] == "napari-hub-cli"
 
-    assert len(authors["authors"]) == 1
+    assert len(authors["authors"]) == 5
 
-    (a1,) = authors["authors"]
-    assert a1["given-names"] == "Vincent"
-    assert a1["family-names"] == "Aranega"
+    a1, a2, *_ = authors["authors"]
+    assert a1["given-names"] in (
+        "Simão",
+        "Zoran",
+        "Draga Doncila Pop",
+        "Justin",
+        "Vincent",
+    )
+    assert "family-names" not in a1 or a1["family-names"] in (
+        "Bolota",
+        "Kiggins",
+        "Sinnema",
+        "Aranega",
+    )
+
+    assert a2["given-names"] in (
+        "Simão",
+        "Zoran",
+        "Draga Doncila Pop",
+        "Justin",
+        "Vincent",
+    )
+    assert "family-names" not in a2 or a2["family-names"] in (
+        "Bolota",
+        "Kiggins",
+        "Sinnema",
+        "Aranega",
+    )

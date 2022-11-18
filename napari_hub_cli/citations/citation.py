@@ -1,51 +1,72 @@
+from contextlib import suppress
 import os
 from pathlib import Path
-from git import InvalidGitRepositoryError, Repo
+from git import GitError, InvalidGitRepositoryError, Repo
 import requests
 from rich.console import Console
 
 from napari_hub_cli.filesaccess import NapariPlugin
+from re import sub
 
 
 def fake_print(*args):
     ...
 
 
-def scrap_git_infos(local_repo, url=None):
-    if not url:
-        try:
-            repo = Repo(local_repo.absolute())
-        except InvalidGitRepositoryError:
-            return {}
-
-        url = repo.remote().url  # pragma: no cover
-
-    return {"url": url, "title": [s for s in url.split("/") if s][-1]}
-
-
-def scrap_users(url):
-    if not url:
+def scrap_git_infos(local_repo):
+    try:
+        repo = Repo(local_repo.absolute())
+    except InvalidGitRepositoryError:
         return {}
-    github_token = os.environ.get("GITHUB_TOKEN")
-    auth_header = None
-    if github_token:
-        auth_header = {"Authorization": f"token {github_token}"}
-    github_url = url.replace("https://github.com/", "https://api.github.com/repos/")
 
-    contributors_json = requests.get(
-        f"{github_url}/contributors", headers=auth_header
-    ).json()
-    contributors = []
-    for contributor in contributors_json:
-        if contributor["type"] == "User":
-            user = requests.get(
-                f"https://api.github.com/users/{contributor['login']}",
-                headers=auth_header,
-            ).json()
-            contributors.append(user["name"])
+    url = repo.remote().url  # pragma: no cover
+    title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
+    return {
+        "url": url,
+        "title": title,
+    }
 
+
+def scrap_users(local_repo):
+    try:
+        repo = Repo(local_repo.absolute())
+    except InvalidGitRepositoryError:
+        return {}
+
+    # We cloned with depth = 1
+    # To get the full history, we try to "unshallow"
+    # the current remote
+    with suppress(GitError):
+        repo.remote().fetch(unshallow=True)
+
+    # we group all contributors by emails
+    # this allows us to detect same user with various names
+    # that commits with same email
+    contributors = {}
+    for commiter in repo.iter_commits():
+        contributors.setdefault(commiter.author.email, set()).add(commiter.author.name)
+
+    # Now that we have users by email,
+    # we group user names that are in various emails
+    # (e.g. "Jane Doe" commited under "jane.doe@email.com and "jave.doe+github@email.com")
+    # We detect this is the same person
+    real_names = []
+    for names in contributors.values():
+        found_idx = [i for i, r in enumerate(real_names) if names.intersection(r)]
+        if found_idx:
+            [real_names[i].update(names) for i in found_idx]
+        else:
+            real_names.append(names)
+    real_names = [
+        list(r) for r in real_names
+    ]  # we pass from a list of set to a list of list
+
+    # we sort all identified names by their number of particules
+    [r.sort(key=lambda name: -(len(name) + len(name.split()))) for r in real_names]
+    # we get the ones that have the more fragments
+    unique_names = [r[0] for r in real_names]
     authors = []
-    for name in contributors:
+    for name in unique_names:
         s = name.split()
         if len(s) == 2:
             authors.append(
@@ -89,7 +110,7 @@ def create_cff_citation(repo_path, save=True, display_info=True):
 
         cff.add_header()
         cff.update_data(git_infos)
-        cff.update_data(scrap_users(git_infos.get("url", None)))
+        cff.update_data(scrap_users(repo.path))
         if save:
             cff.save()
         return True
