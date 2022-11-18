@@ -415,40 +415,40 @@ def test_create_cff_apa_append_all(tmp_path, citations_dir):
     assert len(r2["authors"]) == 1
 
 
-# This test needs to be rewritten
-@pytest.mark.skip(reason="Deactivate Github access for now")
-def test_github_scrapping(requests_mock):
-    os.environ["GITHUB_TOKEN"] = "MYTOK"
-    requests_mock.get(
-        "https://api.github.com/repos/test/repo/contributors",
-        json=[
-            {"login": "u1", "type": "User"},
-            {"login": "u2", "type": "User"},
-            {"login": "u3", "type": "User"},
-            {"login": "u4", "type": "bot"},
-        ],
-    )
-    requests_mock.get("https://api.github.com/users/u1", json={"name": "Jane Doe"})
-    requests_mock.get("https://api.github.com/users/u2", json={"name": "John Doe"})
-    requests_mock.get("https://api.github.com/users/u3", json={"name": "Jack Von B"})
+# # This test needs to be rewritten
+# @pytest.mark.skip(reason="Deactivate Github access for now")
+# def test_github_scrapping(requests_mock):
+#     os.environ["GITHUB_TOKEN"] = "MYTOK"
+#     requests_mock.get(
+#         "https://api.github.com/repos/test/repo/contributors",
+#         json=[
+#             {"login": "u1", "type": "User"},
+#             {"login": "u2", "type": "User"},
+#             {"login": "u3", "type": "User"},
+#             {"login": "u4", "type": "bot"},
+#         ],
+#     )
+#     requests_mock.get("https://api.github.com/users/u1", json={"name": "Jane Doe"})
+#     requests_mock.get("https://api.github.com/users/u2", json={"name": "John Doe"})
+#     requests_mock.get("https://api.github.com/users/u3", json={"name": "Jack Von B"})
 
-    infos = scrap_git_infos(None)
-    authors = scrap_users(infos["url"])
+#     infos = scrap_git_infos(None)
+#     authors = scrap_users(infos["url"])
 
-    assert len(infos) == 2
-    assert infos["url"] == "https://github.com/test/repo"
-    assert infos["title"] == "repo"
+#     assert len(infos) == 2
+#     assert infos["url"] == "https://github.com/test/repo"
+#     assert infos["title"] == "repo"
 
-    assert len(authors["authors"]) == 3
+#     assert len(authors["authors"]) == 3
 
-    a1, a2, a3 = authors["authors"]
-    assert a1["given-names"] == "Jane"
-    assert a2["given-names"] == "John"
-    assert a3["given-names"].startswith("Jack Von B  #")
+#     a1, a2, a3 = authors["authors"]
+#     assert a1["given-names"] == "Jane"
+#     assert a2["given-names"] == "John"
+#     assert a3["given-names"].startswith("Jack Von B  #")
 
-    assert a1["family-names"] == "Doe"
-    assert a2["family-names"] == "Doe"
-    assert "family-names" not in a3
+#     assert a1["family-names"] == "Doe"
+#     assert a2["family-names"] == "Doe"
+#     assert "family-names" not in a3
 
 
 def test_git_scrapping():
