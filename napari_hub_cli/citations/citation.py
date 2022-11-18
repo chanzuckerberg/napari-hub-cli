@@ -44,7 +44,14 @@ def scrap_users(local_repo):
     # that commits with same email
     contributors = {}
     for commiter in repo.iter_commits():
-        contributors.setdefault(commiter.author.email, set()).add(commiter.author.name)
+        email = commiter.author.email
+        email = email if email else ""
+        name = commiter.author.name
+        name = name if name else ""
+        # try to detect bots (simple detection)
+        if "[bot]" in email or "[bot]" in name or email.startswith("bot@"):
+            continue
+        contributors.setdefault(email, set()).add(name)
 
     # Now that we have users by email,
     # we group user names that are in various emails
