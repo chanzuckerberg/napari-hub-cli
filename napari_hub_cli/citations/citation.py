@@ -22,8 +22,8 @@ def scrap_git_infos(local_repo):
     url = repo.remote().url  # pragma: no cover
     title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
     return {
-        "url": url,
         "title": title,
+        "url": url,
     }
 
 

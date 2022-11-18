@@ -476,6 +476,8 @@ class MarkdownDescription(object):
 
 
 class CitationFile(ConfigFile):
+    message_no_preferred = "If you use this plugin, please cite it using these metadata"
+    message_preferred = "If you use this software, please cite both the article from preferred-citation and the software itself."
     metadata = {
         "cff-version": "1.2.0",
         "message": "If you use this plugin, please cite it using these metadata",
@@ -492,7 +494,9 @@ class CitationFile(ConfigFile):
 
     def append_citations(self, citations):
         if not citations:
+            self.data["message"] = self.message_no_preferred
             return
+        self.data["message"] = self.message_preferred
         preferred, *references = citations
         self.data["preferred-citation"] = preferred.as_dict()
         if references:
@@ -501,21 +505,23 @@ class CitationFile(ConfigFile):
     def save(self):
         with self.file.open(mode="w") as f:
             yaml.dump(self.data, stream=f, sort_keys=False)
-            f.write(
-                f"""
-# Please use the templates below if any of the citation information
-# was not captured or is not available in the README.md
-# Uncomment and Replace/Add the values as you see fit
-# Full Citation Template for referencing other work:
-                """
-            )
-            f.writelines(TEMPLATE_REF_OTHER_WORK)
-            f.write(
-                """
-# Full Citation Template for Credit Redirection:
-                """
-            )
-            f.writelines(TEMPLATE_CRED_REDIRECT)
+
+
+#             f.write(
+#                 f"""
+# # Please use the templates below if any of the citation information
+# # was not captured or is not available in the README.md
+# # Uncomment and Replace/Add the values as you see fit
+# # Full Citation Template for referencing other work:
+#                 """
+#             )
+#             f.writelines(TEMPLATE_REF_OTHER_WORK)
+#             f.write(
+#                 """
+# # Full Citation Template for Credit Redirection:
+#                 """
+#             )
+#             f.writelines(TEMPLATE_CRED_REDIRECT)
 
 
 class NapariPlugin(object):
@@ -666,39 +672,39 @@ APA_REGEXP = re.compile(
 )
 
 
-# TODO move those elsewhere
-TEMPLATE_REF_OTHER_WORK = """
-#authors:
-  #- family-names: Druskat
-  #  given-names: Stephan
-#cff-version: 1.2.0
-#message: "If you use this software, please cite it using these metadata."
-#references:
-  #- authors:
-      #- family-names: Spaaks
-      #  given-names: "Jurriaan H."
-    #title: "The foundation of Research Software"
-    #type: software
-  #- authors:
-      #- family-names: Haines
-      #  given-names: Robert
-    #title: "Ruby CFF Library"
-    #type: software
-    #version: 1.0
-#title: "My Research Software"
-    """
+# # TODO move those elsewhere
+# TEMPLATE_REF_OTHER_WORK = """
+# #authors:
+#   #- family-names: Druskat
+#   #  given-names: Stephan
+# #cff-version: 1.2.0
+# #message: "If you use this software, please cite it using these metadata."
+# #references:
+#   #- authors:
+#       #- family-names: Spaaks
+#       #  given-names: "Jurriaan H."
+#     #title: "The foundation of Research Software"
+#     #type: software
+#   #- authors:
+#       #- family-names: Haines
+#       #  given-names: Robert
+#     #title: "Ruby CFF Library"
+#     #type: software
+#     #version: 1.0
+# #title: "My Research Software"
+#     """
 
-TEMPLATE_CRED_REDIRECT = """
-#authors:
-  #- family-names: Druskat
-  #  given-names: Stephan
-#cff-version: 1.2.0
-#message: "If you use this software, please cite both the article from preferred-citation and the software itself."
-#preferred-citation:
-  #authors:
-    #- family-names: Druskat
-    #  given-names: Stephan
-  #title: "Software paper about My Research Software"
-  #type: article
-#title: "My Research Software"
-"""
+# TEMPLATE_CRED_REDIRECT = """
+# #authors:
+#   #- family-names: Druskat
+#   #  given-names: Stephan
+# #cff-version: 1.2.0
+# #message: "If you use this software, please cite both the article from preferred-citation and the software itself."
+# #preferred-citation:
+#   #authors:
+#     #- family-names: Druskat
+#     #  given-names: Stephan
+#   #title: "Software paper about My Research Software"
+#   #type: article
+# #title: "My Research Software"
+# """
