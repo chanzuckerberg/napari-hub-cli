@@ -74,7 +74,7 @@ def test_cfg_description(make_pkg_dir):
     root_dir = make_pkg_dir
     meta_dict = load_meta(root_dir)
 
-    assert meta_dict["Description"].value == "Test README Description."
+    assert "Test README Description." in meta_dict["Description"].value
     f_pth, section, key = meta_dict["Description"].source.unpack()
     assert f_pth == "setup.cfg"
     assert section == "metadata"

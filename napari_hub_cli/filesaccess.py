@@ -352,7 +352,9 @@ class MarkdownDescription(object):
     @property
     def has_screenshots(self):
         pattern = match(Document) % {
-            "children+>src": regex(r"^(?!http).*?\.(png|jpeg|jpg|svg)$")
+            "children+>src": regex(
+                r"((?!http)|https://github\.com|https://user-images\.githubusercontent\.com)(?!.*(badge)).*?\.(png|jpeg|jpg|svg)$"
+            )
         }
         result = pattern.match(self.content)
         if result.is_match:

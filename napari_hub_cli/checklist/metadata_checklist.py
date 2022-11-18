@@ -72,7 +72,7 @@ USER_SUPPORT = MetaFeature(
     "Support Channel Link", "has_usersupport", ".napari-hub/config.yml"
 )
 VIDEO_SCREENSHOT = MetaFeature(
-    "Intro Screenshot/Video", "has_videos_or_screenshots", ".napari-hub/DESCRIPTION.yml"
+    "Screenshot/Video", "has_videos_or_screenshots", ".napari-hub/DESCRIPTION.yml"
 )
 USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md")
 INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md")

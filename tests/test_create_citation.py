@@ -332,7 +332,8 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
 
     old = dict(cff.data)
     cff.append_citations([])
-    assert old == cff.data
+    assert old != cff.data
+    assert "message" in cff.data
 
     bibtex_citations = readme.extract_bibtex_citations()
 
@@ -377,7 +378,8 @@ def test_create_cff_apa_append_all(tmp_path, citations_dir):
 
     old = dict(cff.data)
     cff.append_citations([])
-    assert old == cff.data
+    assert old != cff.data
+    assert "message" in cff.data
 
     apa_citations = readme.extract_apa_citations()
 

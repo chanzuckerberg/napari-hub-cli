@@ -1,3 +1,4 @@
+import readline
 import shutil
 import pytest
 from pathlib import Path
@@ -230,3 +231,11 @@ def test_new_tempdir():
 
     shutil.rmtree(f"{p.absolute()}", ignore_errors=False)
     assert p.exists() is False
+
+
+def test_screenshot_detection(resources):
+    readme = MarkdownDescription.from_file(resources / "README.md")
+
+    assert readme.has_screenshots is True
+    assert readme.has_videos is False
+    assert readme.has_videos_or_screenshots is True
