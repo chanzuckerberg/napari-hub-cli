@@ -1,4 +1,3 @@
-import readline
 import shutil
 import pytest
 from pathlib import Path
