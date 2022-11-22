@@ -3,8 +3,25 @@ from functools import lru_cache
 
 import yaml
 
-from napari_hub_cli.fs import ConfigFile, Metadata
+from napari_hub_cli.fs import ConfigFile
 from napari_hub_cli.fs.descriptions import MarkdownDescription
+
+
+class Exists(object):
+    def __init__(self, key):
+        self.key = key
+
+    def __get__(self, instance, cls=None):
+        return getattr(instance, self.key) is not None
+
+
+class Metadata(object):  # pragma: no cover
+    has_name = Exists("name")
+    has_sourcecode = Exists("sourcecode")
+    has_usersupport = Exists("usersupport")
+    has_bugtracker = Exists("bugtracker")
+    has_author = Exists("author")
+    has_summary = Exists("summary")
 
 
 class SetupPy(Metadata, ConfigFile):
@@ -26,11 +43,17 @@ class SetupPy(Metadata, ConfigFile):
 
     @property
     def bugtracker(self):
-        return self.data.get("Bug Tracker")
+        data = self.data.get("project_urls", {})
+        return data.get("Bug Tracker", data.get("Tracker"))
+
+    @bugtracker.setter
+    def bugtracker(self, value):
+        self.data.setdefault("project_urls", {})["Bug Tracker"] = value
 
     @property
     def usersupport(self):
-        return self.data.get("projects_urls", {}).get("User Support")
+        data = self.data.get("project_urls", {})
+        return data.get("User Support", data.get("Support"))
 
     @usersupport.setter
     def usersupport(self, value):
@@ -38,7 +61,8 @@ class SetupPy(Metadata, ConfigFile):
 
     @property
     def sourcecode(self):
-        return self.data.get("projects_urls", {}).get("User Support")
+        data = self.data.get("project_urls", {})
+        return data.get("Source Code", data.get("Source"))
 
     @sourcecode.setter
     def sourcecode(self, value):
@@ -335,7 +359,3 @@ class CitationFile(ConfigFile):
         self.data["preferred-citation"] = preferred.as_dict()
         if references:
             self.data["references"] = [r.as_dict() for r in references]
-
-    def save(self):
-        with self.file.open(mode="w") as f:
-            yaml.dump(self.data, stream=f, sort_keys=False)

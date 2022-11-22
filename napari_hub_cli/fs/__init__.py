@@ -118,23 +118,6 @@ class ConfigFile(object):
         return format_unparsers[self.file.suffix](self.file, self.data)
 
 
-class Exists(object):
-    def __init__(self, key):
-        self.key = key
-
-    def __get__(self, instance, cls=None):
-        return getattr(instance, self.key) is not None
-
-
-class Metadata(object):  # pragma: no cover
-    has_name = Exists("name")
-    has_sourcecode = Exists("sourcecode")
-    has_usersupport = Exists("usersupport")
-    has_bugtracker = Exists("bugtracker")
-    has_author = Exists("author")
-    has_summary = Exists("summary")
-
-
 class NapariPlugin(object):
     def __init__(self, path):
         from .configfiles import (

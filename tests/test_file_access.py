@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.fs import ConfigFile
-from napari_hub_cli.fs.configfiles import PyProjectToml, SetupCfg, SetupPy
+from napari_hub_cli.fs.configfiles import NapariConfig, PyProjectToml, SetupCfg, SetupPy
 from napari_hub_cli.fs.descriptions import MarkdownDescription
 from napari_hub_cli.utils import TemporaryDirectory
 
@@ -326,3 +326,54 @@ def test_write_read_toml(file, key, value, equivalent):
     config.save()
     config = PyProjectToml(file)  # force reload file
     assert getattr(config, key) == equivalent
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.yml", "summary", "This is a summary"),
+    ],
+)
+def test_memwrite_read_napari_config(file, key, value):
+    config = NapariConfig(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.yml", "summary", "This is a summary"),
+    ],
+)
+def test_write_read_napari_config(file, key, value):
+    config = NapariConfig(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+    config.save()
+    config = NapariConfig(file)  # force reload file
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.py", "name", "NAME1"),
+        ("s1.py", "author", "Jane Doe"),
+        ("s1.py", "sourcecode", "https://repo"),
+        ("s1.py", "bugtracker", "https://repo/bt"),
+        ("s1.py", "usersupport", "https://repo/us"),
+        ("s1.py", "summary", "This is a summary"),
+    ],
+)
+def test_memwrite_read_py(file, key, value):
+    config = SetupPy(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
