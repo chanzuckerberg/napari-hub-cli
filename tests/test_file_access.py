@@ -236,3 +236,93 @@ def test_screenshot_detection(resources):
     assert readme.has_screenshots is True
     assert readme.has_videos is False
     assert readme.has_videos_or_screenshots is True
+
+
+@pytest.fixture
+def file(tmp_path, filename):
+    file = tmp_path / filename
+    return file
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.cfg", "name", "NAME1"),
+        ("s1.cfg", "author", "Jane Doe"),
+        ("s1.cfg", "sourcecode", "https://repo"),
+        ("s1.cfg", "bugtracker", "https://repo/bt"),
+        ("s1.cfg", "usersupport", "https://repo/us"),
+        ("s1.cfg", "summary", "This is a summary"),
+    ],
+)
+def test_memwrite_read_cfg(file, key, value):
+    config = SetupCfg(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.cfg", "name", "NAME1"),
+        ("s1.cfg", "author", "Jane Doe"),
+        ("s1.cfg", "sourcecode", "https://repo"),
+        ("s1.cfg", "bugtracker", "https://repo/bt"),
+        ("s1.cfg", "usersupport", "https://repo/us"),
+        ("s1.cfg", "summary", "This is a summary"),
+    ],
+)
+def test_write_read_cfg(file, key, value):
+    config = SetupCfg(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+    config.save()
+    config = SetupCfg(file)  # force reload file
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value, equivalent",
+    [
+        ("s1.toml", "name", "NAME1", "NAME1"),
+        ("s1.toml", "author", "Jane Doe", ["Jane Doe"]),
+        ("s1.toml", "sourcecode", "https://repo", "https://repo"),
+        ("s1.toml", "bugtracker", "https://repo/bt", "https://repo/bt"),
+        ("s1.toml", "usersupport", "https://repo/us", "https://repo/us"),
+        ("s1.toml", "summary", "This is a summary", "This is a summary"),
+    ],
+)
+def test_memwrite_read_toml(file, key, value, equivalent):
+    config = PyProjectToml(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == equivalent
+
+
+@pytest.mark.parametrize(
+    "filename, key, value, equivalent",
+    [
+        ("s1.toml", "name", "NAME1", "NAME1"),
+        ("s1.toml", "author", "Jane Doe", ["Jane Doe"]),
+        ("s1.toml", "sourcecode", "https://repo", "https://repo"),
+        ("s1.toml", "bugtracker", "https://repo/bt", "https://repo/bt"),
+        ("s1.toml", "usersupport", "https://repo/us", "https://repo/us"),
+        ("s1.toml", "summary", "This is a summary", "This is a summary"),
+    ],
+)
+def test_write_read_toml(file, key, value, equivalent):
+    config = PyProjectToml(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == equivalent
+
+    config.save()
+    config = PyProjectToml(file)  # force reload file
+    assert getattr(config, key) == equivalent

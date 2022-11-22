@@ -104,12 +104,10 @@ class NapariConfig(Metadata, ConfigFile):
 
 class SetupCfg(Metadata, ConfigFile):
     @property
-    @lru_cache(maxsize=1)
     def metadata(self):
         return self.data.get("metadata", {})
 
     @property
-    @lru_cache(maxsize=1)
     def project_urls(self):
         return self.metadata.get("project_urls", "")
 
@@ -140,8 +138,8 @@ class SetupCfg(Metadata, ConfigFile):
         return None
 
     def _append_value(self, key, value):
-        urls = self.data.get("project_urls") or ""
-        self.data["project_urls"] = f"{urls}\n{value}"
+        urls = self.data.setdefault("metadata", {}).get("project_urls")
+        self.data["metadata"]["project_urls"] = f"{urls}\n{key} = {value}"
 
     @property
     def sourcecode(self):
@@ -206,12 +204,10 @@ class SetupCfg(Metadata, ConfigFile):
 
 class PyProjectToml(Metadata, ConfigFile):
     @property
-    @lru_cache(maxsize=1)
     def project_data(self):
         return self.data.get("project", {})
 
     @property
-    @lru_cache(maxsize=1)
     def project_urls(self):
         return self.project_data.get("urls", {})
 

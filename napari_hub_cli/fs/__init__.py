@@ -2,17 +2,28 @@ from configparser import ConfigParser
 from functools import lru_cache
 
 import tomli
+import tomli_w
 import yaml
 
 from ..utils import parse_setup
 
 format_parsers = {}
+format_unparsers = {}
 
 
 def register_parser(extensions):
     def inner(func):
         for extension in extensions:
             format_parsers[extension] = func
+        return func
+
+    return inner
+
+
+def register_unparser(extensions):
+    def inner(func):
+        for extension in extensions:
+            format_unparsers[extension] = func
         return func
 
     return inner
@@ -56,6 +67,35 @@ def parse_yaml(yml_file):
     return {}
 
 
+@register_unparser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
+def unparse_yaml(yml_file, data):
+    with yml_file.open(mode="w") as f:
+        yaml.dump(data, stream=f, sort_keys=False)
+    return True
+
+
+@register_unparser([".cfg", ".CFG"])
+def unparse_cfg(cfg_file, data):
+    config = ConfigParser()
+    config.read_dict(data)
+    with cfg_file.open(mode="w") as f:
+        config.write(f)
+    return True
+
+
+@register_unparser([".py"])
+def unparse_py(py_file, data):
+    print("Unparsing of .py files is not yet supported")
+    return False
+
+
+@register_unparser([".toml", ".TOML"])
+def unparse_toml(toml_file, data):
+    with toml_file.open(mode="wb") as f:
+        content = tomli_w.dump(data, f)
+    return content
+
+
 class ConfigFile(object):
     def __init__(self, file):
         self.file = file
@@ -73,6 +113,9 @@ class ConfigFile(object):
     @property
     def exists(self):
         return self.file is not None and self.file.exists()
+
+    def save(self):
+        return format_unparsers[self.file.suffix](self.file, self.data)
 
 
 class Exists(object):
