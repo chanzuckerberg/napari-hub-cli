@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
-from napari_hub_cli.documentation_checklist.metadata_checklist import (
+from napari_hub_cli.filesaccess import NapariPlugin
+from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
     create_checklist,
@@ -14,7 +14,7 @@ from napari_hub_cli.documentation_checklist.metadata_checklist import (
 @pytest.fixture(scope="module")
 def test_repo():
     current_path = Path(__file__).parent.absolute()
-    return NapariPlugin(current_path / "resources/CZI-29-test2")
+    return NapariPlugin(current_path / "resources" / "CZI-29-test2")
 
 
 def test_check_napari_config(test_repo):

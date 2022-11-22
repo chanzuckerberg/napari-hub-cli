@@ -2,8 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
-from napari_hub_cli.documentation_checklist.metadata_checklist import (
+from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
     Feature,
@@ -11,12 +10,13 @@ from napari_hub_cli.documentation_checklist.metadata_checklist import (
     create_checklist,
     display_checklist,
 )
+from napari_hub_cli.filesaccess import NapariPlugin
 
 
 @pytest.fixture(scope="module")
 def test_repo():
     current_path = Path(__file__).parent.absolute()
-    return NapariPlugin(current_path / "resources/CZI-29-test")
+    return NapariPlugin(current_path / "resources" / "CZI-29-test")
 
 
 def test_check_napari_config(test_repo):
@@ -162,5 +162,16 @@ def test_display_checklist(test_repo):
     display_checklist(result)
 
 
-def test_has_citation(test_repo):
-    assert test_repo.has_citation is False
+def test_has_citation_file(test_repo):
+    assert test_repo.has_citation_file is False
+
+
+def test_access_specific_result(test_repo):
+    result = create_checklist(test_repo.path)
+
+    specific = result[DISPLAY_NAME]
+    assert specific is not None
+    assert specific.meta is DISPLAY_NAME
+
+    with pytest.raises(StopIteration):
+        result[0]

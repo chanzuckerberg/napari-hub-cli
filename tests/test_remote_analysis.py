@@ -2,16 +2,16 @@ from pathlib import Path
 import pytest
 import requests_mock
 
-from napari_hub_cli.constants import NAPARI_HUB_API_LINK
-from napari_hub_cli.documentation_checklist.analysis import (
+from napari_hub_cli.constants import NAPARI_HUB_API_URL
+from napari_hub_cli.checklist.analysis import (
     analyse_remote_plugin,
     analyze_all_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
 )
-from napari_hub_cli.documentation_checklist.filesaccess import NapariPlugin
-from napari_hub_cli.documentation_checklist.metadata_checklist import (
+from napari_hub_cli.filesaccess import NapariPlugin
+from napari_hub_cli.checklist.metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
     create_checklist,
@@ -26,7 +26,7 @@ from napari_hub_cli.utils import (
 @pytest.fixture
 def napari_hub(requests_mock):
     requests_mock.get(
-        NAPARI_HUB_API_LINK,
+        NAPARI_HUB_API_URL,
         json={
             "avidaq": "0.0.5",
             "mikro-napari": "0.1.49",
@@ -45,7 +45,7 @@ def test_closest_plugin_name(napari_hub):
 
 def test_analysis_unexisting_plugin(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avida",
+        f"{NAPARI_HUB_API_URL}/avida",
         json={},
     )
 
@@ -55,7 +55,7 @@ def test_analysis_unexisting_plugin(napari_hub):
     assert e.value.plugin_name == "avida"
     assert e.value.closest == "avidaq"
 
-    napari_hub.get(f"{NAPARI_HUB_API_LINK}/avidal", json={}, status_code=404)
+    napari_hub.get(f"{NAPARI_HUB_API_URL}/avidal", json={}, status_code=404)
 
     with pytest.raises(NonExistingNapariPluginError) as e:
         get_repository_url("avidal")
@@ -66,7 +66,7 @@ def test_analysis_unexisting_plugin(napari_hub):
 
 def test_get_plugin_url(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avidaq",
+        f"{NAPARI_HUB_API_URL}/avidaq",
         json={"code_repository": "my_repo_url"},
     )
 
@@ -86,7 +86,7 @@ def test_no_result_analysis():
 
 def test_analyse_remote_plugin_bad_url(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avidaq",
+        f"{NAPARI_HUB_API_URL}/avidaq",
         json={"code_repository": "http://my_repo_url"},
     )
     napari_hub.get(
@@ -100,7 +100,7 @@ def test_analyse_remote_plugin_bad_url(napari_hub):
 
 def test_analyse_remote_plugin_unaccessible(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avidaq",
+        f"{NAPARI_HUB_API_URL}/avidaq",
         json={"code_repository": "http://my_repo_url"},
     )
     napari_hub.get("http://my_repo_url", json={}, status_code=404)
@@ -112,7 +112,7 @@ def test_analyse_remote_plugin_unaccessible(napari_hub):
 # integration test
 def test_display_remote_analysis(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avidaq",
+        f"{NAPARI_HUB_API_URL}/avidaq",
         json={"code_repository": "http://my_repo_url"},
     )
     napari_hub.get("http://my_repo_url", json={}, status_code=404)
@@ -124,15 +124,15 @@ def test_display_remote_analysis(napari_hub):
 # integration test
 def test_analyze_all_remote_plugins(napari_hub):
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/avidaq",
+        f"{NAPARI_HUB_API_URL}/avidaq",
         json={"code_repository": "http://my_repo_url"},
     )
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/mikro-napari",
+        f"{NAPARI_HUB_API_URL}/mikro-napari",
         json={"code_repository": ""},
     )
     napari_hub.get(
-        f"{NAPARI_HUB_API_LINK}/napari-curtain",
+        f"{NAPARI_HUB_API_URL}/napari-curtain",
         json={"code_repository": "http://my_repo_url"},
     )
     napari_hub.get(

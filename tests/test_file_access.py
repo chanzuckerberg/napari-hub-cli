@@ -1,12 +1,14 @@
+import shutil
 import pytest
 from pathlib import Path
-from napari_hub_cli.documentation_checklist.filesaccess import (
+from napari_hub_cli.filesaccess import (
     ConfigFile,
     MarkdownDescription,
     PyProjectToml,
     SetupCfg,
     SetupPy,
 )
+from napari_hub_cli.utils import TemporaryDirectory
 
 
 @pytest.fixture(scope="module")
@@ -208,3 +210,31 @@ def test_markdown_non_existingfile(resources):
 
     assert file.exists is False
     assert file.raw_content == ""
+
+
+def test_new_tempdir():
+    with TemporaryDirectory() as dirname:
+        p = Path(dirname)
+        assert p.exists() is True
+    assert p.exists() is False
+
+    with TemporaryDirectory(delete=True) as dirname:
+        p = Path(dirname)
+        assert p.exists() is True
+    assert p.exists() is False
+
+    with TemporaryDirectory(delete=False) as dirname:
+        p = Path(dirname)
+        assert p.exists() is True
+    assert p.exists() is True
+
+    shutil.rmtree(f"{p.absolute()}", ignore_errors=False)
+    assert p.exists() is False
+
+
+def test_screenshot_detection(resources):
+    readme = MarkdownDescription.from_file(resources / "README.md")
+
+    assert readme.has_screenshots is True
+    assert readme.has_videos is False
+    assert readme.has_videos_or_screenshots is True
