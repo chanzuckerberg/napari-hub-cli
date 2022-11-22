@@ -1,8 +1,8 @@
 from pathlib import Path
+
 import pytest
 import requests_mock
 
-from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.checklist.analysis import (
     analyse_remote_plugin,
     analyze_all_remote_plugins,
@@ -10,12 +10,12 @@ from napari_hub_cli.checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from napari_hub_cli.filesaccess import NapariPlugin
 from napari_hub_cli.checklist.metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
     create_checklist,
 )
+from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.utils import (
     NonExistingNapariPluginError,
     closest_plugin_name,

@@ -1,12 +1,13 @@
-from contextlib import suppress
 import os
+from contextlib import suppress
 from pathlib import Path
-from git import GitError, InvalidGitRepositoryError, Repo
+from re import sub
+
 import requests
+from git import GitError, InvalidGitRepositoryError, Repo
 from rich.console import Console
 
-from napari_hub_cli.filesaccess import NapariPlugin
-from re import sub
+from napari_hub_cli.fs import NapariPlugin
 
 
 def fake_print(*args):

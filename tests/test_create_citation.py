@@ -11,7 +11,9 @@ from napari_hub_cli.citations.citation import (
     scrap_git_infos,
     scrap_users,
 )
-from napari_hub_cli.filesaccess import CitationFile, MarkdownDescription, NapariPlugin
+from napari_hub_cli.fs import NapariPlugin
+from napari_hub_cli.fs.configfiles import CitationFile
+from napari_hub_cli.fs.descriptions import MarkdownDescription
 
 
 @pytest.fixture(scope="module")

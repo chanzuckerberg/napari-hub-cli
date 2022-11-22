@@ -1,13 +1,11 @@
 import shutil
-import pytest
 from pathlib import Path
-from napari_hub_cli.filesaccess import (
-    ConfigFile,
-    MarkdownDescription,
-    PyProjectToml,
-    SetupCfg,
-    SetupPy,
-)
+
+import pytest
+
+from napari_hub_cli.fs import ConfigFile
+from napari_hub_cli.fs.configfiles import PyProjectToml, SetupCfg, SetupPy
+from napari_hub_cli.fs.descriptions import MarkdownDescription
 from napari_hub_cli.utils import TemporaryDirectory
 
 
