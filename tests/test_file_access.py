@@ -4,7 +4,13 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.fs import ConfigFile
-from napari_hub_cli.fs.configfiles import NapariConfig, PyProjectToml, SetupCfg, SetupPy
+from napari_hub_cli.fs.configfiles import (
+    NapariConfig,
+    Npe2Yaml,
+    PyProjectToml,
+    SetupCfg,
+    SetupPy,
+)
 from napari_hub_cli.fs.descriptions import MarkdownDescription
 from napari_hub_cli.utils import TemporaryDirectory
 
@@ -376,4 +382,59 @@ def test_memwrite_read_py(file, key, value):
     assert getattr(config, key) is None
 
     setattr(config, key, value)
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.py", "name", "NAME1"),
+        ("s1.py", "author", "Jane Doe"),
+        ("s1.py", "sourcecode", "https://repo"),
+        ("s1.py", "bugtracker", "https://repo/bt"),
+        ("s1.py", "usersupport", "https://repo/us"),
+        ("s1.py", "summary", "This is a summary"),
+    ],
+)
+def test_write_read_py(file, key, value):
+    config = SetupPy(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+    assert config.save() is False
+    config = SetupPy(file)  # force reload file
+    assert getattr(config, key) is None
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.yml", "name", "Jane Doe"),
+    ],
+)
+def test_memwrite_read_napari_yml(file, key, value):
+    config = Npe2Yaml(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+
+@pytest.mark.parametrize(
+    "filename, key, value",
+    [
+        ("s1.yml", "name", "Jane Doe"),
+    ],
+)
+def test_write_read_napari_yml(file, key, value):
+    config = Npe2Yaml(file)
+    assert getattr(config, key) is None
+
+    setattr(config, key, value)
+    assert getattr(config, key) == value
+
+    config.save()
+    config = Npe2Yaml(file)  # force reload file
     assert getattr(config, key) == value
