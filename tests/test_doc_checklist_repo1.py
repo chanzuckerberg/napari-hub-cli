@@ -103,7 +103,7 @@ def test_check_feature_primary(test_repo):
     assert isinstance(result, Feature)
     assert result.meta is DISPLAY_NAME
     assert result.found is True
-    assert result.found_in is setup_cfg.file
+    assert result.found_in == setup_cfg
     assert result.only_in_fallback is False
     assert result.has_fallback_files is False
     assert result.scanned_files == [setup_cfg]
@@ -117,7 +117,7 @@ def test_check_feature_secondary(test_repo):
     assert isinstance(result, Feature)
     assert result.meta is DISPLAY_NAME
     assert result.found is True
-    assert result.found_in is setup_cfg.file
+    assert result.found_in == setup_cfg
     assert result.only_in_fallback is True
     assert result.has_fallback_files is True
     assert result.scanned_files == [setup_cfg]
@@ -144,14 +144,14 @@ def test_create_checkist(test_repo):
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
     assert disp_name.found is True
-    assert disp_name.found_in == test_repo.npe2_yaml.file
+    assert disp_name.found_in == test_repo.npe2_yaml
     assert disp_name.only_in_fallback is False
     assert disp_name.has_fallback_files is True
 
     description = result.features[6]
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is True
-    assert description.found_in == test_repo.setup_cfg.long_description().file
+    assert description.found_in == test_repo.setup_cfg.long_description()
     assert description.only_in_fallback is True
     assert description.has_fallback_files is True
 

@@ -100,7 +100,7 @@ def test_create_checkist(test_repo):
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
     assert disp_name.found is True
-    assert disp_name.found_in == test_repo.setup_cfg.file
+    assert disp_name.found_in == test_repo.setup_cfg
     assert disp_name.only_in_fallback is True
     assert disp_name.has_fallback_files is True
 

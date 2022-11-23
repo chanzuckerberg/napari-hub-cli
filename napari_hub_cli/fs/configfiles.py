@@ -1,10 +1,8 @@
 import re
 from functools import lru_cache
 
-import yaml
-
-from napari_hub_cli.fs import ConfigFile
-from napari_hub_cli.fs.descriptions import MarkdownDescription
+from ..fs import ConfigFile
+from .descriptions import MarkdownDescription
 
 
 class Exists(object):

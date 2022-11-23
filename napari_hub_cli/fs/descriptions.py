@@ -8,13 +8,14 @@ from iguala import cond, match, regex
 from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.span_token import RawText
+from ..fs import RepositoryFile
 
-from napari_hub_cli.fs.citations import APA_REGEXP, APACitation, BibtexCitation
+from .citations import APA_REGEXP, APACitation, BibtexCitation
 
 
-class MarkdownDescription(object):
+class MarkdownDescription(RepositoryFile):
     def __init__(self, raw_content, file):
-        self.file = file
+        super().__init__(file)
         self.raw_content = re.sub("(<!--.*?-->)", "", raw_content, flags=re.DOTALL)
         self.content = Document(self.raw_content)
 
@@ -26,10 +27,6 @@ class MarkdownDescription(object):
             return cls(content, file)
         except FileNotFoundError:
             return cls("", file)
-
-    @property
-    def exists(self):
-        return self.file is not None and self.file.exists()
 
     @property
     def has_videos(self):

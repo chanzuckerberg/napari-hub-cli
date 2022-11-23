@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 
 from rich.console import Console
 
-from ..fs import ConfigFile, NapariPlugin
+from ..fs import ConfigFile, NapariPlugin, RepositoryFile
 from ..fs.descriptions import MarkdownDescription
 
 CHECKLIST_STYLE = {
@@ -25,10 +25,10 @@ class MetaFeature(object):
 class Feature(object):
     meta: MetaFeature
     found: bool
-    found_in: Optional[Path]
+    found_in: Optional[RepositoryFile]
     only_in_fallback: bool
     has_fallback_files: bool
-    scanned_files: List[Path]
+    scanned_files: List[RepositoryFile]
 
 
 @unique
@@ -58,8 +58,8 @@ class PluginAnalysisResult(object):
 @dataclass
 class Requirement(object):
     features: List[MetaFeature]
-    main_files: List[Union[ConfigFile, MarkdownDescription]]
-    fallbacks: List[Union[ConfigFile, MarkdownDescription]]
+    main_files: List[RepositoryFile]
+    fallbacks: List[RepositoryFile]
 
 
 DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml")
@@ -105,12 +105,10 @@ def check_feature(meta, main_files, fallbacks):
     key = f"{meta.attribute}"
     for main_file in main_files:
         if getattr(main_file, key):
-            return Feature(
-                meta, True, main_file.file, False, has_fallback, scanned_files
-            )
+            return Feature(meta, True, main_file, False, has_fallback, scanned_files)
     for fallback in fallbacks:
         if getattr(fallback, key):
-            return Feature(meta, True, fallback.file, True, True, scanned_files)
+            return Feature(meta, True, fallback, True, True, scanned_files)
     return Feature(meta, False, None, False, has_fallback, scanned_files)
 
 
@@ -207,7 +205,7 @@ def display_checklist(analysis_result):
             console.print("OPTIONAL ", style="underline")
         mark, style = CHECKLIST_STYLE[feature.found]
         found_localisation = (
-            f" ({feature.found_in.relative_to(repo)})" if feature.found else ""
+            f" ({feature.found_in.file.relative_to(repo)})" if feature.found else ""
         )
         console.print(f"{mark} {feature.meta.name}{found_localisation}", style=style)
 
@@ -217,7 +215,7 @@ def display_checklist(analysis_result):
             continue
         console.print()
         console.print(
-            f"- {feature.meta.name.capitalize()} found only in the fallback file (found in '{feature.found_in.relative_to(repo)}')",
+            f"- {feature.meta.name.capitalize()} found only in the fallback file (found in '{feature.found_in.file.relative_to(repo)}')",
             style="yellow",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")

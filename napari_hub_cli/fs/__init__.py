@@ -97,9 +97,24 @@ def unparse_toml(toml_file, data):
     return content
 
 
-class ConfigFile(object):
+class RepositoryFile(object):
     def __init__(self, file):
         self.file = file
+
+    @property
+    def exists(self):
+        return self.file is not None and self.file.exists()
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.file == other.file
+
+    def __hash__(self):
+        return object.__hash__(self)
+
+
+class ConfigFile(RepositoryFile):
+    def __init__(self, file):
+        super().__init__(file)
         if self.exists:
             try:
                 self.data = format_parsers[file.suffix](file)
@@ -110,10 +125,6 @@ class ConfigFile(object):
         else:
             self.data = {}
             self.is_valid = False
-
-    @property
-    def exists(self):
-        return self.file is not None and self.file.exists()
 
     def save(self):
         return format_unparsers[self.file.suffix](self.file, self.data)
