@@ -455,3 +455,21 @@ def test_write_read_napari_yml(file, key, value):
     config.save()
     config = Npe2Yaml(file)  # force reload file
     assert getattr(config, key) == value
+
+
+def test_complete_cfg(resources):
+    cfg_file = resources / "complete_setup.cfg"
+    cfg = SetupCfg(cfg_file)
+
+    assert cfg.has_name is True
+    assert cfg.name == "napari_plot"
+    assert cfg.has_author is True
+    assert cfg.author == "Lukasz G. Migas"
+    assert cfg.has_summary is True
+    assert cfg.summary == "Plugin providing support for 1d plotting in napari."
+    assert cfg.has_bugtracker is True
+    assert cfg.bugtracker == "https://github.com/lukasz-migas/napari-1d/issues"
+    assert cfg.has_sourcecode is True
+    assert cfg.sourcecode == "https://github.com/lukasz-migas/napari-1d"
+    assert cfg.has_usersupport is True
+    assert cfg.usersupport == "https://github.com/lukasz-migas/napari-1d/issues"

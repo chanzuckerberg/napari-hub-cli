@@ -154,15 +154,17 @@ class SetupCfg(Metadata, ConfigFile):
     def _search_url(self, key):
         if not self.project_urls:
             return None
-        entries = self.project_urls.split("\n\r")
+        entries = re.split(r"\n|\r", self.project_urls)
         for entry in entries:
+            if not entry:
+                continue
             k, value = entry.split("=")
             if key in k:
                 return value.strip()
         return None
 
     def _append_value(self, key, value):
-        urls = self.data.setdefault("metadata", {}).get("project_urls")
+        urls = self.data.setdefault("metadata", {}).get("project_urls", "")
         self.data["metadata"]["project_urls"] = f"{urls}\n{key} = {value}"
 
     @property
