@@ -127,6 +127,7 @@ class ConfigFile(RepositoryFile):
             self.is_valid = False
 
     def save(self):
+        self.file.parent.mkdir(parents=True, exist_ok=True)
         return format_unparsers[self.file.suffix](self.file, self.data)
 
 

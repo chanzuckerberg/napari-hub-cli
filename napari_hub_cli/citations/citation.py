@@ -3,8 +3,8 @@ from contextlib import suppress
 from pathlib import Path
 from re import sub
 
-import requests
-from git import GitError, InvalidGitRepositoryError, Repo
+from git import GitError, InvalidGitRepositoryError
+from git.repo import Repo
 from rich.console import Console
 
 from napari_hub_cli.fs import NapariPlugin

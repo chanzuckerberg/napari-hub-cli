@@ -4,7 +4,8 @@ import csv
 from pathlib import Path
 
 import requests
-from git import GitCommandError, Repo
+from git import GitCommandError
+from git.repo import Repo
 from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_URL

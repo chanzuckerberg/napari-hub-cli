@@ -5,8 +5,8 @@ from typing import List, Optional, Union
 
 from rich.console import Console
 
-from ..fs import ConfigFile, NapariPlugin, RepositoryFile
-from ..fs.descriptions import MarkdownDescription
+from ..fs import NapariPlugin, RepositoryFile
+
 
 CHECKLIST_STYLE = {
     True: ("\N{CHECK MARK}", "bold green"),
