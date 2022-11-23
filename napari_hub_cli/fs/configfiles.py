@@ -156,7 +156,7 @@ class SetupCfg(Metadata, ConfigFile):
         for entry in entries:
             if not entry:
                 continue
-            k, value = entry.split("=")
+            k, value = [s for s in re.split(r"^([^=]+)\=", entry) if s]
             if key in k:
                 return value.strip()
         return None

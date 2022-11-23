@@ -473,3 +473,27 @@ def test_complete_cfg(resources):
     assert cfg.sourcecode == "https://github.com/lukasz-migas/napari-1d"
     assert cfg.has_usersupport is True
     assert cfg.usersupport == "https://github.com/lukasz-migas/napari-1d/issues"
+
+
+def test_complete_cfg2(resources):
+    cfg_file = resources / "complete_setup2.cfg"
+    cfg = SetupCfg(cfg_file)
+
+    assert cfg.has_name is True
+    assert cfg.name == "napari_svetlana"
+    assert cfg.has_author is True
+    assert cfg.author == "Clément Cazorla"
+    assert cfg.has_summary is True
+    assert cfg.summary == "A classification plugin for the ROIs of a segmentation mask."
+    assert cfg.has_bugtracker is True
+    assert (
+        cfg.bugtracker
+        == "https://bitbucket.org/koopa31/napari_svetlana/issues?status=new&status=open"
+    )
+    assert cfg.has_sourcecode is True
+    assert cfg.sourcecode == "https://bitbucket.org/koopa31/napari_svetlana/src/main/"
+    assert cfg.has_usersupport is True
+    assert (
+        cfg.usersupport
+        == "https://bitbucket.org/koopa31/napari_svetlana/issues?status=new&status=open"
+    )
