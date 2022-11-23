@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.fs import ConfigFile
+from napari_hub_cli.fs import ConfigFile, NapariPlugin
 from napari_hub_cli.fs.configfiles import (
     NapariConfig,
     Npe2Yaml,
@@ -234,6 +234,23 @@ def test_new_tempdir():
 
     shutil.rmtree(f"{p.absolute()}", ignore_errors=False)
     assert p.exists() is False
+
+
+def test_napari_plugin_dir_delete():
+    with TemporaryDirectory(delete=False) as dirname:
+        p = Path(dirname)
+        plugin_repo = NapariPlugin(p)
+        assert p.exists() is True
+        assert plugin_repo.exists is True
+    assert p.exists() is True
+    assert plugin_repo.exists is True
+
+    plugin_repo.delete()
+    assert p.exists() is False
+    assert plugin_repo.exists is False
+
+    with pytest.raises(FileNotFoundError):
+        plugin_repo.delete()
 
 
 def test_screenshot_detection(resources):

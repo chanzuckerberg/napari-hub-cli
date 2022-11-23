@@ -44,7 +44,7 @@ class AnalysisStatus(Enum):
 class PluginAnalysisResult(object):
     features: List[Feature]
     status: AnalysisStatus
-    repository: Optional[Path]
+    repository: Optional[NapariPlugin]
     url: Optional[str]
 
     @classmethod
@@ -129,11 +129,9 @@ def create_checklist(repopath):
     repo = Path(repopath)
     plugin_repo = NapariPlugin(repo)
 
-    setup_py = plugin_repo.setup_py
-    setup_cfg = plugin_repo.setup_cfg
+    pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files()
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description
-    pyproject_toml = plugin_repo.pyproject_toml
     npe2_yaml = plugin_repo.npe2_yaml
 
     long_descr_setup_cfg = setup_cfg.long_description()
@@ -182,7 +180,7 @@ def create_checklist(repopath):
                     fallbacks=requirement.fallbacks,
                 )
             )
-    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, repo, None)
+    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
 
 
 def display_checklist(analysis_result):
@@ -193,7 +191,7 @@ def display_checklist(analysis_result):
         the result of the analysis ran against the local repository
     """
     # get repository for display
-    repo = analysis_result.repository.parent if analysis_result.repository else ""
+    repo = analysis_result.repository.path.parent if analysis_result.repository else ""
 
     # create the Console Documentation Checklist
     console = Console()

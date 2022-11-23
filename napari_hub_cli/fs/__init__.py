@@ -1,11 +1,12 @@
 from configparser import ConfigParser
 from functools import lru_cache
+import shutil
 
 import tomli
 import tomli_w
 import yaml
 
-from ..utils import parse_setup
+from ..utils import handle_remove_readonly, parse_setup
 
 format_parsers = {}
 format_unparsers = {}
@@ -157,6 +158,26 @@ class NapariPlugin(object):
                 return f
         return None
 
+    def pypi_files(self):
+        """Returns the PyPi files in preference order (from the most to the less prioritary)
+
+        Returns:
+            ConfigFile: the PyPi files from the repository
+        """
+        return self.pyproject_toml, self.setup_cfg, self.setup_py
+
     @property
     def has_citation_file(self):
         return self.citation_file.exists
+
+    @property
+    def exists(self):
+        return self.path.exists()
+
+    def delete(self):
+        """Deletes the path towards the repository on the File System"""
+        shutil.rmtree(
+            f"{self.path.absolute()}",
+            ignore_errors=False,
+            onerror=handle_remove_readonly,
+        )
