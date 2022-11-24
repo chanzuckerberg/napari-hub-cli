@@ -152,7 +152,8 @@ class SetupCfg(Metadata, ConfigFile):
     def _search_url(self, key):
         if not self.project_urls:
             return None
-        entries = re.split(r"\n|\r", self.project_urls)
+        # entries = re.split(r"\n|\r", self.project_urls)
+        entries = self.project_urls.splitlines()
         for entry in entries:
             if not entry:
                 continue

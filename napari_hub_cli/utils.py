@@ -476,3 +476,17 @@ class TemporaryDirectory(tempfile.TemporaryDirectory):
         if not self._delete:
             return
         self.cleanup()
+
+
+class LocalDirectory(object):
+    def __init__(self, path, delete):
+        self.path = path
+        self.delete = delete
+
+    def __enter__(self):
+        return self.path.absolute()
+
+    def __exit__(self, exc, value, tb):
+        if not self.delete:
+            return
+        shutil.rmtree(self.path.absolute(), ignore_errors=False, onerror=handle_remove_readonly)

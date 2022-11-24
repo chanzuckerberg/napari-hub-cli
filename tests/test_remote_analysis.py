@@ -180,6 +180,26 @@ def test_write_csv(tmp_path):
     assert output.exists() is True
 
 
+def test_analysis_local_directory(napari_hub, tmp_path):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_URL}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get(
+        "http://my_repo_url",
+        json={},
+    )
+
+    p = tmp_path / "inside"
+    p.mkdir()
+    analyse_remote_plugin("avidaq", display_info=False, directory=p)
+
+    assert p.exists() is False
+
+    analyse_remote_plugin("avidaq", display_info=False, directory=p, cleanup=False)
+    assert p.exists() is True
+
+
 @pytest.mark.online
 def test_closest_plugin_name__online():
 

@@ -9,7 +9,7 @@ from git.repo import Repo
 from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_URL
-from ..utils import NonExistingNapariPluginError, get_repository_url, TemporaryDirectory
+from ..utils import LocalDirectory, NonExistingNapariPluginError, get_repository_url, TemporaryDirectory
 from .metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
@@ -33,7 +33,7 @@ class FakeProgress(object):
 
 
 def analyse_remote_plugin(
-    plugin_name, api_url=NAPARI_HUB_API_URL, display_info=False, cleanup=True
+    plugin_name, api_url=NAPARI_HUB_API_URL, display_info=False, cleanup=True, directory=None
 ):
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
@@ -60,7 +60,9 @@ def analyse_remote_plugin(
                 AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
             )
 
-        with TemporaryDirectory(delete=cleanup) as tmpdirname:
+        directory = LocalDirectory(Path(directory), cleanup) if directory else TemporaryDirectory(delete=cleanup)
+
+        with directory as tmpdirname:
             tmp_dir = Path(tmpdirname)
             test_repo = tmp_dir / plugin_name
 
@@ -101,7 +103,7 @@ def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
     return result.status == AnalysisStatus.SUCCESS
 
 
-def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False):
+def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False, directory=None):
     all_results = {}
     plugins_name = requests.get(api_url).json().keys()
     total = len(plugins_name)
@@ -109,7 +111,7 @@ def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False):
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
-            result = analyse_remote_plugin(name, display_info=False)
+            result = analyse_remote_plugin(name, display_info=False, directory=directory)
             all_results[name] = result
             p.update(
                 task,
