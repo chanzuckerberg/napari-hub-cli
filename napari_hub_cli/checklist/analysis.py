@@ -9,7 +9,12 @@ from git.repo import Repo
 from rich.progress import Progress, TaskID
 
 from ..constants import NAPARI_HUB_API_URL
-from ..utils import LocalDirectory, NonExistingNapariPluginError, get_repository_url, TemporaryDirectory
+from ..utils import (
+    LocalDirectory,
+    NonExistingNapariPluginError,
+    get_repository_url,
+    TemporaryDirectory,
+)
 from .metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
@@ -33,7 +38,11 @@ class FakeProgress(object):
 
 
 def analyse_remote_plugin(
-    plugin_name, api_url=NAPARI_HUB_API_URL, display_info=False, cleanup=True, directory=None
+    plugin_name,
+    api_url=NAPARI_HUB_API_URL,
+    display_info=False,
+    cleanup=True,
+    directory=None,
 ):
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
@@ -46,8 +55,16 @@ def analyse_remote_plugin(
     api_url: Optional[str] = NAPARI_HUB_API_LINK
         The Napari HUB api url, default value is NAPARI_HUB_API_LINK from the 'napari_hub_cli.constants' module
 
+    cleanup: Optional[bool] = True
+        Should the analysis directory be deleted after analysis. If not, responsibility is let to the user to delete the
+        directory.
+
     display_info: Optional[bool] = False
         If activated, a progress bar will display information about the running operation
+
+    directory: Optional[Path|str] = None
+        In which directory the repository should be cloned. If not set, a tmp directory is automatically created in the
+        tmp folder of the system.
     """
     try:
         plugin_url = get_repository_url(plugin_name, api_url=api_url)
@@ -59,41 +76,60 @@ def analyse_remote_plugin(
             return PluginAnalysisResult.with_status(
                 AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
             )
-
-        directory = LocalDirectory(Path(directory), cleanup) if directory else TemporaryDirectory(delete=cleanup)
-
-        with directory as tmpdirname:
-            tmp_dir = Path(tmpdirname)
-            test_repo = tmp_dir / plugin_name
-
-            p = Progress() if display_info else FakeProgress()
-            p.start()
-            task = p.add_task(
-                f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]",
-                visible=display_info,
-            )
-            try:
-                Repo.clone_from(
-                    plugin_url,
-                    test_repo,
-                    depth=1,
-                    progress=lambda _, step, total, *args: p.update(
-                        task,
-                        total=total,
-                        advance=step,
-                    ),
-                )
-                result = create_checklist(test_repo)
-                result.url = plugin_url  # update the plugin url
-                p.stop()
-                return result
-            except GitCommandError:
-                return PluginAnalysisResult.with_status(
-                    AnalysisStatus.BAD_URL, url=plugin_url
-                )
+        return analyse_remote_plugin_url(
+            plugin_name,
+            plugin_url,
+            display_info=display_info,
+            cleanup=cleanup,
+            directory=directory,
+        )
     except NonExistingNapariPluginError as e:
         print(e.message)
         return PluginAnalysisResult.with_status(AnalysisStatus.NON_EXISTING_PLUGIN)
+
+
+def analyse_remote_plugin_url(
+    plugin_name,
+    plugin_url,
+    display_info=False,
+    cleanup=True,
+    directory=None,
+):
+    directory = (
+        LocalDirectory(Path(directory), cleanup)
+        if directory
+        else TemporaryDirectory(delete=cleanup)
+    )
+
+    with directory as tmpdirname:
+        tmp_dir = Path(tmpdirname)
+        test_repo = tmp_dir / plugin_name
+
+        p = Progress() if display_info else FakeProgress()
+        p.start()
+        task = p.add_task(
+            f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]",
+            visible=display_info,
+        )
+        try:
+            Repo.clone_from(
+                plugin_url,
+                test_repo,
+                depth=1,
+                progress=lambda _, step, total, *args: p.update(
+                    task,
+                    total=total,
+                    advance=step,
+                ),
+            )
+            result = create_checklist(test_repo)
+            result.url = plugin_url  # update the plugin url
+            p.stop()
+            return result
+        except GitCommandError:
+            return PluginAnalysisResult.with_status(
+                AnalysisStatus.BAD_URL, url=plugin_url
+            )
 
 
 def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
@@ -103,7 +139,9 @@ def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
     return result.status == AnalysisStatus.SUCCESS
 
 
-def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False, directory=None):
+def analyze_all_remote_plugins(
+    api_url=NAPARI_HUB_API_URL, display_info=False, directory=None
+):
     all_results = {}
     plugins_name = requests.get(api_url).json().keys()
     total = len(plugins_name)
@@ -111,7 +149,9 @@ def analyze_all_remote_plugins(api_url=NAPARI_HUB_API_URL, display_info=False, d
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
-            result = analyse_remote_plugin(name, display_info=False, directory=directory)
+            result = analyse_remote_plugin(
+                name, display_info=False, directory=directory
+            )
             all_results[name] = result
             p.update(
                 task,

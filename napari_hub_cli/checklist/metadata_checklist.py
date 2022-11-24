@@ -54,6 +54,12 @@ class PluginAnalysisResult(object):
     def __getitem__(self, meta):
         return next((f for f in self.features if f.meta is meta))
 
+    def missing_features(self):
+        return [feature for feature in self.features if not feature.found]
+
+    def only_in_fallbacks(self):
+        return [feature for feature in self.features if feature.only_in_fallback]
+
 
 @dataclass
 class Requirement(object):
@@ -210,9 +216,7 @@ def display_checklist(analysis_result):
         console.print(f"{mark} {feature.meta.name}{found_localisation}", style=style)
 
     # Display detailed information
-    for feature in analysis_result.features:
-        if not feature.only_in_fallback:
-            continue
+    for feature in analysis_result.only_in_fallbacks():
         console.print()
         console.print(
             f"- {feature.meta.name.capitalize()} found only in the fallback file (found in '{feature.found_in.file.relative_to(repo)}')",
@@ -221,9 +225,7 @@ def display_checklist(analysis_result):
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
 
     # Display detailed information
-    for feature in analysis_result.features:
-        if feature.found:
-            continue
+    for feature in analysis_result.missing_features():
         files = [
             f"{f.file.relative_to(repo)}" for f in feature.scanned_files if f.exists
         ]
