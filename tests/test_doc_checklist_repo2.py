@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from napari_hub_cli.autofix import build_issue_message, build_PR_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
@@ -116,3 +117,25 @@ def test_create_checkist(test_repo):
 def test_display_checklist(test_repo):
     result = create_checklist(test_repo.path)
     display_checklist(result)
+
+
+def test_build_PR_message():
+    assert build_PR_message() is not None
+    assert build_PR_message != ""
+
+
+def test_build_issue_message(test_repo):
+    result = create_checklist(test_repo.path)
+    features = result.features
+
+    assert len(features) > 0
+
+    message = build_issue_message(1, result)
+
+    assert "complement of #1" in message
+    assert "'Summary Sentence'" in message
+    assert "'Source Code'" in message
+    assert "'Author Name'" in message
+    assert "'Issue Submission Link'" in message
+    assert "'Support Channel Link'" in message
+    assert "'Installation'" in message

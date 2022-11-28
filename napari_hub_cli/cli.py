@@ -18,10 +18,8 @@ from .checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .checklist.metadata_checklist import (
-    create_checklist,
-    display_checklist,
-)
+from .checklist.metadata_checklist import create_checklist, display_checklist
+from .citations.citation import create_cff_citation
 from .formatting import (
     format_meta,
     format_missing,
@@ -29,7 +27,6 @@ from .formatting import (
     print_missing_interactive,
 )
 from .napari_hub_cli import get_missing, load_meta
-from .citations.citation import create_cff_citation
 
 
 def preview_meta(plugin_path, i):

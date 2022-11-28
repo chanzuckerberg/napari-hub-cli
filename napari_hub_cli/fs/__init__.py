@@ -1,12 +1,11 @@
 from configparser import ConfigParser
 from functools import lru_cache
-import shutil
 
 import tomli
 import tomli_w
 import yaml
 
-from ..utils import handle_remove_readonly, parse_setup
+from ..utils import delete_file_tree, parse_setup
 
 format_parsers = {}
 format_unparsers = {}
@@ -156,6 +155,15 @@ class NapariPlugin(object):
         self.readme = MarkdownDescription.from_file(path / "README.md")
 
     @property
+    def summary(self):
+        files = (self.config_yml, self.pyproject_toml, self.setup_cfg, self.setup_py)
+        for f in files:
+            summary = f.summary
+            if summary:
+                return summary
+        return None
+
+    @property
     @lru_cache(maxsize=1)
     def npe2_yaml(self):
         from .configfiles import Npe2Yaml
@@ -188,8 +196,4 @@ class NapariPlugin(object):
 
     def delete(self):
         """Deletes the path towards the repository on the File System"""
-        shutil.rmtree(
-            f"{self.path.absolute()}",
-            ignore_errors=False,
-            onerror=handle_remove_readonly,
-        )
+        delete_file_tree(f"{self.path.absolute()}")

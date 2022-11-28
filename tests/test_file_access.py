@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 
 import pytest
@@ -12,7 +11,7 @@ from napari_hub_cli.fs.configfiles import (
     SetupPy,
 )
 from napari_hub_cli.fs.descriptions import MarkdownDescription
-from napari_hub_cli.utils import TemporaryDirectory
+from napari_hub_cli.utils import TemporaryDirectory, delete_file_tree
 
 
 @pytest.fixture(scope="module")
@@ -232,7 +231,7 @@ def test_new_tempdir():
         assert p.exists() is True
     assert p.exists() is True
 
-    shutil.rmtree(f"{p.absolute()}", ignore_errors=False)
+    delete_file_tree(f"{p.absolute()}")
     assert p.exists() is False
 
 

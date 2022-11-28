@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from rich.console import Console
 
 from ..fs import NapariPlugin, RepositoryFile
-
 
 CHECKLIST_STYLE = {
     True: ("\N{CHECK MARK}", "bold green"),
@@ -19,6 +18,7 @@ class MetaFeature(object):
     name: str
     attribute: str
     advise_location: str
+    automatically_fixable: bool
 
 
 @dataclass
@@ -29,6 +29,8 @@ class Feature(object):
     only_in_fallback: bool
     has_fallback_files: bool
     scanned_files: List[RepositoryFile]
+    main_files: List[RepositoryFile]
+    fallbacks: List[RepositoryFile]
 
 
 @unique
@@ -68,25 +70,32 @@ class Requirement(object):
     fallbacks: List[RepositoryFile]
 
 
-DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml")
-SUMMARY = MetaFeature("Summary Sentence", "has_summary", ".napari-hub/config.yml")
-SOURCECODE = MetaFeature("Source Code", "has_sourcecode", ".napari-hub/config.yml")
-AUTHOR = MetaFeature("Author Name", "has_author", ".napari-hub/config.yml")
+DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml", True)
+SUMMARY = MetaFeature("Summary Sentence", "has_summary", ".napari-hub/config.yml", True)
+SOURCECODE = MetaFeature(
+    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True
+)
+AUTHOR = MetaFeature("Author Name", "has_author", ".napari-hub/config.yml", True)
 BUGTRACKER = MetaFeature(
-    "Issue Submission Link", "has_bugtracker", ".napari-hub/config.yml"
+    "Issue Submission Link", "has_bugtracker", ".napari-hub/config.yml", True
 )
 USER_SUPPORT = MetaFeature(
-    "Support Channel Link", "has_usersupport", ".napari-hub/config.yml"
+    "Support Channel Link", "has_usersupport", ".napari-hub/config.yml", True
 )
 VIDEO_SCREENSHOT = MetaFeature(
-    "Screenshot/Video", "has_videos_or_screenshots", ".napari-hub/DESCRIPTION.yml"
+    "Screenshot/Video",
+    "has_videos_or_screenshots",
+    ".napari-hub/DESCRIPTION.yml",
+    False,
 )
-USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md")
-INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md")
-CITATION = MetaFeature("Citation", "exists", "CITATION.CFF")
-CITATION_VALID = MetaFeature("Citation Format is Valid", "is_valid", "CITATION.CFF")
+USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md", False)
+INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md", False)
 INSTALLATION = MetaFeature(
-    "Installation", "has_installation", ".napari-hub/DESCRIPTION.md"
+    "Installation", "has_installation", ".napari-hub/DESCRIPTION.md", False
+)
+CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True)
+CITATION_VALID = MetaFeature(
+    "Citation Format is Valid", "is_valid", "CITATION.CFF", False
 )
 
 
@@ -111,11 +120,24 @@ def check_feature(meta, main_files, fallbacks):
     key = f"{meta.attribute}"
     for main_file in main_files:
         if getattr(main_file, key):
-            return Feature(meta, True, main_file, False, has_fallback, scanned_files)
+            return Feature(
+                meta,
+                True,
+                main_file,
+                False,
+                has_fallback,
+                scanned_files,
+                main_files,
+                fallbacks,
+            )
     for fallback in fallbacks:
         if getattr(fallback, key):
-            return Feature(meta, True, fallback, True, True, scanned_files)
-    return Feature(meta, False, None, False, has_fallback, scanned_files)
+            return Feature(
+                meta, True, fallback, True, True, scanned_files, main_files, fallbacks
+            )
+    return Feature(
+        meta, False, None, False, has_fallback, scanned_files, main_files, fallbacks
+    )
 
 
 def create_checklist(repopath):

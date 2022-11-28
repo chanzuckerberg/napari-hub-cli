@@ -1,4 +1,3 @@
-import os
 from contextlib import suppress
 from pathlib import Path
 from re import sub
@@ -99,7 +98,11 @@ def create_cff_citation(repo_path, save=True, display_info=True):
         print = fake_print
     print("[bold][yellow]Auto CFF Citation Creation[/yellow][/bold]")
 
-    repo = NapariPlugin(Path(repo_path))
+    repo = (
+        repo_path
+        if isinstance(repo_path, NapariPlugin)
+        else NapariPlugin(Path(repo_path))
+    )
     cff = repo.citation_file
     readme = repo.readme
     if cff.exists:
@@ -109,6 +112,8 @@ def create_cff_citation(repo_path, save=True, display_info=True):
         return False
 
     git_infos = scrap_git_infos(repo.path)
+    subtitle = f": {repo.summary}" if repo.summary else ""
+    git_infos["title"] = f"{git_infos.get('title')}{subtitle}"
     if not readme.has_citations:
         print(
             f"[red]\N{BALLOT X} No bibtex or APA citation reference found in {readme.file.absolute()}[/red]"

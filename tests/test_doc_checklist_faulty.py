@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from napari_hub_cli.autofix import build_issue_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
@@ -89,7 +90,7 @@ def test_check_setupcfg(test_repo):
 def test_check_citation(test_repo):
     citation = test_repo.citation_file
 
-    assert citation.exists is False
+    assert citation.exists is True
 
 
 def test_create_checkist(test_repo):
@@ -115,3 +116,25 @@ def test_create_checkist(test_repo):
 def test_display_checklist(test_repo):
     result = create_checklist(test_repo.path)
     display_checklist(result)
+
+
+def test_build_issue_message(test_repo):
+    result = create_checklist(test_repo.path)
+    features = result.features
+
+    assert len(features) > 0
+
+    message = build_issue_message(3, result)
+
+    assert "complement of #3" in message
+    assert "'Summary Sentence'" in message
+    assert "'Source Code'" in message
+    assert "'Author Name'" in message
+    assert "'Issue Submission Link'" in message
+    assert "'Support Channel Link'" in message
+    assert "'Installation'" in message
+    assert "'Usage Overview'" in message
+    assert "'Intro Paragraph'" in message
+
+    assert "Your citation file" in message
+    assert "has not a valid format" in message

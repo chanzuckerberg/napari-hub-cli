@@ -8,8 +8,8 @@ import shutil
 import stat
 import tempfile
 import warnings
-from contextlib import suppress
 import weakref
+from contextlib import suppress
 
 import requests
 import setuptools
@@ -426,6 +426,10 @@ def handle_remove_readonly(func, path, exc):  # pragma: no cover
         raise
 
 
+def delete_file_tree(path):
+    shutil.rmtree(path, ignore_errors=False, onerror=handle_remove_readonly)
+
+
 class TemporaryDirectory(tempfile.TemporaryDirectory):
     """A custom version of `tempfile.TemporaryDirectory` that handles read-only files better.
     On Windows, before Python 3.8, `shutil.rmtree` does not handle read-only files very well.
@@ -470,7 +474,7 @@ class TemporaryDirectory(tempfile.TemporaryDirectory):
 
     @staticmethod
     def _robust_cleanup(name):
-        shutil.rmtree(name, ignore_errors=False, onerror=handle_remove_readonly)
+        delete_file_tree(name)
 
     def __exit__(self, exc, value, tb):
         if not self._delete:
@@ -489,4 +493,4 @@ class LocalDirectory(object):
     def __exit__(self, exc, value, tb):
         if not self.delete:
             return
-        shutil.rmtree(self.path.absolute(), ignore_errors=False, onerror=handle_remove_readonly)
+        delete_file_tree(self.path.absolute())

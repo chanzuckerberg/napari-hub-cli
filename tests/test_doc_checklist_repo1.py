@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from napari_hub_cli.autofix import build_issue_message, create_commits
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     VIDEO_SCREENSHOT,
@@ -10,6 +11,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
     create_checklist,
     display_checklist,
 )
+from napari_hub_cli.citations.citation import create_cff_citation
 from napari_hub_cli.fs import NapariPlugin
 
 
@@ -77,7 +79,7 @@ def test_check_setupcfg(test_repo):
     assert description.exists is True
 
     assert setup_cfg.has_name is True
-    assert setup_cfg.has_summary is False
+    assert setup_cfg.has_summary is True
     assert setup_cfg.has_sourcecode is False
     assert setup_cfg.has_author is False
     assert setup_cfg.has_bugtracker is False
@@ -175,3 +177,40 @@ def test_access_specific_result(test_repo):
 
     with pytest.raises(StopIteration):
         result[0]
+
+
+def test_build_issue_message(test_repo):
+    result = create_checklist(test_repo.path)
+    features = result.features
+
+    assert len(features) > 0
+
+    message = build_issue_message(2, result)
+
+    assert "complement of #2" in message
+    assert "'Source Code'" in message
+    assert "'Author Name'" in message
+    assert "'Issue Submission Link'" in message
+    assert "'Support Channel Link'" in message
+    assert "'Installation'" in message
+    assert "'Usage Overview'" in message
+    assert "'Intro Paragraph'" in message
+
+    assert "Screenshot/Video was found in" in message
+
+
+def test_create_citation(test_repo):
+    assert test_repo.citation_file.exists is False
+
+    created = create_cff_citation(test_repo.path, save=True, display_info=False)
+
+    assert created is True
+
+    citation = test_repo.citation_file
+    assert citation.exists is True
+    citation.file.unlink()
+
+
+# def test_create_commits(test_repo):
+#     result = create_checklist(test_repo.path)
+#     create_commits(result)

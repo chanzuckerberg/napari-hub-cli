@@ -12,8 +12,8 @@ from ..constants import NAPARI_HUB_API_URL
 from ..utils import (
     LocalDirectory,
     NonExistingNapariPluginError,
-    get_repository_url,
     TemporaryDirectory,
+    get_repository_url,
 )
 from .metadata_checklist import (
     AnalysisStatus,

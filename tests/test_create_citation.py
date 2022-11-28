@@ -196,13 +196,12 @@ def test_cff_no_information(tmp_path):
     repo_path = current_path / "resources" / "CZI-29-faulty"
     repo = NapariPlugin(repo_path)
 
-    assert repo.citation_file.exists is False
+    assert repo.citation_file.exists is True
 
     res = create_cff_citation(repo_path)
 
-    assert res is True
+    assert res is False  # wasn't created
     assert repo.citation_file.exists is True
-    repo.citation_file.file.unlink()
 
 
 def test_cff_bibtex(tmp_path):

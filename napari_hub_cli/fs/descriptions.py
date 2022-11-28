@@ -8,8 +8,8 @@ from iguala import cond, match, regex
 from mistletoe import Document
 from mistletoe.block_token import Heading
 from mistletoe.span_token import RawText
-from ..fs import RepositoryFile
 
+from ..fs import RepositoryFile
 from .citations import APA_REGEXP, APACitation, BibtexCitation
 
 
