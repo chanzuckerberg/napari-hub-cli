@@ -105,6 +105,9 @@ def build_issue_message(pr_id, results):
         msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(scanned_files)}"
         issues.append(msg)
 
+    if len(issues) <= 1:
+        return ""
+
     return ISSUE_BODY.format(
         greetings=greetings,
         introduction=introduction,
@@ -118,6 +121,7 @@ def create_commits(results):
     plugin_repo = results.repository
     git_repo = Repo(plugin_repo.path)
 
+    commited = False
     for feature in results.only_in_fallbacks():
         if not feature.meta.automatically_fixable:
             continue
@@ -139,6 +143,8 @@ Copy "{feature.meta.name}" from secondary to primary file
 * (copied here) "{target.file.relative_to(plugin_repo.path)}"
 """
         git_repo.git.commit(m=msg)
+        commited = True
+    return commited
 
 
 def create_commit_citation(results):
@@ -160,7 +166,7 @@ def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=Non
         plugin_name, plugin_url, directory=directory, cleanup=False
     )
     if not (result.missing_features() or result.only_in_fallbacks()):
-        print(f"All is good for {plugin_name}")
+        print(f"All is good for {plugin_name}!")
         return
 
     # we con only automatically fix repositories in github
@@ -180,8 +186,8 @@ def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=Non
 
     # modify + add + commit
     # citation is created first otherwise, the other commits made by the bot will be scrapped and it will appear as author
-    create_commit_citation(result)
-    create_commits(result)
+    need_pr = create_commit_citation(result)
+    need_pr = create_commits(result) or need_pr
 
     # fork/prepare the remote/push/pr
     # login in GH
@@ -208,19 +214,31 @@ def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=Non
     branch = local_repository.active_branch.name
     local_repository.remotes.napari_cli.pull(branch)
 
-    # # push in the new remote
+    # push in the new remote
     local_repository.remotes.napari_cli.push()
 
     # prepare the PR
-    title = PR_TITLE
-    body = PR_BODY
-    orig.create_pull(
-        title,
-        body=body,
-        head=f"{gh_login}:{branch}",
-        base=branch,
-        maintainer_can_modify=True,
-    )
+    pr_id = None
+    if need_pr:
+        title = PR_TITLE
+        body = build_PR_message()
+        pull_request = orig.create_pull(
+            title,
+            body=body,
+            head=f"{gh_login}:{branch}",
+            base=branch,
+            maintainer_can_modify=True,
+        )
+        assert pull_request
+        pr_id = pull_request.number
+
+    # prepare the issue
+    issue_msg = build_issue_message(pr_id, result)
+    if issue_msg:
+        title = ISSUE_TITLE
+        body = issue_msg
+        orig.create_issue(title, body)
+
     to_remove = directory if directory else result.repository.path.parent
     delete_file_tree(to_remove)
 
