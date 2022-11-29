@@ -49,30 +49,38 @@ def scrap_users(local_repo):
         name = commiter.author.name
         name = name if name else ""
         # try to detect bots (simple detection)
+        # simple hack here to order by nbre of commits
         if not ("[bot]" in email or "[bot]" in name or email.startswith("bot@")):
-            contributors.setdefault(email, set()).add(name)
+            contributor = contributors.setdefault(email, [1, set()])
+            contributor[0] += 1
+            contributor[1].add(name)
 
     # Now that we have users by email,
     # we group user names that are in various emails
     # (e.g. "Jane Doe" commited under "jane.doe@email.com and "jave.doe+github@email.com")
     # We detect this is the same person
     real_names = []
-    for names in contributors.values():
-        found_idx = [i for i, r in enumerate(real_names) if names.intersection(r)]
-        if found_idx:
-            [real_names[i].update(names) for i in found_idx]
-        else:
-            real_names.append(names)
+    for commit, names in contributors.values():
+        found_idx = [i for i, (_, r) in enumerate(real_names) if names.intersection(r)]
+        for i in found_idx:
+            real_names[i][0] += commit
+            real_names[i][1].update(names)
+        if not found_idx:
+            real_names.append([commit, names])
     real_names = [
-        list(r) for r in real_names
+        (commit, list(names)) for commit, names in real_names
     ]  # we pass from a list of set to a list of list
 
     # we sort all identified names by their number of particules
-    [r.sort(key=lambda name: -(len(name) + len(name.split()))) for r in real_names]
+    [
+        (c, r.sort(key=lambda name: -(len(name) + len(name.split()))))
+        for c, r in real_names
+    ]
     # we get the ones that have the more fragments
-    unique_names = [r[0] for r in real_names]
+    unique_names = [(c, r[0]) for c, r in real_names]
+    unique_names.sort(key=lambda e: -e[0])
     authors = []
-    for name in unique_names:
+    for commit, name in unique_names:
         s = name.split()
         if len(s) == 2:
             authors.append(

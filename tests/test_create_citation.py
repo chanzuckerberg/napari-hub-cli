@@ -497,3 +497,9 @@ def test_git_scrapping():
         "Sinnema",
         "Aranega",
     )
+
+
+def test_git_info_scrapping(tmp_path):
+    result = scrap_users(tmp_path)
+
+    assert result == {}
