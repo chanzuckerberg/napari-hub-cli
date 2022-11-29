@@ -2,9 +2,40 @@ import os
 from contextlib import suppress
 
 import pytest
+import requests_mock as req
 from xdg import xdg_config_home
 
-from napari_hub_cli.autofix import read_user_token
+from napari_hub_cli.autofix import read_user_token, validate_plugin_selection
+from napari_hub_cli.constants import NAPARI_HUB_API_URL
+
+
+@pytest.fixture
+def napari_hub(requests_mock):
+    requests_mock.get(
+        req.ANY,
+        json={},
+    )
+    requests_mock.get(
+        NAPARI_HUB_API_URL,
+        json={
+            "avidaq": "0.0.5",
+            "mikro-napari": "0.1.49",
+            "napari-curtain": "0.1.1",
+        },
+    )
+    requests_mock.get(
+        f"{NAPARI_HUB_API_URL}/avidaq",
+        json={"code_repository": "http://github.com/user1/avidaq"},
+    )
+    requests_mock.get(
+        f"{NAPARI_HUB_API_URL}/mikro-napari",
+        json={"code_repository": "http://github.com/user1/mikro-napari"},
+    )
+    requests_mock.get(
+        f"{NAPARI_HUB_API_URL}/napari-curtain",
+        json={"code_repository": "http://github.com/user2/napari-curtain"},
+    )
+    return requests_mock
 
 
 def setup_module(module):
@@ -114,3 +145,25 @@ def test_get_token_inmem_user_notinfile_file_exists(tmp_path, monkeypatch):
 
     assert username == "GHUSERWRITTEN"
     assert token == "TOK4"
+
+
+def test_plugin_selection(napari_hub):
+    plugins = ["avidaq", "mikro-napari", "napari-curtain"]
+
+    validation, result = validate_plugin_selection(plugins)
+
+    assert validation is True
+    assert len(result) == 3
+    assert result["avidaq"] == "http://github.com/user1/avidaq"
+    assert result["mikro-napari"] == "http://github.com/user1/mikro-napari"
+    assert result["napari-curtain"] == "http://github.com/user2/napari-curtain"
+
+
+def test_plugin_selection_missing(napari_hub):
+    plugins = ["avidaq", "mikro-napari", "napari-curta"]
+
+    validation, result = validate_plugin_selection(plugins)
+
+    assert validation is False
+    assert len(result) == 1
+    assert result["napari-curta"] == "napari-curtain"

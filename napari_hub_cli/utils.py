@@ -319,6 +319,10 @@ class NonExistingNapariPluginError(Exception):
         )
 
 
+def get_all_napari_plugin_names(api_url=NAPARI_HUB_API_URL):
+    return requests.get(api_url).json().keys()
+
+
 def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_URL):
     """Returns the plugin name the closest to the one entered as parameter.
     The search of the closest name considers all registered plugin in the Napari HUB api.

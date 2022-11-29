@@ -2,17 +2,24 @@ import os
 import re
 from contextlib import suppress
 from pathlib import Path
+from typing import Tuple, Union
 
 import yaml
 from git import GitCommandError
 from git.repo import Repo
 from github3 import login
+from pytz import NonExistentTimeError
 from xdg import xdg_config_home
 
 from .checklist import analyse_remote_plugin_url
-from .checklist.metadata_checklist import CITATION, CITATION_VALID
+from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStatus
 from .citations import create_cff_citation
-from .utils import delete_file_tree
+from .utils import (
+    NonExistingNapariPluginError,
+    delete_file_tree,
+    get_all_napari_plugin_names,
+    get_repository_url,
+)
 
 PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
@@ -165,6 +172,33 @@ def create_commit_citation(results):
     return True
 
 
+def validate_plugin_selection(names):
+    closest = {}
+    urls = {}
+    for name in names:
+        try:
+            urls[name] = get_repository_url(name)
+        except NonExistingNapariPluginError as e:
+            closest[name] = e.closest
+    if closest:
+        return False, closest
+    return True, urls
+
+
+def analyse_plugins_then_create_PR(plugin_names, directory=None, dry_run=False):
+    valid, result = validate_plugin_selection(plugin_names)
+    if not valid:
+        print("Some of the input plugins are not existing on the plateform:")
+        for pname, closest in result.items():
+            print(f" * {pname!r} do you mean {closest!r}?")
+        return False
+    for plugin_name, plugin_url in result.items():
+        analyse_then_create_PR(
+            plugin_name, plugin_url, directory=directory, dry_run=dry_run
+        )
+    return True
+
+
 def analyse_then_create_PR(
     plugin_name, plugin_url, directory=None, gh_login=None, dry_run=False
 ):
@@ -172,6 +206,9 @@ def analyse_then_create_PR(
     result = analyse_remote_plugin_url(
         plugin_name, plugin_url, directory=directory, cleanup=False
     )
+    if not result.status is AnalysisStatus.SUCCESS:
+        print(f"There is an issue with {plugin_name}: {result.status.value}")
+        return
     if not (result.missing_features() or result.only_in_fallbacks()):
         print(f"All is good for {plugin_name}!")
         return

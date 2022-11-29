@@ -13,6 +13,7 @@ from ..utils import (
     LocalDirectory,
     NonExistingNapariPluginError,
     TemporaryDirectory,
+    get_all_napari_plugin_names,
     get_repository_url,
 )
 from .metadata_checklist import (
@@ -143,7 +144,7 @@ def analyze_all_remote_plugins(
     api_url=NAPARI_HUB_API_URL, display_info=False, directory=None
 ):
     all_results = {}
-    plugins_name = requests.get(api_url).json().keys()
+    plugins_name = get_all_napari_plugin_names(api_url)
     total = len(plugins_name)
     description = "Analysing all plugins in Napari-HUB repository..."
     with Progress() as p:

@@ -12,6 +12,7 @@ import argparse
 import os
 import sys
 
+from .autofix import analyse_plugins_then_create_PR
 from .checklist.analysis import (
     analyze_all_remote_plugins,
     build_csv_dict,
@@ -27,6 +28,7 @@ from .formatting import (
     print_missing_interactive,
 )
 from .napari_hub_cli import get_missing, load_meta
+from .utils import get_all_napari_plugin_names
 
 
 def preview_meta(plugin_path, i):
@@ -158,6 +160,20 @@ def generate_report_all_plugins(output_csv):
     return 0
 
 
+def autofix(plugins, dir, all, dry_run):
+    """
+    Returns
+    -------
+    int
+        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB plateform
+    """
+    if all:
+        plugins = get_all_napari_plugin_names()
+
+    result = analyse_plugins_then_create_PR(plugins, directory=dir, dry_run=dry_run)
+    return 0 if result else 3
+
+
 def parse_args(args):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -196,26 +212,56 @@ def parse_args(args):
     )
     parser_doc_checklist.set_defaults(func=documentation_checklist)
 
-    parser_doc_checklist = subparsers.add_parser(
+    ## check-plugin
+    subcommand = subparsers.add_parser(
         "check-plugin", help="Checks consistency of a remote plugin"
     )
-    parser_doc_checklist.add_argument(
-        "plugin_name", help="Name of the plugin in Napari HUB"
-    )
-    parser_doc_checklist.set_defaults(func=remote_documentation_checklist)
+    subcommand.add_argument("plugin_name", help="Name of the plugin in Napari HUB")
+    subcommand.set_defaults(func=remote_documentation_checklist)
 
-    parser_doc_checklist = subparsers.add_parser(
+    ## all-plugin-report
+    subcommand = subparsers.add_parser(
         "all-plugins-report",
         help="Generates a CSV report with consistency analysis of all plugins in the Napari-HUB plateform",
     )
-    parser_doc_checklist.add_argument(
-        "output_csv", help="Output file name (e.g: 'output.csv')"
-    )
-    parser_doc_checklist.set_defaults(func=generate_report_all_plugins)
+    subcommand.add_argument("output_csv", help="Output file name (e.g: 'output.csv')")
+    subcommand.set_defaults(func=generate_report_all_plugins)
 
-    parser_create_citation = subparsers.add_parser("create-cff-citation")
-    parser_create_citation.add_argument("plugin_path", help="Local path to your plugin")
-    parser_create_citation.set_defaults(func=create_citation)
+    ## create-cff-citation
+    subcommand = subparsers.add_parser("create-cff-citation")
+    subcommand.add_argument("plugin_path", help="Local path to your plugin")
+    subcommand.set_defaults(func=create_citation)
+
+    ## autofix
+    subcommand = subparsers.add_parser(
+        "autofix",
+        help="Automatically analyse and fixes plugin repositories creating pull requests and issues on Github",
+    )
+    subcommand.add_argument(
+        "-p",
+        "--plugins",
+        nargs="+",
+        help="List of plugins name to automatically audit/fix",
+    )
+    subcommand.add_argument(
+        "-d",
+        "--dir",
+        help="Working directory in which plugins will be cloned (by default the tmp directory of your OS)",
+    )
+    subcommand.add_argument(
+        "-a",
+        "--all",
+        default=False,
+        action="store_true",
+        help="Passing on all plugins registed in Napari-HUB plateform",
+    )
+    subcommand.add_argument(
+        "--dry-run",
+        default=False,
+        action="store_true",
+        help="Perform the analysis/commit without creating pull request/issue on Github. With this option, cloned repositories are not deleted from disk.",
+    )
+    subcommand.set_defaults(func=autofix)
 
     return parser.parse_args(args)
 
