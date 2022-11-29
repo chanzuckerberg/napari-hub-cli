@@ -131,7 +131,7 @@ class ConfigFile(RepositoryFile):
 
 
 class NapariPlugin(object):
-    def __init__(self, path):
+    def __init__(self, path, forced_gen=0):
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -153,15 +153,29 @@ class NapariPlugin(object):
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
+        self.forced_gen = forced_gen
 
     @property
     def summary(self):
-        files = (self.config_yml, self.pyproject_toml, self.setup_cfg, self.setup_py)
-        for f in files:
+        for f in self.pypi_files:
             summary = f.summary
             if summary:
                 return summary
         return None
+
+    def first_pypi_config(self):
+        for f in self.pypi_files:
+            if f.has_name:
+                return f
+        return None
+
+    @property
+    def gen(self):
+        if self.forced_gen:
+            return self.forced_gen
+        if self.npe2_yaml.exists:
+            return 2
+        return 1
 
     @property
     @lru_cache(maxsize=1)
@@ -169,15 +183,17 @@ class NapariPlugin(object):
         from .configfiles import Npe2Yaml
 
         location = self.npe2_file_location()
-        return Npe2Yaml(location)
+        return Npe2Yaml(location, self)
 
     def npe2_file_location(self):
-        for location in (self.setup_py, self.setup_cfg, self.pyproject_toml):
+        for location in self.pypi_files:
             f = location.find_npe2()
             if f:
                 return f
         return None
 
+    @property
+    @lru_cache()
     def pypi_files(self):
         """Returns the PyPi files in preference order (from the most to the less prioritary)
 

@@ -9,10 +9,9 @@ from git.repo import Repo
 from github3 import login
 from xdg import xdg_config_home
 
-from .citations import create_cff_citation
-
 from .checklist import analyse_remote_plugin_url
 from .checklist.metadata_checklist import CITATION, CITATION_VALID
+from .citations import create_cff_citation
 from .utils import delete_file_tree
 
 PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
@@ -134,6 +133,11 @@ def create_commits(results):
         ]  # we skip the "has_", refactor in the future
         setattr(target, feature_name, getattr(source, feature_name))
         target.save()
+        # if the target have not been created, we do not commit
+        # this can happen if a modification is attempted
+        # on a gen 1 plugin
+        if not target.exists:
+            continue
         git_repo.git.add(target.file)
         msg = f"""
 Copy "{feature.meta.name}" from secondary to primary file
@@ -142,6 +146,7 @@ Copy "{feature.meta.name}" from secondary to primary file
 * (found here)  "{source.file.relative_to(plugin_repo.path)}"
 * (copied here) "{target.file.relative_to(plugin_repo.path)}"
 """
+        git_repo.git.add(update=True)
         git_repo.git.commit(m=msg)
         commited = True
     return commited
@@ -160,7 +165,9 @@ def create_commit_citation(results):
     return True
 
 
-def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=None):
+def analyse_then_create_PR(
+    plugin_name, plugin_url, directory=None, gh_login=None, dry_run=False
+):
     # analysis
     result = analyse_remote_plugin_url(
         plugin_name, plugin_url, directory=directory, cleanup=False
@@ -169,13 +176,21 @@ def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=Non
         print(f"All is good for {plugin_name}!")
         return
 
-    # we con only automatically fix repositories in github
+    create_PR_from_analysis(
+        result, plugin_url, directory=directory, gh_login=gh_login, dry_run=dry_run
+    )
+
+
+def create_PR_from_analysis(
+    result, plugin_url, directory=None, gh_login=None, dry_run=False
+):
+    # we can only automatically fix repositories and open issues in github
     match = re.match(
         r"https://github\.com/(?P<repo_user>[^/]+)/(?P<repo_name>[^/]+)", plugin_url
     )
     if not match:
         print(
-            f"The {plugin_name!r} repository is not on github, automatic modification and issue/PR creation cannot be performed"
+            f"{plugin_url!r} is not hosted on github, automatic modification and issue/PR creation cannot be performed"
         )
         return
     remote_user, remote_name = match.groupdict().values()
@@ -188,6 +203,9 @@ def analyse_then_create_PR(plugin_name, plugin_url, directory=None, gh_login=Non
     # citation is created first otherwise, the other commits made by the bot will be scrapped and it will appear as author
     need_pr = create_commit_citation(result)
     need_pr = create_commits(result) or need_pr
+
+    if dry_run:
+        return
 
     # fork/prepare the remote/push/pr
     # login in GH

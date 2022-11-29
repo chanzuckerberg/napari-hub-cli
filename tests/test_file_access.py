@@ -496,3 +496,84 @@ def test_complete_cfg2(resources):
         cfg.usersupport
         == "https://bitbucket.org/koopa31/napari_svetlana/issues?status=new&status=open"
     )
+
+
+def test_first_pypi_no_file(tmp_path):
+    plugin = NapariPlugin(tmp_path)
+
+    assert plugin.first_pypi_config() is None
+
+
+def test_first_pypi(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.first_pypi_config() is plugin.setup_cfg
+
+
+def test_npe2yaml_creation_setup_py(resources):
+    toml = SetupPy(resources / "setup.py")
+    with pytest.raises(NotImplementedError):
+        toml.create_npe2_entry()
+
+
+def test_npe2yaml_creation_toml(resources):
+    toml = PyProjectToml(resources / "pyproject2.toml")
+    path = toml.create_npe2_entry()
+
+    assert path == resources / "myproject" / "napari.yaml"
+    assert toml.find_npe2() == path
+
+
+def test_npe2yaml_creation_cfg(resources):
+    cfg = SetupCfg(resources / "setup.cfg")
+    path = cfg.create_npe2_entry()
+
+    assert path == resources / "src" / "test-plugin-name" / "napari.yaml"
+    assert cfg.find_npe2() == path
+
+
+def test_npe2yaml_creation_save(resources, monkeypatch):
+    plugin = NapariPlugin(resources / "CZI-29-small", forced_gen=2)
+
+    assert plugin.gen == 2
+
+    file = plugin.npe2_yaml
+    assert file.exists is False
+    assert plugin.npe2_file_location() is None
+
+    file.name = "test plugin"
+    file.save()
+    assert file.exists is True
+    assert (
+        plugin.npe2_file_location()
+        == resources / "CZI-29-small" / "src" / "test-plugin-name" / "napari.yaml"
+    )
+    file.file.unlink()
+
+
+def test_npe2yaml_creation_save_gen1(resources, monkeypatch):
+    plugin = NapariPlugin(resources / "CZI-29-small")
+    assert plugin.gen == 1
+
+    file = plugin.npe2_yaml
+    assert file.exists is False
+    assert plugin.npe2_file_location() is None
+
+    file.name = "test plugin"
+    file.save()
+    assert file.exists is False
+    assert plugin.npe2_file_location() is None
+
+
+def test_plugin_generation(resources):
+    plugin = NapariPlugin(resources / "CZI-29-small")
+
+    assert plugin.gen == 1
+
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.gen == 2
+
+    plugin = NapariPlugin(resources / "CZI-29-small", forced_gen=2)
+
+    assert plugin.gen == 2

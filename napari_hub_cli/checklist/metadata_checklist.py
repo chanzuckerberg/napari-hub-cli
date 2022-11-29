@@ -155,7 +155,7 @@ def create_checklist(repopath):
     repo = Path(repopath)
     plugin_repo = NapariPlugin(repo)
 
-    pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files()
+    pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description
     npe2_yaml = plugin_repo.npe2_yaml

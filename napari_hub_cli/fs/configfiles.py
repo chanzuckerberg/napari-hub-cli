@@ -93,6 +93,9 @@ class SetupPy(Metadata, ConfigFile):
                 return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
 
+    def create_npe2_entry(self):
+        raise NotImplementedError("Modification of setup.py is not yet supported")
+
 
 class NapariConfig(Metadata, ConfigFile):
     @property
@@ -210,6 +213,12 @@ class SetupCfg(Metadata, ConfigFile):
             return MarkdownDescription.from_file(readme)
         return MarkdownDescription("", self.file)
 
+    def _find_src_location(self):
+        try:
+            return self.data["options.packages.find"]["where"]
+        except KeyError:
+            return ""
+
     def find_npe2(self):
         try:
             manifest = self.data["options.entry_points"]["napari.manifest"]
@@ -220,11 +229,20 @@ class SetupCfg(Metadata, ConfigFile):
         if result:
             parsed = result.groupdict()
             modules = [m for m in parsed["modules"].split(":") if m]
-            src_location = self.data.get("options.packages.find", {}).get("where", "")
+            src_location = self._find_src_location()
             if src_location:
                 modules.insert(0, src_location)
             return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
+
+    def create_npe2_entry(self):
+        project_name = self.metadata["name"]
+        manifest_entry = self.data.setdefault("options.entry_points", {})
+        manifest_entry[
+            "napari.manifest"
+        ] = f"{project_name} = {project_name}:napari.yaml"
+        modules = [self._find_src_location()]
+        return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
 
 
 class PyProjectToml(Metadata, ConfigFile):
@@ -323,15 +341,42 @@ class PyProjectToml(Metadata, ConfigFile):
             return self.file.parent.joinpath(*modules) / f"{parsed['file']}.yaml"
         return None
 
+    def create_npe2_entry(self):
+        project_name = self.project_data["name"]
+        manifest_entry = (
+            self.data.setdefault("project", {})
+            .setdefault("entry-points", {})
+            .setdefault("napari.manifest", {})
+        )
+        manifest_entry[project_name] = f"{project_name}:napari.yaml"
+        modules = self._find_src_location()
+        return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
+
 
 class Npe2Yaml(Metadata, ConfigFile):
+    def __init__(self, file, plugin=None):
+        super().__init__(file)
+        self.plugin = plugin
+
     @property
     def name(self):
-        return self.data.get("display_name", self.data.get("name"))
+        return self.data.get("display_name")
 
     @name.setter
     def name(self, value):
-        self.data["name"] = value
+        self.data["display_name"] = value
+
+    def save(self):
+        if self.file:
+            super().save()
+            return
+        assert self.plugin
+        if self.plugin.gen == 1:
+            return
+        config = self.plugin.first_pypi_config()
+        location = config.create_npe2_entry()
+        self.file = location
+        super().save()
 
 
 class CitationFile(ConfigFile):
