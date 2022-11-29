@@ -17,20 +17,20 @@ from .utils import delete_file_tree
 PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
-GENERAL_INTRO = """I am the Napari-hub virtual assistant, and I would like to thank you for participating in the Napari-hub ecosystem with your work!
+GENERAL_INTRO = """We are Sean and Stephen from MetaCell, and we would like to thank you for participating in the Napari-hub ecosystem with your work!
 
-I am here to help you maintain and improve the metadata of your repository, so today I scanned your repo and I might have found some fields that are missing or that could be improved.
+We are here to help you maintain and improve the metadata of your repository, so today we scanned your repo and we might have found some fields that are missing or that could be improved.
 """
 
 PR_BODY = f"""Hi there,
 
 {GENERAL_INTRO}
 
-To make your work easier, I created this pull request that contains some suggestions to improve the metadata of your repository. Since there might be some minor inaccuracies, could you please review and accept the PR when everything looks good to you?
+To make your work easier, we created this pull request that contains some suggestions to improve the metadata of your repository. Since there might be some minor inaccuracies, could you please review and accept the PR when everything looks good to you?
 
 If any information is inaccurate, please feel free to edit it as you already have editing rights. Then proceed to commit/push this pull request.
 
-This is an automatic procedure that we are developing and constantly improving, so if you have any question or comment, please feel free to reach out [neuromusic](https://github.com/neuromusic) and let us know what you think, we appreciate your feedback!
+This is an automatic procedure that we are developing and constantly improving, so if you have any question or comment, please feel free to reach us ([Sean](https://github.com/seankmartin), [Stephen](https://github.com/stephenlenzi)) and let us know what you think, we appreciate your feedback!
 
 We all hope this pull request will be helpful to you,
 Thank you for your help and feedback,
@@ -40,15 +40,15 @@ The Napari-hub and MetaCell teams.
 
 REDUNDANT_INTRO = """This issue comes as complement of #{pr_id}.
 
-Scanning your repository, I identified some metadata that are either missing, or in files that are considered as secondary sources.
+Scanning your repository, we identified some metadata that are either missing, or in files that are considered as secondary sources.
 """
 
-METADATA_DIFFICULTIES = """While Scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary sources.
+METADATA_DIFFICULTIES = """While Scanning your repository, we identified some metadata that are either missing, or misplaced in files that are considered as secondary sources.
 
-Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your repository:
+Since metadata sometimes is hard to fix automatically we created a list of what improvements you might want to look into to improve the overall quality of your repository:
 """
 
-METADATA_DIFFICULTIES_NO_PR = """Metadata sometimes cannot be fixed automatically, so I created a list of what improvements you might want to look into to improve the overall quality of your repository:
+METADATA_DIFFICULTIES_NO_PR = """Metadata sometimes cannot be fixed automatically, so we created a list of what improvements you might want to look into to improve the overall quality of your repository:
 """
 
 ISSUE_BODY = """{greetings}
@@ -57,7 +57,7 @@ ISSUE_BODY = """{greetings}
 {difficulties}
 {issues}
 
-If some metadata is already present and I overlooked it, please feel free to contact [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
+If some metadata is already present and we overlooked it, please feel free to contact to reach us ([Sean](https://github.com/seankmartin), [Stephen](https://github.com/stephenlenzi)) to tell us what could be improved!
 
 We all hope this issue will be helpful to you,
 Thank you for your help and feedback,
