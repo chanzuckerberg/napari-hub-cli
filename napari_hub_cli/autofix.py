@@ -15,7 +15,7 @@ from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStat
 from .citations import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
-PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
+PR_TITLE = "[Napari HUB cli] Metadata enhancement suggestions"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
 GENERAL_INTRO = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
