@@ -3,23 +3,17 @@ import re
 from contextlib import suppress
 from pathlib import Path
 from textwrap import indent
-from typing import Tuple, Union
 
 import yaml
 from git import GitCommandError
 from git.repo import Repo
 from github3 import login
-from pytz import NonExistentTimeError
 from xdg import xdg_config_home
 
 from .checklist import analyse_remote_plugin_url
 from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStatus
 from .citations import create_cff_citation
-from .utils import (
-    NonExistingNapariPluginError,
-    delete_file_tree,
-    get_repository_url,
-)
+from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
 PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
@@ -89,7 +83,11 @@ def build_PR_message(user):
 def build_issue_message(fist_name, pr_id, results):
     pr_opened = pr_id is not None
     greetings = "Hi again" if pr_opened else "Hi there"
-    introduction = REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id) if pr_opened else GENERAL_INTRO.format(user=fist_name)
+    introduction = (
+        REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id)
+        if pr_opened
+        else GENERAL_INTRO.format(user=fist_name)
+    )
     difficulties = METADATA_DIFFICULTIES if pr_opened else METADATA_DIFFICULTIES_NO_PR
     conclusion = CONCLUSION_PR if pr_opened else CONCLUSION_NO_PR
 
@@ -215,7 +213,7 @@ def analyse_then_create_PR(
 ):
     # analysis
     result = analyse_remote_plugin_url(
-        plugin_name, plugin_url, directory=directory, cleanup=False
+        plugin_name, plugin_url, directory=directory, cleanup=False, display_info=True
     )
     if not result.status is AnalysisStatus.SUCCESS:
         print(f"There is an issue with {plugin_name}: {result.status.value}")
@@ -258,7 +256,9 @@ def create_PR_from_analysis(
             print("* PULL REQUEST")
             pr = build_PR_message("USERNAME")
             print(indent(pr, "  "))
-        issue_msg = build_issue_message("USERNAME", "PR_ID" if need_pr else None, result)
+        issue_msg = build_issue_message(
+            "USERNAME", "PR_ID" if need_pr else None, result
+        )
         if issue_msg:
             print("* ISSUE")
             print(indent(issue_msg, "  "))
