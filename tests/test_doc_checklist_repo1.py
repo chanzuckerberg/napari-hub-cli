@@ -185,9 +185,10 @@ def test_build_issue_message(test_repo):
 
     assert len(features) > 0
 
-    message = build_issue_message(2, result)
+    message = build_issue_message("bar", 2, result)
 
-    assert "complement of #2" in message
+    assert "I'm bar" in message
+    assert "complement #2" in message
     assert "'Source Code'" in message
     assert "'Author Name'" in message
     assert "'Issue Submission Link'" in message

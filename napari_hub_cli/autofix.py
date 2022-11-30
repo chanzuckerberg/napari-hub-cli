@@ -24,38 +24,52 @@ from .utils import (
 PR_TITLE = "[Napari HUB cli] Metadata enhancement proposition"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
-GENERAL_INTRO = """We are Sean and Stephen from MetaCell, and we would like to thank you for participating in the Napari-hub ecosystem with your work!
+GENERAL_INTRO = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
-We are here to help you maintain and improve the metadata of your repository, so today we scanned your repo and we might have found some fields that are missing or that could be improved.
+I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repo and I might have found some fields that are missing or that could be improved.
 """
 
 PR_BODY = f"""Hi there,
 
 {GENERAL_INTRO}
 
-To make your work easier, we created this pull request that contains some suggestions to improve the metadata of your repository. Since there might be some minor inaccuracies, could you please review and accept the PR when everything looks good to you?
+To make your work easier, I created this pull request that contains some suggestions to improve the metadata of your repository. Since there might be some minor inaccuracies, could you please review and accept the PR when everything looks good to you?
 
 If any information is inaccurate, please feel free to edit it as you already have editing rights. Then proceed to commit/push this pull request.
 
-This is an automatic procedure that we are developing and constantly improving, so if you have any question or comment, please feel free to reach us ([Sean](https://github.com/seankmartin), [Stephen](https://github.com/stephenlenzi)) and let us know what you think, we appreciate your feedback!
+This is an automatic procedure that we are developing and constantly improving, so if you have any question or comment, please feel free to reach out me or [neuromusic](https://github.com/neuromusic) and let us know what you think, we appreciate your feedback!
 
 We all hope this pull request will be helpful to you,
 Thank you for your help and feedback,
 
-The Napari-hub and MetaCell teams.
+The napari hub and MetaCell teams.
 """
 
-REDUNDANT_INTRO = """This issue comes as complement of #{pr_id}.
+REDUNDANT_INTRO = """I'm {user}, and I created this issue to complement #{pr_id}.
 
-Scanning your repository, we identified some metadata that are either missing, or in files that are considered as secondary sources.
+While Scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources.
 """
 
-METADATA_DIFFICULTIES = """While Scanning your repository, we identified some metadata that are either missing, or misplaced in files that are considered as secondary sources.
-
-Since metadata sometimes is hard to fix automatically we created a list of what improvements you might want to look into to improve the overall quality of your repository:
+METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
 """
 
-METADATA_DIFFICULTIES_NO_PR = """Metadata sometimes cannot be fixed automatically, so we created a list of what improvements you might want to look into to improve the overall quality of your repository:
+METADATA_DIFFICULTIES_NO_PR = """I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
+"""
+
+CONCLUSION_NO_PR = """If some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
+
+We all hope this issue will be helpful to you,
+Thank you for your help and feedback,
+
+The apari hub and MetaCell teams.
+"""
+
+CONCLUSION_PR = """As I mentioned in my PR, if some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
+
+
+Thank you for your help and feedback,
+
+The napari hub and MetaCell teams.
 """
 
 ISSUE_BODY = """{greetings}
@@ -63,13 +77,7 @@ ISSUE_BODY = """{greetings}
 {introduction}
 {difficulties}
 {issues}
-
-If some metadata is already present and we overlooked it, please feel free to contact to reach us ([Sean](https://github.com/seankmartin), [Stephen](https://github.com/stephenlenzi)) to tell us what could be improved!
-
-We all hope this issue will be helpful to you,
-Thank you for your help and feedback,
-
-The Napari-hub and MetaCell teams.
+{conclusion}
 """
 
 
@@ -77,11 +85,12 @@ def build_PR_message():
     return PR_BODY
 
 
-def build_issue_message(pr_id, results):
+def build_issue_message(fist_name, pr_id, results):
     pr_opened = pr_id is not None
     greetings = "Hi again" if pr_opened else "Hi there"
-    introduction = REDUNDANT_INTRO.format(pr_id=pr_id) if pr_opened else GENERAL_INTRO
+    introduction = REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id) if pr_opened else GENERAL_INTRO.format(user=fist_name)
     difficulties = METADATA_DIFFICULTIES if pr_opened else METADATA_DIFFICULTIES_NO_PR
+    conclusion = CONCLUSION_PR if pr_opened else CONCLUSION_NO_PR
 
     assert results.repository
     repo_path = results.repository.path
@@ -119,6 +128,7 @@ def build_issue_message(pr_id, results):
         introduction=introduction,
         difficulties=difficulties,
         issues="\n".join(issues),
+        conclusion=conclusion,
     )
 
 
@@ -288,7 +298,10 @@ def create_PR_from_analysis(
         pr_id = pull_request.number
 
     # prepare the issue
-    issue_msg = build_issue_message(pr_id, result)
+    me = gh.me()
+    assert me
+    first_name = me.name.split()[0]
+    issue_msg = build_issue_message(first_name, pr_id, result)
     if issue_msg:
         title = ISSUE_TITLE
         body = issue_msg
