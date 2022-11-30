@@ -13,6 +13,7 @@ from ..utils import (
     LocalDirectory,
     NonExistingNapariPluginError,
     TemporaryDirectory,
+    delete_file_tree,
     get_all_napari_plugin_names,
     get_repository_url,
 )
@@ -105,7 +106,6 @@ def analyse_remote_plugin_url(
     with directory as tmpdirname:
         tmp_dir = Path(tmpdirname)
         test_repo = tmp_dir / plugin_name
-
         p = Progress() if display_info else FakeProgress()
         p.start()
         task = p.add_task(
@@ -123,14 +123,15 @@ def analyse_remote_plugin_url(
                     advance=step,
                 ),
             )
-            result = create_checklist(test_repo)
-            result.url = plugin_url  # update the plugin url
-            p.stop()
-            return result
         except GitCommandError:
-            return PluginAnalysisResult.with_status(
-                AnalysisStatus.BAD_URL, url=plugin_url
-            )
+            if not test_repo.exists():
+                return PluginAnalysisResult.with_status(
+                    AnalysisStatus.BAD_URL, url=plugin_url
+                )
+        result = create_checklist(test_repo)
+        result.url = plugin_url  # update the plugin url
+        p.stop()
+        return result
 
 
 def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):

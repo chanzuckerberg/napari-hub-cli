@@ -120,8 +120,10 @@ def test_display_checklist(test_repo):
 
 
 def test_build_PR_message():
-    assert build_PR_message() is not None
-    assert build_PR_message != ""
+    msg = build_PR_message("foo")
+    assert msg is not None
+    assert msg != ""
+    assert "I'm foo" in msg
 
 
 def test_build_issue_message(test_repo):

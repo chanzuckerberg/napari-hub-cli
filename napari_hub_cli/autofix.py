@@ -2,6 +2,7 @@ import os
 import re
 from contextlib import suppress
 from pathlib import Path
+from textwrap import indent
 from typing import Tuple, Union
 
 import yaml
@@ -17,7 +18,6 @@ from .citations import create_cff_citation
 from .utils import (
     NonExistingNapariPluginError,
     delete_file_tree,
-    get_all_napari_plugin_names,
     get_repository_url,
 )
 
@@ -77,12 +77,13 @@ ISSUE_BODY = """{greetings}
 {introduction}
 {difficulties}
 {issues}
+
 {conclusion}
 """
 
 
-def build_PR_message():
-    return PR_BODY
+def build_PR_message(user):
+    return PR_BODY.format(user=user)
 
 
 def build_issue_message(fist_name, pr_id, results):
@@ -252,6 +253,16 @@ def create_PR_from_analysis(
     need_pr = create_commits(result) or need_pr
 
     if dry_run:
+        print(f"Here is a preview of what PR/issue will be created for {plugin_url}")
+        if need_pr:
+            print("* PULL REQUEST")
+            pr = build_PR_message("USERNAME")
+            print(indent(pr, "  "))
+        issue_msg = build_issue_message("USERNAME", "PR_ID" if need_pr else None, result)
+        if issue_msg:
+            print("* ISSUE")
+            print(indent(issue_msg, "  "))
+        input("Press enter to continue...")
         return
 
     # fork/prepare the remote/push/pr
@@ -283,10 +294,13 @@ def create_PR_from_analysis(
     local_repository.remotes.napari_cli.push()
 
     # prepare the PR
+    me = gh.me()
+    assert me
+    first_name = me.name.split()[0]
     pr_id = None
     if need_pr:
         title = PR_TITLE
-        body = build_PR_message()
+        body = build_PR_message(first_name)
         pull_request = orig.create_pull(
             title,
             body=body,
@@ -298,9 +312,6 @@ def create_PR_from_analysis(
         pr_id = pull_request.number
 
     # prepare the issue
-    me = gh.me()
-    assert me
-    first_name = me.name.split()[0]
     issue_msg = build_issue_message(first_name, pr_id, result)
     if issue_msg:
         title = ISSUE_TITLE
