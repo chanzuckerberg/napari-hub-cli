@@ -104,7 +104,9 @@ def build_issue_message(fist_name, pr_id, results):
         if feature.meta in (CITATION_VALID, CITATION):
             continue
         scanned_files = (
-            f"`{x.file.relative_to(repo_path)}`" for x in feature.scanned_files
+            f"`{x.file.relative_to(repo_path)}`"
+            for x in feature.scanned_files
+            if x.exists
         )
         msg = f"* {feature.meta.name!r} entry was not found (scanned files: {', '.join(scanned_files)})"
         issues.append(msg)
@@ -114,7 +116,9 @@ def build_issue_message(fist_name, pr_id, results):
         if feature.meta.automatically_fixable:
             continue
         scanned_files = (x for x in feature.scanned_files if x not in feature.fallbacks)
-        scanned_files = (f"`{f.file.relative_to(repo_path)}`" for f in scanned_files)
+        scanned_files = (
+            f"`{f.file.relative_to(repo_path)}`" for f in scanned_files if f.exists
+        )
         assert feature.found_in
         msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(scanned_files)}"
         issues.append(msg)
@@ -280,9 +284,10 @@ def create_PR_from_analysis(
     assert fork is not None
 
     # init the new remote
+    fork_name = "napari_cli"
     with suppress(GitCommandError):
         local_repository.create_remote(
-            "napari_cli",
+            fork_name,
             f"https://{gh_login}:{token}@github.com/{gh_login}/{remote_name}",
         )
 
@@ -290,8 +295,12 @@ def create_PR_from_analysis(
     branch = local_repository.active_branch.name
     local_repository.remotes.napari_cli.pull(branch)
 
-    # push in the new remote
-    local_repository.remotes.napari_cli.push()
+    # create local branch
+    fork_branch = "metadata_enhancement"
+    local_repository.git.checkout("-b", fork_branch)
+
+    # push branch in the new remote
+    local_repository.git.push("--set-upstream", fork_name, fork_branch)
 
     # prepare the PR
     me = gh.me()
@@ -304,7 +313,7 @@ def create_PR_from_analysis(
         pull_request = orig.create_pull(
             title,
             body=body,
-            head=f"{gh_login}:{branch}",
+            head=f"{gh_login}:{fork_branch}",
             base=branch,
             maintainer_can_modify=True,
         )
