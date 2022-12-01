@@ -255,7 +255,7 @@ def create_PR_from_analysis(
     need_pr = create_commits(result) or need_pr
 
     if dry_run:
-        print(f"Here is a preview of what PR/issue will be created for {plugin_url}")
+        print(f"== Here is a preview of what PR/issue will be created for {plugin_url}")
         if need_pr:
             print("* PULL REQUEST")
             pr = build_PR_message("USERNAME")
@@ -266,7 +266,11 @@ def create_PR_from_analysis(
         if issue_msg:
             print("* ISSUE")
             print(indent(issue_msg, "  "))
+        print(f"== You can review the performed commits (if any) here: {result.repository.path}")
+        print("   After you review them, pressing 'enter' will delete the cloned repository from your file system")
         input("Press enter to continue...")
+        print(f"** Deleting {result.repository.path}")
+        delete_file_tree(result.repository.path)
         return
 
     # fork/prepare the remote/push/pr
@@ -298,6 +302,7 @@ def create_PR_from_analysis(
     # create local branch
     fork_branch = "metadata_enhancement"
     local_repository.git.checkout("-b", fork_branch)
+    local_repository.remotes.napari_cli.pull(fork_branch)
 
     # push branch in the new remote
     local_repository.git.push("--set-upstream", fork_name, fork_branch)
@@ -327,8 +332,7 @@ def create_PR_from_analysis(
         body = issue_msg
         orig.create_issue(title, body)
 
-    to_remove = directory if directory else result.repository.path.parent
-    delete_file_tree(to_remove)
+    delete_file_tree(result.repository.path)
 
 
 def read_user_token(home_config=None):

@@ -259,7 +259,7 @@ def parse_args(args):
         "--dry-run",
         default=False,
         action="store_true",
-        help="Perform the analysis/commit without creating pull request/issue on Github. With this option, cloned repositories are not deleted from disk.",
+        help="Perform the analysis/commit without creating pull request/issue on Github.",
     )
     subcommand.set_defaults(func=autofix)
 
