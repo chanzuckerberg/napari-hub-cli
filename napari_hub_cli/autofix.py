@@ -31,7 +31,7 @@ To make your work easier, I created this pull request that contains some suggest
 
 If any information is inaccurate, please feel free to edit it as you already have editing rights. Then proceed to commit/push this pull request.
 
-This is an automatic procedure that we are developing and constantly improving, so if you have any question or comment, please feel free to reach out me or [neuromusic](https://github.com/neuromusic) and let us know what you think, we appreciate your feedback!
+This is an automatic procedure that we are developing and constantly improving, so if you have any questions or comments, please feel free to reach out me or [neuromusic](https://github.com/neuromusic) and let us know what you think, we appreciate your feedback!
 
 We all hope this pull request will be helpful to you,
 Thank you for your help and feedback,
@@ -41,7 +41,7 @@ The napari hub and MetaCell teams.
 
 REDUNDANT_INTRO = """I'm {user}, and I created this issue to complement #{pr_id}.
 
-While Scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources.
+While scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources.
 """
 
 METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
@@ -55,7 +55,7 @@ CONCLUSION_NO_PR = """If some metadata is already present and I overlooked it, p
 We all hope this issue will be helpful to you,
 Thank you for your help and feedback,
 
-The apari hub and MetaCell teams.
+The napari hub and MetaCell teams.
 """
 
 CONCLUSION_PR = """As I mentioned in my PR, if some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
@@ -82,7 +82,7 @@ def build_PR_message(user):
 
 def build_issue_message(fist_name, pr_id, results):
     pr_opened = pr_id is not None
-    greetings = "Hi again" if pr_opened else "Hi there"
+    greetings = "Hi again," if pr_opened else "Hi there,"
     introduction = (
         REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id)
         if pr_opened
