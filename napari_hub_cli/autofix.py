@@ -20,7 +20,7 @@ ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
 GENERAL_INTRO = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
-I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repo and I might have found some fields that are missing or that could be improved.
+I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I might have found some fields that are missing or that could be improved.
 """
 
 PR_BODY = f"""Hi there,
@@ -44,10 +44,11 @@ REDUNDANT_INTRO = """I'm {user}, and I created this issue to complement #{pr_id}
 While scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources.
 """
 
-METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
-"""
+ISSUE_INTRO_NO_PR = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
-METADATA_DIFFICULTIES_NO_PR = """I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
+I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I may have identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources."""
+
+METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
 """
 
 CONCLUSION_NO_PR = """If some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
@@ -86,9 +87,9 @@ def build_issue_message(fist_name, pr_id, results):
     introduction = (
         REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id)
         if pr_opened
-        else GENERAL_INTRO.format(user=fist_name)
+        else ISSUE_INTRO_NO_PR.format(user=fist_name)
     )
-    difficulties = METADATA_DIFFICULTIES if pr_opened else METADATA_DIFFICULTIES_NO_PR
+    difficulties = METADATA_DIFFICULTIES
     conclusion = CONCLUSION_PR if pr_opened else CONCLUSION_NO_PR
 
     assert results.repository
