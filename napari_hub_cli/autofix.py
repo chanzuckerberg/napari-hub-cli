@@ -3,6 +3,8 @@ import re
 from contextlib import suppress
 from pathlib import Path
 from textwrap import indent
+from rich.console import Console
+from rich.markdown import Markdown
 
 import yaml
 from git import GitCommandError
@@ -255,21 +257,24 @@ def create_PR_from_analysis(
     need_pr = create_commits(result) or need_pr
 
     if dry_run:
-        print(f"== Here is a preview of what PR/issue will be created for {plugin_url}")
+        console = Console()
+
+        console.print(Markdown(f"## Here is a preview of what PR/issue will be created for {plugin_url}"))
         if need_pr:
-            print("* PULL REQUEST")
+            console.print(Markdown("### PULL REQUEST"))
             pr = build_PR_message("USERNAME")
-            print(indent(pr, "  "))
+            console.print(Markdown(indent(pr, "> ")))
         issue_msg = build_issue_message(
             "USERNAME", "PR_ID" if need_pr else None, result
         )
         if issue_msg:
-            print("* ISSUE")
-            print(indent(issue_msg, "  "))
-        print(f"== You can review the performed commits (if any) here: {result.repository.path}")
-        print("   After you review them, pressing 'enter' will delete the cloned repository from your file system")
+            console.print(Markdown("### ISSUE"))
+            console.print(Markdown(indent(issue_msg, "> ")))
+        console.print(Markdown(f"## Additional information"))
+        console.print(Markdown(f"You can review the performed commits (if any) here: {result.repository.path}"))
+        console.print(Markdown("After you review them, pressing 'enter' will delete the cloned repository from your file system"))
         input("Press enter to continue...")
-        print(f"** Deleting {result.repository.path}")
+        console.print(f"Deleting {result.repository.path}")
         delete_file_tree(result.repository.path)
         return
 
