@@ -264,13 +264,13 @@ def create_PR_from_analysis(
         if need_pr:
             console.print(Markdown("### PULL REQUEST"))
             pr = build_PR_message("USERNAME")
-            console.print(Markdown(indent(pr, "> ")))
+            console.print(Markdown(indent(pr, "> ", predicate=lambda _: True)))
         issue_msg = build_issue_message(
             "USERNAME", "PR_ID" if need_pr else None, result
         )
         if issue_msg:
             console.print(Markdown("### ISSUE"))
-            console.print(Markdown(indent(issue_msg, "> ")))
+            console.print(Markdown(indent(issue_msg, "> ", predicate=lambda _: True)))
         console.print(Markdown(f"## Additional information"))
         console.print(Markdown(f"You can review the performed commits (if any) here: {result.repository.path}"))
         console.print(Markdown("After you review them, pressing 'enter' will delete the cloned repository from your file system"))
