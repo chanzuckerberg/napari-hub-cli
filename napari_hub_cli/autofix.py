@@ -3,13 +3,13 @@ import re
 from contextlib import suppress
 from pathlib import Path
 from textwrap import indent
-from rich.console import Console
-from rich.markdown import Markdown
 
 import yaml
 from git import GitCommandError
 from git.repo import Repo
 from github3 import login
+from rich.console import Console
+from rich.markdown import Markdown
 from xdg import xdg_config_home
 
 from .checklist import analyse_remote_plugin_url
@@ -118,12 +118,16 @@ def build_issue_message(fist_name, pr_id, results):
     for feature in results.only_in_fallbacks():
         if feature.meta.automatically_fixable:
             continue
-        scanned_files = (x for x in feature.scanned_files if x not in feature.fallbacks)
-        scanned_files = (
-            f"`{f.file.relative_to(repo_path)}`" for f in scanned_files if f.exists
-        )
+        preferred_sources = [
+            x for x in feature.scanned_files if x not in feature.fallbacks
+        ]
+        if not preferred_sources:
+            preferred_sources = feature.main_files
+        preferred_sources = [
+            f"`{f.file.relative_to(repo_path)}`" for f in preferred_sources
+        ]
         assert feature.found_in
-        msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(scanned_files)}"
+        msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(preferred_sources)}"
         issues.append(msg)
 
     if len(issues) <= 1:
@@ -260,7 +264,11 @@ def create_PR_from_analysis(
     if dry_run:
         console = Console()
 
-        console.print(Markdown(f"# Here is a preview of what PR/issue will be created for {plugin_url}"))
+        console.print(
+            Markdown(
+                f"# Here is a preview of what PR/issue will be created for {plugin_url}"
+            )
+        )
         if need_pr:
             console.print(Markdown("## PULL REQUEST"))
             pr = build_PR_message("USERNAME")
@@ -272,8 +280,16 @@ def create_PR_from_analysis(
             console.print(Markdown("## ISSUE"))
             console.print(Markdown(indent(issue_msg, "> ", predicate=lambda _: True)))
         console.print(Markdown(f"## Additional information"))
-        console.print(Markdown(f"You can review the performed commits (if any) here: {result.repository.path}"))
-        console.print(Markdown("After you review them, pressing 'enter' will delete the cloned repository from your file system"))
+        console.print(
+            Markdown(
+                f"You can review the performed commits (if any) here: {result.repository.path}"
+            )
+        )
+        console.print(
+            Markdown(
+                "After you review them, pressing 'enter' will delete the cloned repository from your file system"
+            )
+        )
         input("Press enter to continue...")
         console.print(f"Deleting {result.repository.path}")
         delete_file_tree(result.repository.path)
