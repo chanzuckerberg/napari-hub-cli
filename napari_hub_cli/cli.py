@@ -160,7 +160,7 @@ def generate_report_all_plugins(output_csv):
     return 0
 
 
-def autofix(plugins, dir, all, dry_run):
+def autofix(plugins, dir, all, push_on_github):
     """
     Returns
     -------
@@ -170,7 +170,7 @@ def autofix(plugins, dir, all, dry_run):
     if all:
         plugins = get_all_napari_plugin_names()
 
-    result = analyse_plugins_then_create_PR(plugins, directory=dir, dry_run=dry_run)
+    result = analyse_plugins_then_create_PR(plugins, directory=dir, dry_run=not push_on_github)
     return 0 if result else 3
 
 
@@ -256,10 +256,10 @@ def parse_args(args):
         help="Passing on all plugins registed in Napari-HUB plateform",
     )
     subcommand.add_argument(
-        "--dry-run",
+        "--push-on-github",
         default=False,
         action="store_true",
-        help="Perform the analysis/commit without creating pull request/issue on Github.",
+        help="Perform the analysis/commit and creates pull request/issue on Github",
     )
     subcommand.set_defaults(func=autofix)
 
