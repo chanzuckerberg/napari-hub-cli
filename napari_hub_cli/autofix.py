@@ -20,6 +20,11 @@ from .utils import NonExistingNapariPluginError, delete_file_tree, get_repositor
 PR_TITLE = "[Napari HUB cli] Metadata enhancement suggestions"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
+MOTIVATION = """In CZI user experience studies, we found that napari hub users place higher value on plugins with complete metadata and are more likely to use them.
+The suggested modifications may help provide a better user experience with your plugin on the napari hub (e.g. make your plugin easier to find) and increase its popularity and adoption.
+Furthermore, metadata in deprecated sources may no longer be displayed correctly on the napari hub in the future and are not guaranteed to be supported beyond 2023.
+"""
+
 GENERAL_INTRO = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
 I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I might have found some fields that are missing or that could be improved.
@@ -28,6 +33,8 @@ I am here to help you maintain and improve the metadata of your [napari hub](htt
 PR_BODY = f"""Hi there,
 
 {GENERAL_INTRO}
+
+{MOTIVATION}
 
 To make your work easier, I created this pull request that contains some suggestions to improve the metadata of your repository. Since there might be some minor inaccuracies, could you please review and accept the PR when everything looks good to you?
 
@@ -48,12 +55,16 @@ While scanning your repository, I identified some metadata that are either missi
 
 ISSUE_INTRO_NO_PR = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
+{MOTIVATION}
+
 I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I may have identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources."""
 
 METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
 """
 
-CONCLUSION_NO_PR = """If some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
+CONCLUSION_NO_PR = """If you need, here is [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
+
+If some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
 
 We all hope this issue will be helpful to you,
 Thank you for your help and feedback,
@@ -61,7 +72,9 @@ Thank you for your help and feedback,
 The napari hub and MetaCell teams.
 """
 
-CONCLUSION_PR = """As I mentioned in my PR, if some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
+CONCLUSION_PR = """If you need, here is [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
+
+As I mentioned in my PR, if some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
 
 
 Thank you for your help and feedback,
