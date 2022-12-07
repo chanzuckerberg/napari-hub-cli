@@ -223,7 +223,10 @@ def analyse_plugins_then_create_PR(plugin_names, directory=None, dry_run=False):
     if not valid:
         print("Some of the input plugins are not existing on the platform:")
         for pname, closest in result.items():
-            print(f" * {pname!r} do you mean {closest!r}?")
+            if closest is not None:
+                print(f" * {pname!r} do you mean {closest!r}?")
+            else:
+                print(f" * {pname!r} (no close matches found)")
         return False
     for plugin_name, plugin_url in result.items():
         analyse_then_create_PR(
