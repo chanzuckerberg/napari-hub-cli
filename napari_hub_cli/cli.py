@@ -4,7 +4,7 @@ Exit code status are the following:
 * 0 = OK
 * 1 = unexisting path
 * 2 = missing metadata
-* 3 = non-existing plugin in the Napari HUB plateform
+* 3 = non-existing plugin in the Napari HUB platform
 * 4 = CFF citation file not created
 """
 
@@ -133,22 +133,22 @@ def documentation_checklist(plugin_path, i):
 
 
 def remote_documentation_checklist(plugin_name):
-    """Creates a documentation checklist about the available metadata from a plugin of the Napari HUB plateform.
+    """Creates a documentation checklist about the available metadata from a plugin of the Napari HUB platform.
     Parameters
     ----------
     plugin_name : str
-        Name of the plugin to analyse on the Naparai HUB plateform
+        Name of the plugin to analyse on the Naparai HUB platform
     Returns
     -------
     int
-        the status of the result, 0 = OK, 3 = something went wrong, probably non-existing plugin in the Napari HUB plateform
+        the status of the result, 0 = OK, 3 = something went wrong, probably non-existing plugin in the Napari HUB platform
     """
     success = display_remote_analysis(plugin_name)
     return 0 if success else 3
 
 
 def generate_report_all_plugins(output_csv):
-    """Creates a CSV with missing artifacts for all plugins of the Napari HUB plateform.
+    """Creates a CSV with missing artifacts for all plugins of the Napari HUB platform.
     Returns
     -------
     int
@@ -165,7 +165,7 @@ def autofix(plugins, dir, all, push_on_github):
     Returns
     -------
     int
-        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB plateform
+        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB platform
     """
     if all:
         plugins = get_all_napari_plugin_names()
@@ -224,7 +224,7 @@ def parse_args(args):
     ## all-plugin-report
     subcommand = subparsers.add_parser(
         "all-plugins-report",
-        help="Generates a CSV report with consistency analysis of all plugins in the Napari-HUB plateform",
+        help="Generates a CSV report with consistency analysis of all plugins in the Napari-HUB platform",
     )
     subcommand.add_argument("output_csv", help="Output file name (e.g: 'output.csv')")
     subcommand.set_defaults(func=generate_report_all_plugins)
@@ -255,7 +255,7 @@ def parse_args(args):
         "--all",
         default=False,
         action="store_true",
-        help="Passing on all plugins registed in Napari-HUB plateform",
+        help="Passing on all plugins registed in Napari-HUB platform",
     )
     subcommand.add_argument(
         "--push-on-github",
