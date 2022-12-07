@@ -2,6 +2,7 @@ import re
 from functools import lru_cache
 
 import bibtexparser
+import requests
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
 from iguala import cond, match, regex
@@ -146,6 +147,44 @@ class MarkdownDescription(RepositoryFile):
             ]
         return []
 
+    def detect_doi_citations(self):
+        pattern = match(Document) % {
+            "children+>content": regex(
+                r"(http.*|doi\.org.*)?(10.(\d)+/([^(\s\>\"\<)])+)"
+            )
+            @ "doi_url"
+        }
+        result = pattern.match(self.content)
+        if result.is_match:
+            urls = []
+            for doi_url in (r["doi_url"] for r in result.bindings):
+                doi_url = (
+                    doi_url.replace("https://", "")
+                    .replace("http://", "")
+                    .replace("doi.org/", "")
+                )
+                urls.append(doi_url)
+            return urls
+        return []
+
+    @lru_cache(maxsize=1)
+    def extract_citations_from_doi(self):
+        doi_urls = self.detect_doi_citations()
+        if not doi_urls:
+            return []
+        bibtex_lib = ""
+        for doi_url in self.detect_doi_citations():
+            url = f"https://doi.org/{doi_url}"
+            header = {
+                "Accept": "application/x-bibtex",
+            }
+            response = requests.get(url, headers=header)
+            bibtex = response.text
+            bibtex_lib += f"\n{bibtex}"
+        parser = BibTexParser(customization=convert_to_unicode)
+        bib_database = bibtexparser.loads(bibtex_lib, parser=parser)
+        return [BibtexCitation(bib) for bib in bib_database.entries]
+
     @property
     def has_bibtex_citations(self):
         return self.extract_bibtex_citations() != []
@@ -155,10 +194,16 @@ class MarkdownDescription(RepositoryFile):
         return self.extract_apa_citations() != []
 
     @property
+    def has_doi(self):
+        return self.extract_citations_from_doi() != []
+
+    @property
     def has_citations(self):
-        return self.has_bibtex_citations or self.has_apa_citations
+        return self.has_bibtex_citations or self.has_doi or self.has_apa_citations
 
     def extract_citations(self):
         if self.has_bibtex_citations:
             return self.extract_bibtex_citations()
+        if self.has_doi:
+            return self.extract_citations_from_doi()
         return self.extract_apa_citations()

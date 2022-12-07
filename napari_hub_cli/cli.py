@@ -170,7 +170,9 @@ def autofix(plugins, dir, all, push_on_github):
     if all:
         plugins = get_all_napari_plugin_names()
 
-    result = analyse_plugins_then_create_PR(plugins, directory=dir, dry_run=not push_on_github)
+    result = analyse_plugins_then_create_PR(
+        plugins, directory=dir, dry_run=not push_on_github
+    )
     return 0 if result else 3
 
 

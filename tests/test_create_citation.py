@@ -507,3 +507,69 @@ def test_git_info_scrapping(tmp_path):
     result = scrap_users(tmp_path)
 
     assert result == {}
+
+
+def test_doi_detection(citations_dir):
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.detect_doi_citations()
+    assert len(results) == 4
+    assert results[0] == "10.1101/2022.03.17.484806"
+    assert results[1] == "10.1177/0146167208318401"
+    assert results[2] == "10.1038/s41598-021-04676-9"
+    assert results[3] == "10.1037/0021-9010.76.1.143"
+
+
+def test_doi_detection_extraction(citations_dir, requests_mock):
+    requests_mock.get(
+        "https://doi.org/10.1101/2022.03.17.484806", text="@article{abc, title={ABC}}"
+    )
+    requests_mock.get(
+        "https://doi.org/10.1177/0146167208318401", text="@article{def, title={DEF}}"
+    )
+    requests_mock.get(
+        "https://doi.org/10.1038/s41598-021-04676-9", text="@article{ghi, title={GHI}}"
+    )
+    requests_mock.get(
+        "https://doi.org/10.1037/0021-9010.76.1.143", text="@article{jkl, title={JKL}}"
+    )
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.extract_citations_from_doi()
+    assert len(results) == 4
+    assert results[0].title == "ABC"
+    assert results[1].title == "DEF"
+    assert results[2].title == "GHI"
+    assert results[3].title == "JKL"
+
+    results = mdfile.extract_citations()
+    assert len(results) == 4
+    assert results[0].title == "ABC"
+    assert results[1].title == "DEF"
+    assert results[2].title == "GHI"
+    assert results[3].title == "JKL"
+
+
+@pytest.mark.online
+def test_doi_detection_extraction__online(citations_dir):
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.extract_citations()
+    assert len(results) == 4
+
+    assert (
+        results[0].title
+        == "Instance segmentation of mitochondria in electron microscopy images with a generalist deep learning model"
+    )
+    assert (
+        results[1].title
+        == "Silence and Table Manners: When Environments Activate Norms"
+    )
+    assert (
+        results[2].title
+        == "Accurate determination of marker location within whole-brain microscopy images"
+    )
+    assert (
+        results[3].title
+        == "The nomological validity of the Type A personality among employed adults."
+    )

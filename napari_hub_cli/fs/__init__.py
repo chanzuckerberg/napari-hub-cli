@@ -144,10 +144,10 @@ class NapariPlugin(object):
         self.path = path
         self.setup_py = SetupPy(path / "setup.py")
         self.setup_cfg = SetupCfg(path / "setup.cfg")
-        if (path / ".napari-hub").exists():
-            napari_dir = path / ".napari-hub"
-        else:
+        if (path / ".napari").exists():
             napari_dir = path / ".napari"
+        else:
+            napari_dir = path / ".napari-hub"
         self.config_yml = NapariConfig(napari_dir / "config.yml")
         self.description = MarkdownDescription.from_file(napari_dir / "DESCRIPTION.md")
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
