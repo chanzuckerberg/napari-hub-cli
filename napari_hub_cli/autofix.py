@@ -221,7 +221,7 @@ def validate_plugin_selection(names):
 def analyse_plugins_then_create_PR(plugin_names, directory=None, dry_run=False):
     valid, result = validate_plugin_selection(plugin_names)
     if not valid:
-        print("Some of the input plugins are not existing on the plateform:")
+        print("Some of the input plugins are not existing on the platform:")
         for pname, closest in result.items():
             print(f" * {pname!r} do you mean {closest!r}?")
         return False

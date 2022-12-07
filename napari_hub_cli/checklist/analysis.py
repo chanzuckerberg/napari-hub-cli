@@ -175,7 +175,7 @@ def _display_error_message(plugin_name, result):
         )
     elif result.status is AnalysisStatus.MISSING_URL:
         print(
-            f"\N{BALLOT X} Plugin {plugin_name!r} does not have repository URL on the Naparay-HUB plateform"
+            f"\N{BALLOT X} Plugin {plugin_name!r} does not have repository URL on the Naparay-HUB platform"
         )
     elif result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY:
         print(
