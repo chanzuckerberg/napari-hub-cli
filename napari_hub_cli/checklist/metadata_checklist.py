@@ -37,7 +37,7 @@ class Feature(object):
 class AnalysisStatus(Enum):
     SUCCESS = "Success"
     MISSING_URL = "Missing repository URL"
-    NON_EXISTING_PLUGIN = "Plugin is not existing in the Napari-HUB plateform"
+    NON_EXISTING_PLUGIN = "Plugin is not existing in the Napari-HUB platform"
     UNACCESSIBLE_REPOSITORY = "Repository URL is not accessible"
     BAD_URL = "Repository URL does not have right format"
 
