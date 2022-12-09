@@ -70,7 +70,7 @@ def parse_yaml(yml_file):
 @register_unparser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
 def unparse_yaml(yml_file, data):
     with yml_file.open(mode="w") as f:
-        yaml.dump(data, stream=f, sort_keys=False)
+        yaml.dump(data, stream=f, sort_keys=False, allow_unicode=True)
     return True
 
 
