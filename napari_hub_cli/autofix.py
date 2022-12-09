@@ -340,7 +340,8 @@ def create_PR_from_analysis(
     # create local branch
     fork_branch = "metadata_enhancement"
     local_repository.git.checkout("-b", fork_branch)
-    local_repository.remotes.napari_cli.pull(fork_branch)
+    with suppress(GitCommandError):
+        local_repository.remotes.napari_cli.pull(fork_branch)
 
     # push branch in the new remote
     local_repository.git.push("--set-upstream", fork_name, fork_branch)
