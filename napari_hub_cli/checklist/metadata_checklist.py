@@ -182,12 +182,13 @@ def create_checklist(repopath):
         ),
         Requirement(
             features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
-            main_files=[description],
-            fallbacks=[
+            main_files=[
+                description,
                 long_descr_setup_cfg,
                 long_descr_setup_py,
                 long_descr_pyproject_toml,
             ],
+            fallbacks=[],
         ),
         Requirement(
             features=[CITATION, CITATION_VALID],

@@ -13,7 +13,12 @@ from rich.markdown import Markdown
 from xdg import xdg_config_home
 
 from .checklist import analyse_remote_plugin_url
-from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStatus, create_checklist
+from .checklist.metadata_checklist import (
+    CITATION,
+    CITATION_VALID,
+    AnalysisStatus,
+    create_checklist,
+)
 from .citations import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
@@ -266,7 +271,6 @@ def autofix_repository(path):
     assert result.repository is not None
     create_commit_citation(result, display_info=True)
     create_commits(result, display_info=True)
-
 
 
 def create_PR_from_analysis(
