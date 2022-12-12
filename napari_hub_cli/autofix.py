@@ -13,7 +13,7 @@ from rich.markdown import Markdown
 from xdg import xdg_config_home
 
 from .checklist import analyse_remote_plugin_url
-from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStatus
+from .checklist.metadata_checklist import CITATION, CITATION_VALID, AnalysisStatus, create_checklist
 from .citations import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
@@ -155,7 +155,7 @@ def build_issue_message(fist_name, pr_id, results):
     )
 
 
-def create_commits(results):
+def create_commits(results, display_info=False):
     assert results.repository, "There is no results for this repository"
     plugin_repo = results.repository
     git_repo = Repo(plugin_repo.path)
@@ -186,20 +186,22 @@ Copy "{feature.meta.name}" from secondary to primary file
 * (found here)  "{source.file.relative_to(plugin_repo.path)}"
 * (copied here) "{target.file.relative_to(plugin_repo.path)}"
 """
+        if display_info:
+            print(msg)
         git_repo.git.add(update=True)
         git_repo.git.commit(m=msg)
         commited = True
     return commited
 
 
-def create_commit_citation(results):
+def create_commit_citation(results, display_info=False):
     if results[CITATION].found:
         return False
 
     assert results.repository, "There is no results for this repository"
     plugin_repo = results.repository
     git_repo = Repo(plugin_repo.path)
-    create_cff_citation(plugin_repo, display_info=False)
+    create_cff_citation(plugin_repo, display_info=display_info)
     git_repo.git.add(plugin_repo.citation_file.file)
     git_repo.git.commit(m="Add 'CITATION.cff' file")
     return True
@@ -252,6 +254,19 @@ def analyse_then_create_PR(
     create_PR_from_analysis(
         result, plugin_url, directory=directory, gh_login=gh_login, dry_run=dry_run
     )
+
+
+def autofix_repository(path):
+    # creates the checklist
+    result = create_checklist(path)
+
+    # perform modifications on the files
+    # modify + add + commit
+    # citation is created first otherwise, the other commits made by the bot will be scrapped and it will appear as author
+    assert result.repository is not None
+    create_commit_citation(result, display_info=True)
+    create_commits(result, display_info=True)
+
 
 
 def create_PR_from_analysis(
