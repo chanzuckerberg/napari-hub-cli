@@ -27,7 +27,7 @@ Furthermore, metadata in deprecated sources may no longer be displayed correctly
 
 GENERAL_INTRO = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
-I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I might have found some fields that are missing or that could be improved.
+I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I might have found some fields that are missing, follow an unexpected format, or could be improved.
 """
 
 PR_BODY = f"""Hi there,
@@ -50,14 +50,14 @@ The napari hub and MetaCell teams.
 
 REDUNDANT_INTRO = """I'm {user}, and I created this issue to complement #{pr_id}.
 
-While scanning your repository, I identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources.
+While scanning your repository, I identified some metadata that are either missing, follow an unexpected format, or are located in secondary/deprecated sources.
 """
 
 ISSUE_INTRO_NO_PR = """I'm {user} from MetaCell, I would like to thank you for participating in the napari ecosystem with your work!
 
 {MOTIVATION}
 
-I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I may have identified some metadata that are either missing, or misplaced in files that are considered as secondary or deprecated sources."""
+I am here to help you maintain and improve the metadata of your [napari hub](https://napari-hub.org) listing, so today I scanned your repository and I may have identified some metadata that are either missing, or that follows an unexpected format, and/or misplaced in files that are considered as secondary or deprecated sources."""
 
 METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
 """
@@ -124,7 +124,7 @@ def build_issue_message(fist_name, pr_id, results):
             for x in feature.scanned_files
             if x.exists
         )
-        msg = f"* {feature.meta.name!r} entry was not found (scanned files: {', '.join(scanned_files)})"
+        msg = f"* {feature.meta.name!r} entry was not found or follows an unexpected format (scanned files: {', '.join(scanned_files)})"
         issues.append(msg)
 
     issues.append("")
