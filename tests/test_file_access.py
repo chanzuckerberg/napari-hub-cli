@@ -481,7 +481,7 @@ def test_complete_cfg2(resources):
     assert cfg.has_name is True
     assert cfg.name == "napari_svetlana"
     assert cfg.has_author is True
-    assert cfg.author == "Clément Cazorla"
+    assert cfg.author == "Clement Cazorla"
     assert cfg.has_summary is True
     assert cfg.summary == "A classification plugin for the ROIs of a segmentation mask."
     assert cfg.has_bugtracker is True
