@@ -111,7 +111,7 @@ def test_create_checkist(test_repo):
     assert description.found is True
     assert description.found_in == test_repo.description
     assert description.only_in_fallback is False
-    assert description.has_fallback_files is True
+    assert description.has_fallback_files is False
 
 
 def test_display_checklist(test_repo):
