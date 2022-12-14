@@ -114,7 +114,7 @@ def test_create_checkist(test_repo):
     assert description.found is True
     assert description.found_in == test_repo.description
     assert description.only_in_fallback is False
-    assert description.has_fallback_files is False
+    assert description.has_fallback_files is True
 
     labels = result.features[-1]
     assert labels.meta is LABELS
@@ -155,3 +155,5 @@ def test_build_issue_message(test_repo):
 
     assert LABELS_DOC_URL not in message
     assert ENTRIES_DOC_URL in message
+
+    assert "You can also place" not in message

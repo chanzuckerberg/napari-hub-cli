@@ -24,6 +24,7 @@ class MetaFeature(object):
     advise_location: str
     automatically_fixable: bool
     doc_url: str
+    force_main_file_usage: bool = True
 
 
 @dataclass
@@ -107,12 +108,23 @@ VIDEO_SCREENSHOT = MetaFeature(
     ".napari-hub/DESCRIPTION.yml",
     False,
     ENTRIES_DOC_URL,
+    force_main_file_usage=False,
 )
 USAGE = MetaFeature(
-    "Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md", False, ENTRIES_DOC_URL
+    "Usage Overview",
+    "has_usage",
+    ".napari-hub/DESCRIPTION.md",
+    False,
+    ENTRIES_DOC_URL,
+    force_main_file_usage=False,
 )
 INTRO = MetaFeature(
-    "Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md", False, ENTRIES_DOC_URL
+    "Intro Paragraph",
+    "has_intro",
+    ".napari-hub/DESCRIPTION.md",
+    False,
+    ENTRIES_DOC_URL,
+    force_main_file_usage=False,
 )
 INSTALLATION = MetaFeature(
     "Installation",
@@ -120,6 +132,7 @@ INSTALLATION = MetaFeature(
     ".napari-hub/DESCRIPTION.md",
     False,
     ENTRIES_DOC_URL,
+    force_main_file_usage=False,
 )
 CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True, ENTRIES_DOC_URL)
 CITATION_VALID = MetaFeature(
@@ -216,11 +229,12 @@ def create_checklist(repopath):
             features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
             main_files=[
                 description,
+            ],
+            fallbacks=[
                 long_descr_setup_cfg,
                 long_descr_setup_py,
                 long_descr_pyproject_toml,
             ],
-            fallbacks=[],
         ),
         Requirement(
             features=[CITATION, CITATION_VALID],

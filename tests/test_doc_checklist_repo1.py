@@ -156,8 +156,8 @@ def test_create_checkist(test_repo):
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is True
     assert description.found_in == test_repo.setup_cfg.long_description()
-    assert description.only_in_fallback is False
-    assert description.has_fallback_files is False
+    assert description.only_in_fallback is True
+    assert description.has_fallback_files is True
 
 
 # smoke test

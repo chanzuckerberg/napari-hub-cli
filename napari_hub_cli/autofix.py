@@ -141,6 +141,7 @@ def build_issue_message(first_name, pr_id, results):
     for feature in results.only_in_fallbacks():
         if feature.meta.automatically_fixable:
             continue
+
         preferred_sources = [
             x for x in feature.scanned_files if x not in feature.fallbacks
         ]
@@ -150,6 +151,11 @@ def build_issue_message(first_name, pr_id, results):
             f"`{f.file.relative_to(repo_path)}`" for f in preferred_sources
         ]
         assert feature.found_in
+        if not feature.meta.force_main_file_usage:
+            if feature.main_files[0].exists:
+                msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`. You can also place this information in your {' or '.join(preferred_sources)} if you want."
+                issues.append(msg)
+            continue
         msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(preferred_sources)}"
         issues.append(msg)
         docs.setdefault(feature.meta.doc_url, []).append(feature.meta)
