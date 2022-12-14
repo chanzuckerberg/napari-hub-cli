@@ -5,7 +5,9 @@ import pytest
 from napari_hub_cli.autofix import build_issue_message, build_PR_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
+    ENTRIES_DOC_URL,
     LABELS,
+    LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
     create_checklist,
     display_checklist,
@@ -150,3 +152,6 @@ def test_build_issue_message(test_repo):
     assert "'Issue Submission Link'" in message
     assert "'Support Channel Link'" in message
     assert "'Installation'" in message
+
+    assert LABELS_DOC_URL not in message
+    assert ENTRIES_DOC_URL in message

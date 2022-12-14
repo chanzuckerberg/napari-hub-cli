@@ -67,8 +67,9 @@ I am here to help you maintain and improve the metadata of your [napari hub](htt
 METADATA_DIFFICULTIES = """Since metadata sometimes is hard to fix automatically I created a list of what improvements you might want to look into to improve the overall quality of your [napari hub](https://napari-hub.org) listing:
 """
 
-CONCLUSION_NO_PR = """If you need, here are [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
-
+CONCLUSION_NO_PR = """<!--
+If you need, here are [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
+-->
 If some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
 
 We all hope this issue will be helpful to you,
@@ -77,8 +78,9 @@ Thank you for your help and feedback,
 The napari hub and MetaCell teams.
 """
 
-CONCLUSION_PR = """If you need, here are [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
-
+CONCLUSION_PR = """<!--
+If you need, here are [more details about metadata and their locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin%27s-listing).
+-->
 As I mentioned in my PR, if some metadata is already present and I overlooked it, please feel free to contact me or [neuromusic](https://github.com/neuromusic) to tell us what could be improved!
 
 
@@ -92,6 +94,7 @@ ISSUE_BODY = """{greetings}
 {introduction}
 {difficulties}
 {issues}
+{docs}
 
 {conclusion}
 """
@@ -116,6 +119,7 @@ def build_issue_message(fist_name, pr_id, results):
     repo_path = results.repository.path
 
     issues = []
+    docs = {}
     citation_result = results[CITATION]
     for feature in results.missing_features():
         if feature.meta is CITATION_VALID and citation_result.found:
@@ -131,6 +135,7 @@ def build_issue_message(fist_name, pr_id, results):
         )
         msg = f"* {feature.meta.name!r} entry was not found or follows an unexpected format (scanned files: {', '.join(scanned_files)})"
         issues.append(msg)
+        docs.setdefault(feature.meta.doc_url, []).append(feature.meta)
 
     issues.append("")
     for feature in results.only_in_fallbacks():
@@ -147,15 +152,25 @@ def build_issue_message(fist_name, pr_id, results):
         assert feature.found_in
         msg = f"* {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo_path)}`, but it is preferred to place this information in {' or '.join(preferred_sources)}"
         issues.append(msg)
+        docs.setdefault(feature.meta.doc_url, []).append(feature.meta)
 
     if len(issues) <= 1:
         return ""
+
+    # Build the message for documentation
+    doc_msgs = []
+    for url, meta in docs.items():
+        tested_features = ", ".join(f"'{m.name}'" for m in meta)
+        doc_msgs.append(
+            f"If you need more details about {tested_features} you can refer to [this documentation page]({url})."
+        )
 
     return ISSUE_BODY.format(
         greetings=greetings,
         introduction=introduction,
         difficulties=difficulties,
         issues="\n".join(issues),
+        docs="\n".join(doc_msgs),
         conclusion=conclusion,
     )
 

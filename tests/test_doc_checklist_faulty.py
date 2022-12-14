@@ -5,7 +5,9 @@ import pytest
 from napari_hub_cli.autofix import build_issue_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
+    ENTRIES_DOC_URL,
     LABELS,
+    LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
     create_checklist,
     display_checklist,
@@ -146,3 +148,6 @@ def test_build_issue_message(test_repo):
 
     assert "Your citation file" in message
     assert "has not a valid format" in message
+
+    assert LABELS_DOC_URL in message
+    assert ENTRIES_DOC_URL in message

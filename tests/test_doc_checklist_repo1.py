@@ -5,6 +5,8 @@ import pytest
 from napari_hub_cli.autofix import build_issue_message, create_commits
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
+    ENTRIES_DOC_URL,
+    LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
     Feature,
     check_feature,
@@ -197,7 +199,8 @@ def test_build_issue_message(test_repo):
     assert "'Usage Overview'" in message
     assert "'Intro Paragraph'" in message
 
-    # assert "Screenshot/Video was found in" in message
+    assert LABELS_DOC_URL in message
+    assert ENTRIES_DOC_URL in message
 
 
 def test_create_citation(test_repo):

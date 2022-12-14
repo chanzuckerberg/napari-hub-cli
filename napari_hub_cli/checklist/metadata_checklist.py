@@ -23,7 +23,7 @@ class MetaFeature(object):
     attribute: str
     advise_location: str
     automatically_fixable: bool
-    url_doc: str
+    doc_url: str
 
 
 @dataclass
