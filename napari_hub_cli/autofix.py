@@ -104,13 +104,13 @@ def build_PR_message(user):
     return PR_BODY.format(user=user)
 
 
-def build_issue_message(fist_name, pr_id, results):
+def build_issue_message(first_name, pr_id, results):
     pr_opened = pr_id is not None
     greetings = "Hi again," if pr_opened else "Hi there,"
     introduction = (
-        REDUNDANT_INTRO.format(user=fist_name, pr_id=pr_id)
+        REDUNDANT_INTRO.format(user=first_name, pr_id=pr_id)
         if pr_opened
-        else ISSUE_INTRO_NO_PR.format(user=fist_name)
+        else ISSUE_INTRO_NO_PR.format(user=first_name, MOTIVATION=MOTIVATION)
     )
     difficulties = METADATA_DIFFICULTIES
     conclusion = CONCLUSION_PR if pr_opened else CONCLUSION_NO_PR
