@@ -141,7 +141,7 @@ def test_check_feature_missing(test_repo):
 def test_create_checkist(test_repo):
     result = create_checklist(test_repo.path)
 
-    assert len(result.features) == 12
+    assert len(result.features) == 13
 
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME

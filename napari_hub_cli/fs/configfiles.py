@@ -98,6 +98,8 @@ class SetupPy(Metadata, ConfigFile):
 
 
 class NapariConfig(Metadata, ConfigFile):
+    has_labels = Exists("labels")
+
     @property
     def summary(self):
         return self.data.get("summary")
@@ -125,6 +127,10 @@ class NapariConfig(Metadata, ConfigFile):
     @property
     def has_sourcecode(self):
         return "Source Code" in self.data
+
+    @property
+    def labels(self):
+        return self.data.get("labels")
 
 
 class SetupCfg(Metadata, ConfigFile):

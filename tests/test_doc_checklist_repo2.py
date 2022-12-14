@@ -5,6 +5,7 @@ import pytest
 from napari_hub_cli.autofix import build_issue_message, build_PR_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
+    LABELS,
     VIDEO_SCREENSHOT,
     create_checklist,
     display_checklist,
@@ -97,7 +98,7 @@ def test_check_citation(test_repo):
 def test_create_checkist(test_repo):
     result = create_checklist(test_repo.path)
 
-    assert len(result.features) == 12
+    assert len(result.features) == 13
 
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
@@ -112,6 +113,13 @@ def test_create_checkist(test_repo):
     assert description.found_in == test_repo.description
     assert description.only_in_fallback is False
     assert description.has_fallback_files is False
+
+    labels = result.features[-1]
+    assert labels.meta is LABELS
+    assert labels.found is True
+    assert labels.found_in == test_repo.config_yml
+    assert labels.only_in_fallback is False
+    assert labels.has_fallback_files is False
 
 
 def test_display_checklist(test_repo):
