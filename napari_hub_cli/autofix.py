@@ -25,7 +25,7 @@ from .utils import NonExistingNapariPluginError, delete_file_tree, get_repositor
 PR_TITLE = "[Napari HUB cli] Metadata enhancement suggestions"
 ISSUE_TITLE = "[Napari HUB cli] Metadata enhancement"
 
-MOTIVATION = """In CZI user experience studies, we found that napari hub users place higher value on plugins with complete metadata and are more likely to use them.
+MOTIVATION = """In [CZI user experience studies](https://github.com/chanzuckerberg/napari-hub/discussions/463), we found that napari hub users place higher value on plugins with complete metadata and are more likely to use them.
 The suggested modifications may help provide a better user experience with your plugin on the napari hub (e.g. make your plugin easier to find) and increase its popularity and adoption.
 Furthermore, metadata in deprecated sources may no longer be displayed correctly on the napari hub in the future and are not guaranteed to be supported beyond 2023.
 """
