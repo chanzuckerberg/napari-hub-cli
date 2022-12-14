@@ -6,6 +6,7 @@ from napari_hub_cli.autofix import build_issue_message
 from napari_hub_cli.checklist.metadata_checklist import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
+    INTRO,
     LABELS,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
@@ -86,8 +87,8 @@ def test_check_setupcfg(test_repo):
 
     assert description.has_videos is False
     assert description.has_screenshots is False
-    assert description.has_usage is False
-    assert description.has_intro is False
+    assert description.has_usage is True
+    assert description.has_intro is True
 
 
 def test_check_citation(test_repo):
@@ -113,7 +114,7 @@ def test_create_checkist(test_repo):
     assert description.found is False
     assert description.found_in is None
     assert description.only_in_fallback is False
-    assert description.has_fallback_files is False
+    assert description.has_fallback_files is True
 
     labels = result.features[-1]
     assert labels.meta is LABELS
@@ -128,12 +129,16 @@ def test_display_checklist(test_repo):
 
 
 def test_build_issue_message(test_repo):
+    INTRO.force_main_file_usage = True
+
     result = create_checklist(test_repo.path)
+
     features = result.features
 
     assert len(features) > 0
 
     message = build_issue_message("foo", 3, result)
+    INTRO.force_main_file_usage = False  # We cheat here
 
     assert "I'm foo" in message
     assert "complement #3" in message
@@ -143,11 +148,13 @@ def test_build_issue_message(test_repo):
     assert "'Issue Submission Link'" in message
     assert "'Support Channel Link'" in message
     assert "'Installation'" in message
-    assert "'Usage Overview'" in message
-    assert "'Intro Paragraph'" in message
 
+    assert "Intro Paragraph" in message
+    assert "Usage Overview" in message
     assert "Your citation file" in message
     assert "has not a valid format" in message
 
     assert LABELS_DOC_URL in message
     assert ENTRIES_DOC_URL in message
+
+    assert "You can also place" in message
