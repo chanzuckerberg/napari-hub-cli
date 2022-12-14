@@ -583,3 +583,9 @@ def test_readme_intro_detection(resources):
     readme = MarkdownDescription.from_file(resources / "README2.md")
 
     assert readme.has_intro is True
+
+
+def test_markdown_image_detection(resources):
+    readme = MarkdownDescription.from_file(resources / "README2.md")
+
+    assert readme.has_videos_or_screenshots is True

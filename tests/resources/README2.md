@@ -21,6 +21,12 @@ and review the napari docs for plugin developers:
 https://napari.org/stable/plugins/index.html
 -->
 
+## Usage
+
+<p align="center">
+  <img src="https://github.com/ch-n/napari-time_series_plotter/raw/main/napari-time-series-plotter_demo.gif" alt="Demo gif" />
+</p>
+
 ## Installation
 
 You can install `napari-cookiecut` via [pip]:

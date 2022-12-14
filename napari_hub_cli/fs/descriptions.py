@@ -15,6 +15,8 @@ from .citations import APA_REGEXP, APACitation, BibtexCitation
 
 
 class MarkdownDescription(RepositoryFile):
+    IMG_REGEX = r"((?!http)|https://github\.com|https://user-images\.githubusercontent\.com)(?!.*(badge)).*?\.(gif|png|jpeg|jpg|svg)$"
+
     def __init__(self, raw_content, file):
         super().__init__(file)
         self.raw_content = re.sub("(<!--.*?-->)", "", raw_content, flags=re.DOTALL)
@@ -39,11 +41,7 @@ class MarkdownDescription(RepositoryFile):
 
     @property
     def has_screenshots(self):
-        pattern = match(Document) % {
-            "children+>src": regex(
-                r"((?!http)|https://github\.com|https://user-images\.githubusercontent\.com)(?!.*(badge)).*?\.(png|jpeg|jpg|svg)$"
-            )
-        }
+        pattern = match(Document) % {"children+>src": regex(self.IMG_REGEX)}
         result = pattern.match(self.content)
         if result.is_match:
             return True
@@ -52,7 +50,7 @@ class MarkdownDescription(RepositoryFile):
             e = __self__
             if "<img" not in e:
                 return False
-            img_pattern = re.compile(r"^(?!http).*?\.(png|jpeg|jpg|svg)$")
+            img_pattern = re.compile(self.IMG_REGEX)
             tags = e.split()
             for tag in tags:
                 if not tag.startswith("src"):

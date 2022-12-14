@@ -13,12 +13,17 @@ CHECKLIST_STYLE = {
 }
 
 
+ENTRIES_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing"
+LABELS_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/A-plugin-developer%E2%80%99s-guide-to-categories-on-the-napari-hub"
+
+
 @dataclass
 class MetaFeature(object):
     name: str
     attribute: str
     advise_location: str
     automatically_fixable: bool
+    doc_url: str
 
 
 @dataclass
@@ -70,32 +75,59 @@ class Requirement(object):
     fallbacks: List[RepositoryFile]
 
 
-DISPLAY_NAME = MetaFeature("Display Name", "has_name", "npe2 file: napari.yaml", True)
-SUMMARY = MetaFeature("Summary Sentence", "has_summary", ".napari-hub/config.yml", True)
-SOURCECODE = MetaFeature(
-    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True
+DISPLAY_NAME = MetaFeature(
+    "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
 )
-AUTHOR = MetaFeature("Author Name", "has_author", ".napari-hub/config.yml", True)
+SUMMARY = MetaFeature(
+    "Summary Sentence", "has_summary", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
+)
+SOURCECODE = MetaFeature(
+    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
+)
+AUTHOR = MetaFeature(
+    "Author Name", "has_author", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
+)
 BUGTRACKER = MetaFeature(
-    "Issue Submission Link", "has_bugtracker", ".napari-hub/config.yml", True
+    "Issue Submission Link",
+    "has_bugtracker",
+    ".napari-hub/config.yml",
+    True,
+    ENTRIES_DOC_URL,
 )
 USER_SUPPORT = MetaFeature(
-    "Support Channel Link", "has_usersupport", ".napari-hub/config.yml", True
+    "Support Channel Link",
+    "has_usersupport",
+    ".napari-hub/config.yml",
+    True,
+    ENTRIES_DOC_URL,
 )
 VIDEO_SCREENSHOT = MetaFeature(
     "Screenshot/Video",
     "has_videos_or_screenshots",
     ".napari-hub/DESCRIPTION.yml",
     False,
+    ENTRIES_DOC_URL,
 )
-USAGE = MetaFeature("Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md", False)
-INTRO = MetaFeature("Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md", False)
+USAGE = MetaFeature(
+    "Usage Overview", "has_usage", ".napari-hub/DESCRIPTION.md", False, ENTRIES_DOC_URL
+)
+INTRO = MetaFeature(
+    "Intro Paragraph", "has_intro", ".napari-hub/DESCRIPTION.md", False, ENTRIES_DOC_URL
+)
 INSTALLATION = MetaFeature(
-    "Installation", "has_installation", ".napari-hub/DESCRIPTION.md", False
+    "Installation",
+    "has_installation",
+    ".napari-hub/DESCRIPTION.md",
+    False,
+    ENTRIES_DOC_URL,
 )
-CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True)
+CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True, ENTRIES_DOC_URL)
 CITATION_VALID = MetaFeature(
-    "Citation Format is Valid", "is_valid", "CITATION.CFF", False
+    "Citation Format is Valid", "is_valid", "CITATION.CFF", False, ENTRIES_DOC_URL
+)
+
+LABELS = MetaFeature(
+    "Labels", "has_labels", ".napari-hub/config.yml", False, LABELS_DOC_URL
 )
 
 
@@ -193,6 +225,11 @@ def create_checklist(repopath):
         Requirement(
             features=[CITATION, CITATION_VALID],
             main_files=[plugin_repo.citation_file],
+            fallbacks=[],
+        ),
+        Requirement(
+            features=[LABELS],
+            main_files=[napari_cfg],
             fallbacks=[],
         ),
     ]
