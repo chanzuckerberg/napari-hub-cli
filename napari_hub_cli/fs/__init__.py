@@ -60,7 +60,7 @@ def parse_py(py_file):
 
 @register_parser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
 def parse_yaml(yml_file):
-    with yml_file.open() as fp:
+    with yml_file.open(encoding="utf-8") as fp:
         content = yaml.safe_load(fp)
     if content is not None:
         return content
@@ -69,7 +69,7 @@ def parse_yaml(yml_file):
 
 @register_unparser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
 def unparse_yaml(yml_file, data):
-    with yml_file.open(mode="w") as f:
+    with yml_file.open(mode="w", encoding="utf-8") as f:
         yaml.dump(data, stream=f, sort_keys=False, allow_unicode=True)
     return True
 
@@ -78,7 +78,7 @@ def unparse_yaml(yml_file, data):
 def unparse_cfg(cfg_file, data):
     config = ConfigParser()
     config.read_dict(data)
-    with cfg_file.open(mode="w") as f:
+    with cfg_file.open(mode="w", encoding="utf-8") as f:
         config.write(f)
     return True
 
