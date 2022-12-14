@@ -133,7 +133,7 @@ def test_create_cff_bibtex(tmp_path, citations_dir):
     assert cff.data["year"] == 2018
 
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     assert len(result["authors"]) == 3
@@ -157,7 +157,7 @@ def test_create_cff_apa(tmp_path, citations_dir):
     assert cff.data["year"] == 2022
 
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     assert len(result["authors"]) == 10
@@ -354,7 +354,7 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
 
     # tests round-trip
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     pref = result["preferred-citation"]
@@ -401,7 +401,7 @@ def test_create_cff_apa_append_all(tmp_path, citations_dir):
 
     # tests round-trip
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     pref = result["preferred-citation"]
