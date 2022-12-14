@@ -162,7 +162,7 @@ def build_issue_message(fist_name, pr_id, results):
     for url, meta in docs.items():
         tested_features = ", ".join(f"'{m.name}'" for m in meta)
         doc_msgs.append(
-            f"If you need more details about {tested_features} you can refer to [this documentation page]({url})."
+            f"If you need more details about: {tested_features}, you can refer to [this documentation page]({url})."
         )
 
     return ISSUE_BODY.format(
