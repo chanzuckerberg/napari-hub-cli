@@ -170,7 +170,7 @@ def parse_args(args):
     )
     parser_doc_checklist.set_defaults(func=documentation_checklist)
 
-   ## create-cff-citation
+    ## create-cff-citation
     subcommand = subparsers.add_parser("create-cff-citation")
     subcommand.add_argument("plugin_path", help="Local path to your plugin")
     subcommand.set_defaults(func=create_citation)
