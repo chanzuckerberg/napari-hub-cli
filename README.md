@@ -148,6 +148,16 @@ title: "My Research Software"
 Some more information regarding `.CFF` can be found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files).
 
 
+## Previewing your plugin's napari hub page
+
+To view a preview of your plugin listing for the napari hub, we recommend using the [napari hub preview page service](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md).
+However, legacy commands `preview-metadata` and `check-missing` are available to preview your hub page.
+To use these commands, run:
+
+```
+napari-hub-cli preview-metadata /tmp/example-plugin
+napari-hub-cli check-missing /tmp/example-plugin
+```
 
 ## Code of Conduct
 
