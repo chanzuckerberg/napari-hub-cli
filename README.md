@@ -21,6 +21,11 @@ $ pip install napari-hub-cli
 
 ## Documentation Checklist
 
+The command used to create the Documentation Checklist is
+```
+ $ napari-hub-cli create-doc-checklist /tmp/example-plugin 
+```
+
 The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
 With this, it creates a Documentation Checklist identifying if a plugin has the following metadata:
 
@@ -42,23 +47,7 @@ Additionally, the recommended file locations for each metadata are suggested in 
 - when the metadata is not found in either the Napari recommended file location and a fallback file location
 - when the metadata is not found at the Napari recommended file location
 
-To create the Napari Documentation Checklist for your plugin there are two alternatives:
 
-- creating the Documentation Checklist from the local plugin path, useful before a release
-- creating the Documentation Checklist from the remote plugin path, requiring the plugin to be released into Napari-Hub
-
-For the first, the command used to create the Documentation Checklist is
-```
- $ napari-hub-cli create-doc-checklist /tmp/example-plugin 
-```
-
-while for the latter, the command used to create the Documentation Checklist is
-
-```
- $ napari-hub-cli check-plugin example-plugin 
-```
-
-having first installed all the requirements for napari-hub-cli.
 
 Below you can find a table with the Napari recommended file locations and fallback files where the metadata is checked:
 
@@ -87,6 +76,11 @@ Example output (with all possible scenarios):
 
 ## Citation
 
+To create a citation file (`CITATION.CFF`) for your plugin run
+```
+ $ napari-hub-cli create-cff-citation /tmp/example-plugin 
+```
+
 This utility works by looking into:
 
 - GitHub Repository metadata
@@ -98,11 +92,7 @@ For citations to be parsed from the ```README.md``` these need to have either th
 
 The ```CITATION.CFF``` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
 
-To create the CITATION.CFF for your plugin run
-```
- $ napari-hub-cli create-cff-citation /tmp/example-plugin 
-```
-having first installed all the requirements for napari-hub-cli.
+
 
 The format for the CITATION.CFF is the following:
 
@@ -114,7 +104,7 @@ The format for the CITATION.CFF is the following:
 ### Citation references
 
 
-Below you can find some examples of how to use the CITATION.CFF.
+Below you can find some examples of how to use the `CITATION.CFF`.
 
 Referencing other work:
 ```
@@ -155,7 +145,7 @@ preferred-citation:
 title: "My Research Software"
 ```
 
-Some more information regarding .CFF can be found here https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files 
+Some more information regarding `.CFF` can be found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files).
 
 
 
