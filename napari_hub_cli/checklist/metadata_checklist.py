@@ -291,12 +291,27 @@ def display_checklist(analysis_result):
 
     # Display detailed information
     for feature in analysis_result.only_in_fallbacks():
+        if feature.meta.automatically_fixable:
+            continue
         console.print()
+        preferred_sources = [
+            x for x in feature.scanned_files if x not in feature.fallbacks
+        ]
+        if not preferred_sources:
+            preferred_sources = feature.main_files
+        preferred_sources = [f"`{f.file.relative_to(repo)}`" for f in preferred_sources]
+        if not feature.meta.force_main_file_usage:
+            if feature.main_files[0].exists:
+                console.print(
+                    f"- {feature.meta.name} was found in `{feature.found_in.file.relative_to(repo)}`. You can also place this information in your {' or '.join(preferred_sources)} if you want.",
+                    style="yellow",
+                )
+            continue
         console.print(
             f"- {feature.meta.name.capitalize()} found only in the fallback file (found in '{feature.found_in.file.relative_to(repo)}')",
             style="yellow",
         )
-        console.print(f"  Recommended file location - {feature.meta.advise_location}")
+        console.print(f"  Recommended file location - {preferred_sources}")
 
     # Display detailed information
     for feature in analysis_result.missing_features():
