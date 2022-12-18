@@ -280,13 +280,11 @@ class PyProjectToml(Metadata, ConfigFile):
 
     @property
     def author(self):
-        return self.project_urls.get("authors", self.project_urls.get("author"))
+        return self.project_data.get("authors", self.project_data.get("author"))
 
     @author.setter
     def author(self, value):
-        self.data.setdefault("project", {}).setdefault("urls", {}).setdefault(
-            "authors", []
-        ).append(value)
+        self.data.setdefault("project", {}).setdefault("authors", []).append(value)
 
     @property
     def bugtracker(self):
