@@ -10,7 +10,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
     LABELS,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
-    create_checklist,
+    analyse_local_plugin,
     display_checklist,
 )
 from napari_hub_cli.fs import NapariPlugin
@@ -98,7 +98,7 @@ def test_check_citation(test_repo):
 
 
 def test_create_checkist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
     assert len(result.features) == 13
 
@@ -124,14 +124,18 @@ def test_create_checkist(test_repo):
 
 
 def test_display_checklist(test_repo):
-    result = create_checklist(test_repo.path)
+    INTRO.force_main_file_usage = True
+
+    result = analyse_local_plugin(test_repo.path)
     display_checklist(result)
+
+    INTRO.force_main_file_usage = False  # We cheat here
 
 
 def test_build_issue_message(test_repo):
     INTRO.force_main_file_usage = True
 
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
     features = result.features
 

@@ -5,7 +5,7 @@ from .analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .metadata_checklist import AnalysisStatus, create_checklist, display_checklist
+from .metadata_checklist import AnalysisStatus, analyse_local_plugin, display_checklist
 
 __all__ = [
     "analyse_remote_plugin",
@@ -13,7 +13,7 @@ __all__ = [
     "analyse_remote_plugin_url",
     "build_csv_dict",
     "write_csv",
-    "create_checklist",
+    "analyse_local_plugin",
     "display_checklist",
     "AnalysisStatus",
 ]
