@@ -185,7 +185,7 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def create_checklist(repopath):
+def analyse_local_plugin(repopath):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------

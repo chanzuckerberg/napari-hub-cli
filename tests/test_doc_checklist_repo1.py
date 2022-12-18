@@ -10,7 +10,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
     VIDEO_SCREENSHOT,
     Feature,
     check_feature,
-    create_checklist,
+    analyse_local_plugin,
     display_checklist,
 )
 from napari_hub_cli.citations.citation import create_cff_citation
@@ -141,7 +141,7 @@ def test_check_feature_missing(test_repo):
 
 
 def test_create_checkist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
     assert len(result.features) == 13
 
@@ -162,7 +162,7 @@ def test_create_checkist(test_repo):
 
 # smoke test
 def test_display_checklist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
     display_checklist(result)
 
 
@@ -171,7 +171,7 @@ def test_has_citation_file(test_repo):
 
 
 def test_access_specific_result(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
     specific = result[DISPLAY_NAME]
     assert specific is not None
@@ -182,7 +182,7 @@ def test_access_specific_result(test_repo):
 
 
 def test_build_issue_message(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
     features = result.features
 
     assert len(features) > 0

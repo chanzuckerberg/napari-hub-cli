@@ -20,7 +20,7 @@ from ..utils import (
 from .metadata_checklist import (
     AnalysisStatus,
     PluginAnalysisResult,
-    create_checklist,
+    analyse_local_plugin,
     display_checklist,
 )
 
@@ -128,7 +128,7 @@ def analyse_remote_plugin_url(
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url
                 )
-        result = create_checklist(test_repo)
+        result = analyse_local_plugin(test_repo)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result

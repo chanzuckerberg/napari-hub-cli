@@ -19,7 +19,7 @@ from .checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .checklist.metadata_checklist import create_checklist, display_checklist
+from .checklist.metadata_checklist import analyse_local_plugin, display_checklist
 from .citations.citation import create_cff_citation
 from .formatting import (
     format_meta,
@@ -127,7 +127,7 @@ def documentation_checklist(plugin_path, i):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = create_checklist(plugin_path)
+    check_list = analyse_local_plugin(plugin_path)
     display_checklist(check_list)
     return 0
 

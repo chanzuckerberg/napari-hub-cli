@@ -17,7 +17,7 @@ from .checklist.metadata_checklist import (
     CITATION,
     CITATION_VALID,
     AnalysisStatus,
-    create_checklist,
+    analyse_local_plugin,
 )
 from .citations import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
@@ -284,7 +284,7 @@ def analyse_then_create_PR(
 
 def autofix_repository(path):
     # creates the checklist
-    result = create_checklist(path)
+    result = analyse_local_plugin(path)
 
     # perform modifications on the files
     # modify + add + commit
