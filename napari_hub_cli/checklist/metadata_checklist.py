@@ -321,7 +321,7 @@ def display_checklist(analysis_result):
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()
         console.print(
-            f"- {feature.meta.name.capitalize()} not found{scanned_files}",
+            f"- {feature.meta.name.capitalize()} not found or follows an unexpected format{scanned_files}",
             style="red",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
