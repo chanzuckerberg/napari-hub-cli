@@ -464,6 +464,8 @@ def test_git_scrapping():
     assert infos["url"] in (
         "https://github.com/chanzuckerberg/napari-hub-cli",
         "git@github.com:chanzuckerberg/napari-hub-cli.git",
+        "https://github.com/chanzuckerberg/napari-hub-cli.git",
+
     )
     assert infos["title"] == "napari-hub-cli"
 
