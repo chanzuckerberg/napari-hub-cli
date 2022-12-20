@@ -13,11 +13,10 @@ from ..utils import (
     LocalDirectory,
     NonExistingNapariPluginError,
     TemporaryDirectory,
-    delete_file_tree,
     get_all_napari_plugin_names,
     get_repository_url,
 )
-from .metadata_checklist import (
+from .metadata import (
     AnalysisStatus,
     PluginAnalysisResult,
     analyse_local_plugin,

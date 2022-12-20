@@ -6,7 +6,7 @@ import pytest
 import requests_mock
 import yaml
 
-from napari_hub_cli.citations.citation import (
+from napari_hub_cli.citation import (
     create_cff_citation,
     scrap_git_infos,
     scrap_users,
@@ -464,6 +464,8 @@ def test_git_scrapping():
     assert infos["url"] in (
         "https://github.com/chanzuckerberg/napari-hub-cli",
         "git@github.com:chanzuckerberg/napari-hub-cli.git",
+        "https://github.com/chanzuckerberg/napari-hub-cli.git",
+
     )
     assert infos["title"] == "napari-hub-cli"
 

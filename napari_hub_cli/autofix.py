@@ -12,14 +12,9 @@ from rich.console import Console
 from rich.markdown import Markdown
 from xdg import xdg_config_home
 
-from .checklist import analyse_remote_plugin_url
-from .checklist.metadata_checklist import (
-    CITATION,
-    CITATION_VALID,
-    AnalysisStatus,
-    analyse_local_plugin,
-)
-from .citations import create_cff_citation
+from .checklist import analyse_local_plugin, analyse_remote_plugin_url
+from .checklist.metadata import CITATION, CITATION_VALID, AnalysisStatus
+from .citation import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
 PR_TITLE = "[Napari HUB cli] Metadata enhancement suggestions"

@@ -19,8 +19,8 @@ from .checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .checklist.metadata_checklist import analyse_local_plugin, display_checklist
-from .citations.citation import create_cff_citation
+from .checklist.metadata import analyse_local_plugin, display_checklist
+from .citation import create_cff_citation
 from .utils import get_all_napari_plugin_names
 
 
