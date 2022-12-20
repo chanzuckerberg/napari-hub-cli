@@ -5,7 +5,7 @@ from .analysis import (
     display_remote_analysis,
     write_csv,
 )
-from .metadata_checklist import AnalysisStatus, analyse_local_plugin, display_checklist
+from .metadata import AnalysisStatus, analyse_local_plugin, display_checklist
 
 __all__ = [
     "analyse_remote_plugin",

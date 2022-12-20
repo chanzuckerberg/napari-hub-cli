@@ -6,7 +6,7 @@ from git import GitError, InvalidGitRepositoryError
 from git.repo import Repo
 from rich.console import Console
 
-from napari_hub_cli.fs import NapariPlugin
+from .fs import NapariPlugin
 
 
 def fake_print(*args):

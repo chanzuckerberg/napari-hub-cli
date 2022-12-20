@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message, build_PR_message
-from napari_hub_cli.checklist.metadata_checklist import (
+from napari_hub_cli.checklist.metadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     LABELS,
