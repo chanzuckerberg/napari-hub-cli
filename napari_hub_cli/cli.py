@@ -13,13 +13,13 @@ import os
 import sys
 
 from .autofix import analyse_plugins_then_create_PR
+from .checklist import analyse_local_plugin, display_checklist
 from .checklist.analysis import (
     analyze_all_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
 )
-from .checklist.metadata import analyse_local_plugin, display_checklist
 from .citation import create_cff_citation
 from .utils import get_all_napari_plugin_names
 
