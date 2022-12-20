@@ -158,6 +158,92 @@ title: "My Research Software"
 Some more information regarding .CFF can be found here https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files 
 
 
+## Plugins Metadata Report
+
+ Generates a CSV report with consistency analysis of all plugins in the Napari-HUB platform.
+
+ To create the CSV report run
+
+ ```
+ $ napari-hub-cli all-plugins-report report_csv
+ ```
+having ```report_csv``` as the name of the generated file.
+
+The generated report contains all the documentation checklist information for each of the repositories.
+You can find an example below:
+
+image.png
+
+
+Note that some of the repositories are not accessible, being identified with 
+- ```BAD_URL```, where the repository URL provided has the wrong format
+- ```MISSING_URL```, where no source code information was provided in the Napari-HUB platform
+- ```UNACCESSIBLE_REPOSITORY```, where the source code page could not be found or is a private repository
+
+
+## Autofix Metadata
+
+`napari-hub-cli` comes with various features.
+One of them scans remote plugin repositories and checks how metadata could be improved: _i.e_, checking that all required metadata are present and that they are located in a primary source configuration file.
+In addition to this feature, `napari-hub-cli` can also automatically fix some metadata or more (_e.g._, `CITATION.cff` file creation) and report the other missing features.
+The fixed files are then proposed to the owner of a plugin repository in the form of a Github pull request, and missing/non-autofixeable metadata are reported in the form of a Github issue.
+
+The subcommand for this feature is `autofix`, it takes various options:
+
+```
+usage: napari-hub-cli autofix [-h] [-p PLUGINS [PLUGINS ...]] [-d DIR] [-a] [--dry-run]
+
+options:
+  -h, --help            show this help message and exit
+  -p PLUGINS [PLUGINS ...], --plugins PLUGINS [PLUGINS ...]
+                        List of plugins name to automatically audit/fix
+  -d DIR, --dir DIR     Working directory in which plugins will be cloned (by default the tmp directory of your OS)
+  -a, --all             Passing on all plugins registed in Napari-HUB plateform
+  --push-on-github      Perform the analysis/commit and creates pull request/issue on Github
+```
+
+Here, the most important options to use are:
+
+* `--push-on-github` to perform the analysis and actually creating the PR/issue (by default, this option is set to `False`),
+* `-p` to give a list of plugin names to analyse,
+* `--dir` to tell the tool where to clone all repositories.
+
+For the `--dir` option, if the option is not set, a directory in the temporary directory of your system is used (_e.g._, a directory in `/tmp` for UNIX systems).
+
+For more information on this command, please see the detailed documentation here https://gist.github.com/aranega/8dc2a1bf46f880071c21e3d4db078b1b .
+
+
+### Dry Run
+
+The tool is able to perform the automatic modification of the base code without actually creating the pull-requests or the issues.
+To let you inspect what will be done, it only clones the repository to scan, perform the various commits, but does not delete the cloned repository after analysis until you press the `enter` key.
+
+It also displays in the terminal the pull-requests and issue messages that will be created (using `USERNAME` and `PRID` as substitutes for your name and the pull request ID), and stops after each repository analysis.
+
+Here is an example of how to perform a dry run over `affinder` and `PartSeg` plugins:
+
+```sh
+napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg
+```
+
+
+### Automatic creation of pull-requests and issues
+
+Creating automatically the pull-requests and the issues requires a small setup and slightly changes the way the tool need to be called.
+Technically, the operations performed in Github will be:
+
+* forking the analysed plugin repository,
+* creating a pull request if necessary,
+* creating an issue if necessary.
+
+As any operation that would require an access to the Github API, it's necessary to get a personal accesss token.
+For security reasons this token is not stored by the tool, nor serialized in a file on your file system (it let you this responsibility).
+
+Now, considering that you have your token saved in this location `/tmp/gh_token.tok`, with your handle being `foo` here is how to call the autofix feature without creating config file:
+
+```bash
+GITHUB_TOKEN=$(cat gh-token.log) GITHUB_USER=foo napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg --push-on-github
+```
 
 ## Code of Conduct
 
