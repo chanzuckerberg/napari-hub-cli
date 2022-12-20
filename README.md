@@ -24,34 +24,34 @@ python -m venv --symlinks .venv
 source .venv/bin/activate  # activating the virtual env
 ```
 
-Once you activated the virtual env, you can install all the required dependencies and the tool this way:
-
-```sh
-# inside the "napari-hub-cli" folder, where you cloned the repository
-# and with virtual env activated
-pip install .
-```
-
-
-Alternatively, you can also install the napari hub CLI directly from your console through pip
+Once you activated the virtual env, you can install all the required dependencies and the tool this way using `pip`:
 
 ```
 $ pip install napari-hub-cli
 ```
 
-To check that the installation went well, this command prints the help menu 
+Alternatively, you can also install the napari hub CLI directly from the cloned repository:
+
+
+```sh
+# inside the "napari-hub-cli" folder, where you cloned the repository
+# and with virtual env activated
+pip install -e .
+```
+
+To check that the installation went well, this command prints the help menu
 ```sh
 napari-hub-cli --help
 ```
 
-# Usage 
+# Usage
 
 
 ## Documentation Checklist
 
 The command used to create the Documentation Checklist is
 ```
- $ napari-hub-cli create-doc-checklist /tmp/example-plugin 
+ $ napari-hub-cli create-doc-checklist /tmp/example-plugin
 ```
 
 The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
@@ -80,19 +80,19 @@ Additionally, the recommended file locations for each metadata are suggested in 
 Below you can find a table with the Napari recommended file locations and fallback files where the metadata is checked:
 
 
-| Metadata / Files  | Recommended File                | Fallback File(s) |
-| ----------------- | ------------------------------- | ---------------- |
-| Display Name      | ```npe2 - napari.manifest```    | ```PyPI```       |
-| Summary Sentence  | ```napari-hub/config.yml```     | ```PyPI```       |
-| Intro Paragraph   | ```napari-hub/description.md``` | ```PyPI```       |
-| Intro Video       | ```napari-hub/description.md``` | ```PyPI```       |
-| Intro Screenshot  | ```napari-hub/description.md``` | ```PyPI```       |
-| Usage Section     | ```napari-hub/description.md``` | ```PyPI```       |
-| Source Code Link  | ```PyPI```                      | ```n/a```        |
-| User Support Link | ```PyPI```                      | ```n/a```        |
-| Bug Tracker Link  | ```PyPI```                      | ```n/a```        |
-| Author            | ```PyPI```                      | ```n/a```        |
-| Citation          | ```CITATION.cff```              | ```n/a```        |
+| Metadata / Files  | Recommended File            | Fallback File(s) |
+| ----------------- | --------------------------- | ------------ |
+| Display Name      | `npe2 - napari.manifest`    | `PyPI`       |
+| Summary Sentence  | `napari-hub/config.yml`     | `PyPI`       |
+| Intro Paragraph   | `napari-hub/description.md` | `PyPI`       |
+| Intro Video       | `napari-hub/description.md` | `PyPI`       |
+| Intro Screenshot  | `napari-hub/description.md` | `PyPI`       |
+| Usage Section     | `napari-hub/description.md` | `PyPI`       |
+| Source Code Link  | `PyPI`                      | `n/a`        |
+| User Support Link | `PyPI`                      | `n/a`        |
+| Bug Tracker Link  | `PyPI`                      | `n/a`        |
+| Author            | `PyPI`                      | `n/a`        |
+| Citation          | `CITATION.cff`              | `n/a`        |
 
 
 Example output (with all possible scenarios):
@@ -106,19 +106,19 @@ Example output (with all possible scenarios):
 
 To create a citation file (`CITATION.CFF`) for your plugin run
 ```
- $ napari-hub-cli create-cff-citation /tmp/example-plugin 
+ $ napari-hub-cli create-cff-citation /tmp/example-plugin
 ```
 
 This utility works by looking into:
 
 - GitHub Repository metadata
-- ```README.md```
+- `README.md`
 
-and creating a ```CITATION.CFF```, a plain text file with human- and machine-readable citation information for software and datasets.
+and creating a `CITATION.CFF`, a plain text file with human- and machine-readable citation information for software and datasets.
 
-For citations to be parsed from the ```README.md``` these need to have either the **APA**(American Psychological Association) style or **BibTex** style format.
+For citations to be parsed from the `README.md` these need to have either the **APA**(American Psychological Association) style or **BibTex** style format.
 
-The ```CITATION.CFF``` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
+The `CITATION.CFF` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
 
 
 
