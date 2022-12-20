@@ -8,13 +8,41 @@ Command line utilities for inspecting and validating plugins for the napari hub.
 
 # Installation
 
-From your console, you can install the napari hub CLI through pip
+First the repository needs to be cloned
+
+```sh
+git clone https://github.com/chanzuckerberg/napari-hub-cli.git
+cd napari-hub-cli
+```
+
+As any python program, it is recommended to create a virtual env.
+You probably have your own and prefered method, here is a classical one using the `venv` module:
+
+```sh
+# inside the "napari-hub-cli" folder, where you cloned the repository
+python -m venv --symlinks .venv
+source .venv/bin/activate  # activating the virtual env
+```
+
+Once you activated the virtual env, you can install all the required dependencies and the tool this way:
+
+```sh
+# inside the "napari-hub-cli" folder, where you cloned the repository
+# and with virtual env activated
+pip install .
+```
+
+
+Alternatively, you can also install the napari hub CLI directly from your console through pip
 
 ```
 $ pip install napari-hub-cli
 ```
 
-
+To check that the installation went well, this command prints the help menu 
+```sh
+napari-hub-cli --help
+```
 
 # Usage 
 
