@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message, create_commits
-from napari_hub_cli.checklist.metadata_checklist import (
+from napari_hub_cli.checklist.metadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     LABELS_DOC_URL,
@@ -13,7 +13,7 @@ from napari_hub_cli.checklist.metadata_checklist import (
     analyse_local_plugin,
     display_checklist,
 )
-from napari_hub_cli.citations.citation import create_cff_citation
+from napari_hub_cli.citation import create_cff_citation
 from napari_hub_cli.fs import NapariPlugin
 
 

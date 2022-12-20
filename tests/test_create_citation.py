@@ -6,7 +6,7 @@ import pytest
 import requests_mock
 import yaml
 
-from napari_hub_cli.citations.citation import (
+from napari_hub_cli.citation import (
     create_cff_citation,
     scrap_git_infos,
     scrap_users,

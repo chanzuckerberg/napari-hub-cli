@@ -12,8 +12,8 @@ import argparse
 import os
 import sys
 
-from .checklist.metadata_checklist import analyse_local_plugin, display_checklist
-from .citations.citation import create_cff_citation
+from .checklist.metadata import analyse_local_plugin, display_checklist
+from .citation import create_cff_citation
 
 
 def create_citation(plugin_path):
