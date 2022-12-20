@@ -172,7 +172,7 @@ having ```report_csv``` as the name of the generated file.
 The generated report contains all the documentation checklist information for each of the repositories.
 You can find an example below:
 
-image.png
+![image](https://user-images.githubusercontent.com/99416933/208660275-e2d1725a-0c55-4cce-b0be-12340820eb63.png)
 
 
 Note that some of the repositories are not accessible, being identified with 
