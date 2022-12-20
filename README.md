@@ -4,14 +4,44 @@
 
 Command line utilities for inspecting and validating plugins for the napari hub.
 
+The ```extra``` branch is intended for an administrative user, gaining access to the following additional commands
 
+- ```check-plugin```
+- ```autofix```
+- ```all-plugins-report```
+
+allowing the user to create a documentation checklist for a remote plugin; automatically creating pull requests and issues that fix some of the concerns addressed by the documentation checklist; and create a csv report with the documentation information for all existent plugins in the Napari-hub platform.
 
 # Installation
 
-From your console, you can install the napari hub CLI through pip
 
+First the repository needs to be cloned
+
+```sh
+git clone https://github.com/chanzuckerberg/napari-hub-cli.git
+cd napari-hub-cli
+git checkout extra
 ```
-$ pip install napari-hub-cli
+
+As any python program, it is recommended to create a virtual env.
+You probably have your own and prefered method, here is a classical one using the `venv` module:
+
+```sh
+# inside the "napari-hub-cli" folder, where you cloned the repository
+python -m venv --symlinks .venv
+source .venv/bin/activate  # activating the virtual env
+```
+
+Once you activated the virtual env, you can install all the required dependencies and the tool this way:
+
+```sh
+# inside the "napari-hub-cli" folder, where you cloned the repository
+# and with virtual env activated
+pip install -e .
+
+# to check that all the installation went well
+# this command should print the help menu
+napari-hub-cli --help
 ```
 
 
