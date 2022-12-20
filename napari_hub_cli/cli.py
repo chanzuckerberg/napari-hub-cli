@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 
-from .checklist.metadata import analyse_local_plugin, display_checklist
+from .checklist import analyse_local_plugin, display_checklist
 from .citation import create_cff_citation
 
 
