@@ -12,8 +12,16 @@ import argparse
 import os
 import sys
 
+from .autofix import analyse_plugins_then_create_PR
+from .checklist.analysis import (
+    analyze_all_remote_plugins,
+    build_csv_dict,
+    display_remote_analysis,
+    write_csv,
+)
 from .checklist.metadata_checklist import analyse_local_plugin, display_checklist
 from .citations.citation import create_cff_citation
+from .utils import get_all_napari_plugin_names
 
 
 def create_citation(plugin_path):
