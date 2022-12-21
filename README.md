@@ -50,8 +50,9 @@ napari-hub-cli --help
 ## Documentation Checklist
 
 The command used to create the Documentation Checklist is
-```
- $ napari-hub-cli create-doc-checklist /tmp/example-plugin
+
+```bash
+ $ napari-hub-cli check-metadata /tmp/example-plugin
 ```
 
 The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
@@ -97,16 +98,15 @@ Below you can find a table with the Napari recommended file locations and fallba
 
 Example output (with all possible scenarios):
 
-<img width="556" alt="Screenshot at Nov 15 18-32-57" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
-
-
+<img width="556" alt="Metadata check from command line using the napari-hub-cli tool" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
 
 
 ## Citation
 
 To create a citation file (`CITATION.CFF`) for your plugin run
-```
- $ napari-hub-cli create-cff-citation /tmp/example-plugin
+
+```bash
+ $ napari-hub-cli create-citation" /tmp/example-plugin
 ```
 
 This utility works by looking into:
@@ -135,11 +135,11 @@ The format for the CITATION.CFF is the following:
 Below you can find some examples of how to use the `CITATION.CFF`.
 
 Referencing other work:
-```
+```yaml
+cff-version: 1.2.0
 authors:
   - family-names: Druskat
     given-names: Stephan
-cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata."
 references:
   - authors:
@@ -158,11 +158,11 @@ title: "My Research Software"
 
 Credit Redirection:
 
-```
+```yaml
+cff-version: 1.2.0
 authors:
   - family-names: Druskat
     given-names: Stephan
-cff-version: 1.2.0
 message: "If you use this software, please cite both the article from preferred-citation and the software itself."
 preferred-citation:
   authors:
@@ -179,6 +179,9 @@ Some more information regarding `.CFF` can be found [here](https://docs.github.c
 ## Previewing your plugin's napari hub page
 
 To view a preview of your plugin listing for the napari hub, we recommend using the [napari hub preview page service](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md).
+
+<!--
+
 However, legacy commands `preview-metadata` and `check-missing` are available to preview your hub page.
 To use these commands, run:
 
@@ -186,7 +189,8 @@ To use these commands, run:
 napari-hub-cli preview-metadata /tmp/example-plugin
 napari-hub-cli check-missing /tmp/example-plugin
 ```
-
+0
+-->
 ## Code of Conduct
 
 This project adheres to the Contributor Covenant [code of conduct](https://github.com/chanzuckerberg/.github/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [opensource@chanzuckerberg.com](mailto:opensource@chanzuckerberg.com).
