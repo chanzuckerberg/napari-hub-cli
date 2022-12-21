@@ -114,7 +114,7 @@ def parse_args(args):
     subparsers = parser.add_subparsers()
 
     subcommand = subparsers.add_parser(
-        "check", help="Checks consistency of a local plugin"
+        "check-metadata", help="Checks consistency of a local plugin"
     )
     subcommand.add_argument("plugin_path", help="Local path to your plugin")
     subcommand.set_defaults(func=documentation_checklist)
