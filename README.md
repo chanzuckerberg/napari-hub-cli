@@ -106,7 +106,7 @@ Example output (with all possible scenarios):
 To create a citation file (`CITATION.CFF`) for your plugin run
 
 ```bash
- $ napari-hub-cli create-citation" /tmp/example-plugin
+ $ napari-hub-cli create-citation /tmp/example-plugin
 ```
 
 This utility works by looking into:
