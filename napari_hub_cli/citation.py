@@ -124,7 +124,7 @@ def create_cff_citation(repo_path, save=True, display_info=True):
     git_infos["title"] = f"{git_infos.get('title')}{subtitle}"
     if not readme.has_citations:
         print(
-            f"[red]\N{BALLOT X} No bibtex or APA citation reference found in {readme.file.absolute()}[/red]"
+            f"[red]\N{BALLOT X} No bibtex/APA citation or DOI reference found in {readme.file.absolute()}[/red]"
         )
         print(f"[yellow]- Using git repository metadata if possible")
 

@@ -172,11 +172,14 @@ class MarkdownDescription(RepositoryFile):
             return []
         bibtex_lib = ""
         for doi_url in self.detect_doi_citations():
-            url = f"https://doi.org/{doi_url}"
-            header = {
-                "Accept": "application/x-bibtex",
-            }
-            response = requests.get(url, headers=header)
+            # url = f"https://doi.org/{doi_url}"
+            # header = {
+            #     "Accept": "application/x-bibtex",
+            # }
+            # response = requests.get(url, headers=header)
+            # bibtex = response.text
+            url = f"https://citation.crosscite.org/format?doi={doi_url}&style=bibtex&lang=en-US"
+            response = requests.get(url)
             bibtex = response.text
             bibtex_lib += f"\n{bibtex}"
         parser = BibTexParser(customization=convert_to_unicode)

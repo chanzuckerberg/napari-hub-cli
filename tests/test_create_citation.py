@@ -465,7 +465,6 @@ def test_git_scrapping():
         "https://github.com/chanzuckerberg/napari-hub-cli",
         "git@github.com:chanzuckerberg/napari-hub-cli.git",
         "https://github.com/chanzuckerberg/napari-hub-cli.git",
-
     )
     assert infos["title"] == "napari-hub-cli"
 
@@ -527,13 +526,29 @@ def test_doi_detection_extraction(citations_dir, requests_mock):
         "https://doi.org/10.1101/2022.03.17.484806", text="@article{abc, title={ABC}}"
     )
     requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1101/2022.03.17.484806&style=bibtex&lang=en-US",
+        text="@article{abc, title={ABC}}",
+    )
+    requests_mock.get(
         "https://doi.org/10.1177/0146167208318401", text="@article{def, title={DEF}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1177/0146167208318401&style=bibtex&lang=en-US",
+        text="@article{def, title={DEF}}",
     )
     requests_mock.get(
         "https://doi.org/10.1038/s41598-021-04676-9", text="@article{ghi, title={GHI}}"
     )
     requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1038/s41598-021-04676-9&style=bibtex&lang=en-US",
+        text="@article{ghi, title={GHI}}",
+    )
+    requests_mock.get(
         "https://doi.org/10.1037/0021-9010.76.1.143", text="@article{jkl, title={JKL}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1037/0021-9010.76.1.143&style=bibtex&lang=en-US",
+        text="@article{jkl, title={JKL}}",
     )
     mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
 
@@ -563,15 +578,45 @@ def test_doi_detection_extraction__online(citations_dir):
         results[0].title
         == "Instance segmentation of mitochondria in electron microscopy images with a generalist deep learning model"
     )
+    authors = results[0].authors
+    assert len(authors) == 2
+    assert authors[0]["given-names"] == "Ryan"
+    assert authors[0]["family-names"] == "Conrad"
+    assert authors[1]["given-names"] == "Kedar"
+    assert authors[1]["family-names"] == "Narayan"
+
     assert (
         results[1].title
         == "Silence and Table Manners: When Environments Activate Norms"
     )
+    # Joly, Janneke F. and Stapel, Diederik A. and Lindenberg, Siegwart M.
+    authors = results[1].authors
+    assert len(authors) == 3
+    assert authors[0]["given-names"] == "Janneke F."
+    assert authors[0]["family-names"] == "Joly"
+    assert authors[1]["given-names"] == "Diederik A."
+    assert authors[1]["family-names"] == "Stapel"
+    assert authors[2]["given-names"] == "Siegwart M."
+    assert authors[2]["family-names"] == "Lindenberg"
+
     assert (
         results[2].title
         == "Accurate determination of marker location within whole-brain microscopy images"
     )
+    authors = results[2].authors
+    assert len(authors) == 10
+    # Tyson, Adam L. and Vélez-Fort, Mateo and ...
+    assert authors[0]["given-names"] == "Adam L."
+    assert authors[0]["family-names"] == "Tyson"
+
     assert (
         results[3].title
         == "The nomological validity of the Type A personality among employed adults."
     )
+    # Ganster, Daniel C. and Schaubroeck, John and Sime, Wesley E. and Mayes, Bronston T.
+    authors = results[3].authors
+    assert len(authors) == 4
+    assert authors[0]["given-names"] == "Daniel C."
+    assert authors[0]["family-names"] == "Ganster"
+    assert authors[1]["given-names"] == "John"
+    assert authors[1]["family-names"] == "Schaubroeck"
