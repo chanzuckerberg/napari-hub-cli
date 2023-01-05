@@ -589,3 +589,19 @@ def test_markdown_image_detection(resources):
     readme = MarkdownDescription.from_file(resources / "README2.md")
 
     assert readme.has_videos_or_screenshots is True
+
+
+def test_markdown_title_extraction(resources):
+    readme = MarkdownDescription.from_file(resources / "README2.md")
+
+    title = readme.title
+
+    assert title == "napari-cookiecut: a plugin for napari"
+
+
+def test_markdown_title_extraction_notitle(resources):
+    readme = MarkdownDescription.from_file(resources / "citations"/ "citations1.md")
+
+    title = readme.title
+
+    assert title is None

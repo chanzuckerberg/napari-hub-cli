@@ -1,4 +1,4 @@
-# napari-cookiecut
+# napari-cookiecut: a plugin for napari
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-cookiecut.svg?color=green)](https://github.com/seankmartin/napari-cookiecut/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-cookiecut.svg?color=green)](https://pypi.org/project/napari-cookiecut)

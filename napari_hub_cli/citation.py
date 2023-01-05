@@ -125,7 +125,8 @@ def create_cff_citation(repo_path, save=True, display_info=True):
 
     git_infos = scrap_git_infos(repo.path)
     subtitle = f": {repo.summary}" if repo.summary else ""
-    git_infos["title"] = f"{git_infos.get('title')}{subtitle}"
+    title = git_infos.get("title")
+    git_infos["title"] = f"{title}{subtitle}" if title else f"{repo.readme.title}"
     if not readme.has_citations:
         print(
             f"[red]\N{BALLOT X} No bibtex/APA citation or DOI reference found in {readme.file.absolute()}[/red]"
