@@ -1,6 +1,8 @@
 # coding: utf8
 import os
 from pathlib import Path
+from git.util import Actor
+from git.repo import Repo
 
 import pytest
 import requests_mock
@@ -19,6 +21,26 @@ from napari_hub_cli.fs.descriptions import MarkdownDescription
 @pytest.fixture(scope="module")
 def citations_dir():
     return Path(__file__).parent / "resources" / "citations"
+
+@pytest.fixture(scope="module")
+def tmp_git_repo1(tmp_path_factory):
+    author = Actor("Da Commiter", "commiter@gov.com")
+
+    repo_path = tmp_path_factory.mktemp("git_repo1")
+    repo = Repo.init(repo_path)
+    readme = repo_path / 'README.md'
+    readme.write_text('# Plugin example')
+    index = repo.index
+    index.add([readme])
+    index.commit("Add README.md", author=author)
+
+    author2 = Actor("Da Commiter", "commiter+github@gov.com")
+    changelog = repo_path / 'CHANGELOG.md'
+    changelog.write_text('# Plugin changelog')
+    index = repo.index
+    index.add([changelog])
+    index.commit("Add CHANGELOG.md", author=author2)
+    return repo_path, repo
 
 
 def test_bibtex_extraction_empty(citations_dir):
@@ -189,6 +211,19 @@ def test_cff_already_existing_no_display(tmp_path):
 
     assert repo.citation_file.exists is True
     assert res is False
+
+
+def test_create_cff_new_gitrepo(tmp_git_repo1):
+    path, _ = tmp_git_repo1
+    res = create_cff_citation(path)
+
+    assert res is True
+
+    repo = NapariPlugin(path)  # force reload
+    assert repo.citation_file.exists is True
+    assert repo.citation_file.data != {}
+
+    repo.citation_file.file.unlink()
 
 
 def test_cff_no_information(tmp_path):
@@ -508,6 +543,16 @@ def test_git_info_scrapping(tmp_path):
     result = scrap_users(tmp_path)
 
     assert result == {}
+
+
+def test_git_info_scrapping_newrepo(tmp_git_repo1):
+    path, _ = tmp_git_repo1
+    authors = scrap_users(path)
+
+    assert len(authors["authors"]) == 1
+
+    assert authors["authors"][0]["given-names"] == "Da"
+    assert authors["authors"][0]["family-names"] == "Commiter"
 
 
 def test_doi_detection(citations_dir):

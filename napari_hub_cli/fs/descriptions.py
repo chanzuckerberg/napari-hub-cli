@@ -32,6 +32,16 @@ class MarkdownDescription(RepositoryFile):
             return cls("", file)
 
     @property
+    def title(self):
+        pattern = match(Document) % {
+            "children": match(Heading) % {"level": 1, "children>content": "@title"}
+        }
+        result = pattern.match(self.content)
+        if result.is_match:
+            return result.bindings[0]["title"]
+        return None
+
+    @property
     def has_videos(self):
         pattern = match(Document) % {
             "children+>content": regex(r"^http(s)?://.*?\.(mp4|avi|mpeg)$")

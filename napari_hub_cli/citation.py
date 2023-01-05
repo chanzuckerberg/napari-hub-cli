@@ -19,12 +19,16 @@ def scrap_git_infos(local_repo):
     except InvalidGitRepositoryError:
         return {}
 
-    url = repo.remote().url  # pragma: no cover
-    title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
-    return {
-        "title": title,
-        "url": url,
-    }
+    try:
+        url = repo.remote().url  # pragma: no cover
+
+        title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
+        return {
+            "title": title,
+            "url": url,
+        }
+    except Exception:
+        return {"title": "", "url": ""}
 
 
 def scrap_users(local_repo):
@@ -36,7 +40,7 @@ def scrap_users(local_repo):
     # We cloned with depth = 1
     # To get the full history, we try to "unshallow"
     # the current remote
-    with suppress(GitError):
+    with suppress(Exception):
         repo.remote().fetch(unshallow=True)
 
     # we group all contributors by emails
@@ -121,7 +125,8 @@ def create_cff_citation(repo_path, save=True, display_info=True):
 
     git_infos = scrap_git_infos(repo.path)
     subtitle = f": {repo.summary}" if repo.summary else ""
-    git_infos["title"] = f"{git_infos.get('title')}{subtitle}"
+    title = git_infos.get("title")
+    git_infos["title"] = f"{title}{subtitle}" if title else f"{repo.readme.title}"
     if not readme.has_citations:
         print(
             f"[red]\N{BALLOT X} No bibtex/APA citation or DOI reference found in {readme.file.absolute()}[/red]"
