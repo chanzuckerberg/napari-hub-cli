@@ -1,6 +1,7 @@
 # coding: utf8
 import os
 from pathlib import Path
+import sys
 from git.util import Actor
 from git.repo import Repo
 
@@ -213,6 +214,7 @@ def test_cff_already_existing_no_display(tmp_path):
     assert res is False
 
 
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="GitPython Actors feature doesn't work on Windows")
 def test_create_cff_new_gitrepo(tmp_git_repo1):
     path, _ = tmp_git_repo1
     res = create_cff_citation(path)
@@ -545,6 +547,7 @@ def test_git_info_scrapping(tmp_path):
     assert result == {}
 
 
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="GitPython Actors feature doesn't work on Windows")
 def test_git_info_scrapping_newrepo(tmp_git_repo1):
     path, _ = tmp_git_repo1
     authors = scrap_users(path)
