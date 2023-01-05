@@ -157,7 +157,7 @@ def parse_setup(filename):
             os.chdir(wd)  # we go back to our working directory
     if result:
         return result[0]
-    raise ValueError("setup wasn't called from setup.py")
+    raise ValueError("setup wasn't called from setup.py")  # pragma: no cover
 
 
 # Fix issue with tmpedir library with windows and Python 3.7
