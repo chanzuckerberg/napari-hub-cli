@@ -184,7 +184,7 @@ def create_commits(results, display_info=False):
     commited = False
     for feature in results.only_in_fallbacks():
         if not feature.meta.automatically_fixable:
-            continue
+            continue  # pragma: no cover
         target = feature.main_files[0]
         source = feature.found_in
         assert target
@@ -265,7 +265,7 @@ def analyse_then_create_PR(
     result = analyse_remote_plugin_url(
         plugin_name, plugin_url, directory=directory, cleanup=False, display_info=True
     )
-    if not result.status is AnalysisStatus.SUCCESS:
+    if result.status is not AnalysisStatus.SUCCESS:
         print(f"There is an issue with {plugin_name}: {result.status.value}")
         return
     if not (result.missing_features() or result.only_in_fallbacks()):
@@ -330,7 +330,7 @@ def create_PR_from_analysis(
         if issue_msg:
             console.print(Markdown("## ISSUE"))
             console.print(Markdown(indent(issue_msg, "> ", predicate=lambda _: True)))
-        console.print(Markdown(f"## Additional information"))
+        console.print(Markdown("## Additional information"))
         console.print(
             Markdown(
                 f"You can review the performed commits (if any) here: {result.repository.path}"

@@ -9,8 +9,8 @@ from napari_hub_cli.checklist.metadata import (
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
     Feature,
-    check_feature,
     analyse_local_plugin,
+    check_feature,
     display_checklist,
 )
 from napari_hub_cli.citation import create_cff_citation
