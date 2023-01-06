@@ -40,6 +40,8 @@ jobs:
           pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
+        run: git config --global user.email "me@me.gov"
+        run: git config --global user.name "Me Tester"
         run: tox -r -e py
         env:
           PLATFORM: ${{ matrix.platform }}
