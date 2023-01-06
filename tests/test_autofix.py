@@ -1,10 +1,8 @@
-import json
 import os
 import shutil
 from contextlib import suppress
-from unittest.mock import patch
+import sys
 
-import git
 import pytest
 import requests_mock as req
 from git.repo import Repo
@@ -307,6 +305,10 @@ def test_autofix_local_plugin(tmp_git_repo3):
 
 
 # Smoke test
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with shutil on Windows, only for the tests",
+)
 def test_create_pr_issue(mocker, tmp_git_repo3, requests_mock):
     # setup/mocks
     import git.cmd
@@ -345,6 +347,10 @@ def test_create_pr_issue(mocker, tmp_git_repo3, requests_mock):
 
 
 # Smoke test
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with shutil on Windows, only for the tests",
+)
 def test_create_pr_issue_dryrun(monkeypatch, tmp_git_repo3):
     # setup/mocks
     import git.repo
