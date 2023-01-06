@@ -26,7 +26,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: fregante/setup-git-user@v1
+      - run: git config --global user.email "me@me.gov"
+      - run: git config --global user.name "Me Tester"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
