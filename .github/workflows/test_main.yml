@@ -26,8 +26,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: git config --global user.email "me@me.gov"
-      - run: git config --global user.name "Me Tester"
+      - uses: fregante/setup-git-user@v1
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -40,8 +39,6 @@ jobs:
           pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
-        run: git config --global user.email "me@me.gov"
-        run: git config --global user.name "Me Tester"
         run: tox -r -e py
         env:
           PLATFORM: ${{ matrix.platform }}
