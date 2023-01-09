@@ -2,15 +2,19 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.checklist.metadata_checklist import (
+from napari_hub_cli.autofix import build_issue_message, create_commits
+from napari_hub_cli.checklist.metadata import (
     DISPLAY_NAME,
+    ENTRIES_DOC_URL,
+    LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
     Feature,
+    analyse_local_plugin,
     check_feature,
-    create_checklist,
     display_checklist,
 )
-from napari_hub_cli.filesaccess import NapariPlugin
+from napari_hub_cli.citation import create_cff_citation
+from napari_hub_cli.fs import NapariPlugin
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +81,7 @@ def test_check_setupcfg(test_repo):
     assert description.exists is True
 
     assert setup_cfg.has_name is True
-    assert setup_cfg.has_summary is False
+    assert setup_cfg.has_summary is True
     assert setup_cfg.has_sourcecode is False
     assert setup_cfg.has_author is False
     assert setup_cfg.has_bugtracker is False
@@ -103,7 +107,7 @@ def test_check_feature_primary(test_repo):
     assert isinstance(result, Feature)
     assert result.meta is DISPLAY_NAME
     assert result.found is True
-    assert result.found_in is setup_cfg.file
+    assert result.found_in == setup_cfg
     assert result.only_in_fallback is False
     assert result.has_fallback_files is False
     assert result.scanned_files == [setup_cfg]
@@ -117,7 +121,7 @@ def test_check_feature_secondary(test_repo):
     assert isinstance(result, Feature)
     assert result.meta is DISPLAY_NAME
     assert result.found is True
-    assert result.found_in is setup_cfg.file
+    assert result.found_in == setup_cfg
     assert result.only_in_fallback is True
     assert result.has_fallback_files is True
     assert result.scanned_files == [setup_cfg]
@@ -137,28 +141,28 @@ def test_check_feature_missing(test_repo):
 
 
 def test_create_checkist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
-    assert len(result.features) == 12
+    assert len(result.features) == 13
 
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
     assert disp_name.found is True
-    assert disp_name.found_in == test_repo.npe2_yaml.file
+    assert disp_name.found_in == test_repo.npe2_yaml
     assert disp_name.only_in_fallback is False
     assert disp_name.has_fallback_files is True
 
     description = result.features[6]
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is True
-    assert description.found_in == test_repo.setup_cfg.long_description().file
+    assert description.found_in == test_repo.setup_cfg.long_description()
     assert description.only_in_fallback is True
     assert description.has_fallback_files is True
 
 
 # smoke test
 def test_display_checklist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
     display_checklist(result)
 
 
@@ -167,7 +171,7 @@ def test_has_citation_file(test_repo):
 
 
 def test_access_specific_result(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
     specific = result[DISPLAY_NAME]
     assert specific is not None
@@ -175,3 +179,42 @@ def test_access_specific_result(test_repo):
 
     with pytest.raises(StopIteration):
         result[0]
+
+
+def test_build_issue_message(test_repo):
+    result = analyse_local_plugin(test_repo.path)
+    features = result.features
+
+    assert len(features) > 0
+
+    message = build_issue_message("bar", 2, result)
+
+    assert "I'm bar" in message
+    assert "complement #2" in message
+    assert "'Source Code'" in message
+    assert "'Author Name'" in message
+    assert "'Issue Submission Link'" in message
+    assert "'Support Channel Link'" in message
+    assert "'Installation'" in message
+    assert "'Usage Overview'" in message
+    assert "'Intro Paragraph'" in message
+
+    assert LABELS_DOC_URL in message
+    assert ENTRIES_DOC_URL in message
+
+
+def test_create_citation(test_repo):
+    assert test_repo.citation_file.exists is False
+
+    created = create_cff_citation(test_repo.path, save=True, display_info=False)
+
+    assert created is True
+
+    citation = test_repo.citation_file
+    assert citation.exists is True
+    citation.file.unlink()
+
+
+# def test_create_commits(test_repo):
+#     result = create_checklist(test_repo.path)
+#     create_commits(result)

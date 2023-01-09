@@ -1,8 +1,8 @@
 from pathlib import Path
+
 import pytest
 import requests_mock
 
-from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.checklist.analysis import (
     analyse_remote_plugin,
     analyze_all_remote_plugins,
@@ -10,12 +10,12 @@ from napari_hub_cli.checklist.analysis import (
     display_remote_analysis,
     write_csv,
 )
-from napari_hub_cli.filesaccess import NapariPlugin
-from napari_hub_cli.checklist.metadata_checklist import (
+from napari_hub_cli.checklist.metadata import (
     AnalysisStatus,
     PluginAnalysisResult,
-    create_checklist,
+    analyse_local_plugin,
 )
+from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.utils import (
     NonExistingNapariPluginError,
     closest_plugin_name,
@@ -155,7 +155,7 @@ def test_build_csv_empty():
 
 def test_build_csv():
     current_path = Path(__file__).parent.absolute()
-    checklist = create_checklist(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     assert rows != []
@@ -172,12 +172,32 @@ def test_write_csv_empty(tmp_path):
 def test_write_csv(tmp_path):
     output = tmp_path / "output.csv"
     current_path = Path(__file__).parent.absolute()
-    checklist = create_checklist(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     write_csv(rows, output)
 
     assert output.exists() is True
+
+
+def test_analysis_local_directory(napari_hub, tmp_path):
+    napari_hub.get(
+        f"{NAPARI_HUB_API_URL}/avidaq",
+        json={"code_repository": "http://my_repo_url"},
+    )
+    napari_hub.get(
+        "http://my_repo_url",
+        json={},
+    )
+
+    p = tmp_path / "inside"
+    p.mkdir()
+    analyse_remote_plugin("avidaq", display_info=False, directory=p)
+
+    assert p.exists() is False
+
+    analyse_remote_plugin("avidaq", display_info=False, directory=p, cleanup=False)
+    assert p.exists() is True
 
 
 @pytest.mark.online

@@ -2,13 +2,18 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.filesaccess import NapariPlugin
-from napari_hub_cli.checklist.metadata_checklist import (
+from napari_hub_cli.autofix import build_issue_message
+from napari_hub_cli.checklist.metadata import (
     DISPLAY_NAME,
+    ENTRIES_DOC_URL,
+    INTRO,
+    LABELS,
+    LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
-    create_checklist,
+    analyse_local_plugin,
     display_checklist,
 )
+from napari_hub_cli.fs import NapariPlugin
 
 
 @pytest.fixture(scope="module")
@@ -82,25 +87,25 @@ def test_check_setupcfg(test_repo):
 
     assert description.has_videos is False
     assert description.has_screenshots is False
-    assert description.has_usage is False
-    assert description.has_intro is False
+    assert description.has_usage is True
+    assert description.has_intro is True
 
 
 def test_check_citation(test_repo):
     citation = test_repo.citation_file
 
-    assert citation.exists is False
+    assert citation.exists is True
 
 
 def test_create_checkist(test_repo):
-    result = create_checklist(test_repo.path)
+    result = analyse_local_plugin(test_repo.path)
 
-    assert len(result.features) == 12
+    assert len(result.features) == 13
 
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
     assert disp_name.found is True
-    assert disp_name.found_in == test_repo.setup_cfg.file
+    assert disp_name.found_in == test_repo.setup_cfg
     assert disp_name.only_in_fallback is True
     assert disp_name.has_fallback_files is True
 
@@ -111,7 +116,49 @@ def test_create_checkist(test_repo):
     assert description.only_in_fallback is False
     assert description.has_fallback_files is True
 
+    labels = result.features[-1]
+    assert labels.meta is LABELS
+    assert labels.found is False
+    assert labels.only_in_fallback is False
+    assert labels.has_fallback_files is False
+
 
 def test_display_checklist(test_repo):
-    result = create_checklist(test_repo.path)
+    INTRO.force_main_file_usage = True
+
+    result = analyse_local_plugin(test_repo.path)
     display_checklist(result)
+
+    INTRO.force_main_file_usage = False  # We cheat here
+
+
+def test_build_issue_message(test_repo):
+    INTRO.force_main_file_usage = True
+
+    result = analyse_local_plugin(test_repo.path)
+
+    features = result.features
+
+    assert len(features) > 0
+
+    message = build_issue_message("foo", 3, result)
+    INTRO.force_main_file_usage = False  # We cheat here
+
+    assert "I'm foo" in message
+    assert "complement #3" in message
+    assert "'Summary Sentence'" in message
+    assert "'Source Code'" in message
+    assert "'Author Name'" in message
+    assert "'Issue Submission Link'" in message
+    assert "'Support Channel Link'" in message
+    assert "'Installation'" in message
+
+    assert "Intro Paragraph" in message
+    assert "Usage Overview" in message
+    assert "Your citation file" in message
+    assert "has not a valid format" in message
+
+    assert LABELS_DOC_URL in message
+    assert ENTRIES_DOC_URL in message
+
+    assert "You can also place" in message

@@ -2,3 +2,10 @@
 project_urls:
   Documentation: https://jhnnsrs.github.io/doks/
   Twitter: https://twitter.com/jhnnsrs
+labels:
+  ontology: EDAM-BIOIMAGING:alpha06
+  terms:
+  - 3D Image
+  - Cell segmentation
+  - Model-based segmentation
+  - Fluorescence Microscopy

@@ -1,12 +1,12 @@
 from contextlib import suppress
-import os
 from pathlib import Path
-from git import GitError, InvalidGitRepositoryError, Repo
-import requests
+from re import sub
+
+from git import GitError, InvalidGitRepositoryError
+from git.repo import Repo
 from rich.console import Console
 
-from napari_hub_cli.filesaccess import NapariPlugin
-from re import sub
+from .fs import NapariPlugin
 
 
 def fake_print(*args):
@@ -19,12 +19,16 @@ def scrap_git_infos(local_repo):
     except InvalidGitRepositoryError:
         return {}
 
-    url = repo.remote().url  # pragma: no cover
-    title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
-    return {
-        "title": title,
-        "url": url,
-    }
+    try:
+        url = repo.remote().url  # pragma: no cover
+
+        title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
+        return {
+            "title": title,
+            "url": url,
+        }
+    except Exception:
+        return {"title": "", "url": ""}
 
 
 def scrap_users(local_repo):
@@ -36,7 +40,7 @@ def scrap_users(local_repo):
     # We cloned with depth = 1
     # To get the full history, we try to "unshallow"
     # the current remote
-    with suppress(GitError):
+    with suppress(Exception):
         repo.remote().fetch(unshallow=True)
 
     # we group all contributors by emails
@@ -49,30 +53,38 @@ def scrap_users(local_repo):
         name = commiter.author.name
         name = name if name else ""
         # try to detect bots (simple detection)
+        # simple hack here to order by nbre of commits
         if not ("[bot]" in email or "[bot]" in name or email.startswith("bot@")):
-            contributors.setdefault(email, set()).add(name)
+            contributor = contributors.setdefault(email, [1, set()])
+            contributor[0] += 1
+            contributor[1].add(name)
 
     # Now that we have users by email,
     # we group user names that are in various emails
     # (e.g. "Jane Doe" commited under "jane.doe@email.com and "jave.doe+github@email.com")
     # We detect this is the same person
     real_names = []
-    for names in contributors.values():
-        found_idx = [i for i, r in enumerate(real_names) if names.intersection(r)]
-        if found_idx:
-            [real_names[i].update(names) for i in found_idx]
-        else:
-            real_names.append(names)
+    for commit, names in contributors.values():
+        found_idx = [i for i, (_, r) in enumerate(real_names) if names.intersection(r)]
+        for i in found_idx:
+            real_names[i][0] += commit
+            real_names[i][1].update(names)
+        if not found_idx:
+            real_names.append([commit, names])
     real_names = [
-        list(r) for r in real_names
+        (commit, list(names)) for commit, names in real_names
     ]  # we pass from a list of set to a list of list
 
     # we sort all identified names by their number of particules
-    [r.sort(key=lambda name: -(len(name) + len(name.split()))) for r in real_names]
+    [
+        (c, r.sort(key=lambda name: -(len(name) + len(name.split()))))
+        for c, r in real_names
+    ]
     # we get the ones that have the more fragments
-    unique_names = [r[0] for r in real_names]
+    unique_names = [(c, r[0]) for c, r in real_names]
+    unique_names.sort(key=lambda e: -e[0])
     authors = []
-    for name in unique_names:
+    for commit, name in unique_names:
         s = name.split()
         if len(s) == 2:
             authors.append(
@@ -98,7 +110,11 @@ def create_cff_citation(repo_path, save=True, display_info=True):
         print = fake_print
     print("[bold][yellow]Auto CFF Citation Creation[/yellow][/bold]")
 
-    repo = NapariPlugin(Path(repo_path))
+    repo = (
+        repo_path
+        if isinstance(repo_path, NapariPlugin)
+        else NapariPlugin(Path(repo_path))
+    )
     cff = repo.citation_file
     readme = repo.readme
     if cff.exists:
@@ -108,9 +124,12 @@ def create_cff_citation(repo_path, save=True, display_info=True):
         return False
 
     git_infos = scrap_git_infos(repo.path)
+    subtitle = f": {repo.summary}" if repo.summary else ""
+    title = git_infos.get("title")
+    git_infos["title"] = f"{title}{subtitle}" if title else f"{repo.readme.title}"
     if not readme.has_citations:
         print(
-            f"[red]\N{BALLOT X} No bibtex or APA citation reference found in {readme.file.absolute()}[/red]"
+            f"[red]\N{BALLOT X} No bibtex/APA citation or DOI reference found in {readme.file.absolute()}[/red]"
         )
         print(f"[yellow]- Using git repository metadata if possible")
 

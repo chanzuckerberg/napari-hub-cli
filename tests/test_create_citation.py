@@ -1,22 +1,44 @@
 # coding: utf8
 import os
+import sys
 from pathlib import Path
 
 import pytest
 import requests_mock
 import yaml
+from git.repo import Repo
+from git.util import Actor
 
-from napari_hub_cli.citations.citation import (
-    create_cff_citation,
-    scrap_git_infos,
-    scrap_users,
-)
-from napari_hub_cli.filesaccess import CitationFile, MarkdownDescription, NapariPlugin
+from napari_hub_cli.citation import create_cff_citation, scrap_git_infos, scrap_users
+from napari_hub_cli.fs import NapariPlugin
+from napari_hub_cli.fs.configfiles import CitationFile
+from napari_hub_cli.fs.descriptions import MarkdownDescription
 
 
 @pytest.fixture(scope="module")
 def citations_dir():
     return Path(__file__).parent / "resources" / "citations"
+
+
+@pytest.fixture(scope="module")
+def tmp_git_repo1(tmp_path_factory):
+    author = Actor("Da Commiter", "commiter@gov.com")
+
+    repo_path = tmp_path_factory.mktemp("git_repo1")
+    repo = Repo.init(repo_path)
+    readme = repo_path / "README.md"
+    readme.write_text("# Plugin example")
+    index = repo.index
+    index.add([readme])
+    index.commit("Add README.md", author=author)
+
+    author2 = Actor("Da Commiter", "commiter+github@gov.com")
+    changelog = repo_path / "CHANGELOG.md"
+    changelog.write_text("# Plugin changelog")
+    index = repo.index
+    index.add([changelog])
+    index.commit("Add CHANGELOG.md", author=author2)
+    return repo_path, repo
 
 
 def test_bibtex_extraction_empty(citations_dir):
@@ -131,7 +153,7 @@ def test_create_cff_bibtex(tmp_path, citations_dir):
     assert cff.data["year"] == 2018
 
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     assert len(result["authors"]) == 3
@@ -155,7 +177,7 @@ def test_create_cff_apa(tmp_path, citations_dir):
     assert cff.data["year"] == 2022
 
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     assert len(result["authors"]) == 10
@@ -189,18 +211,34 @@ def test_cff_already_existing_no_display(tmp_path):
     assert res is False
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="GitPython Actors feature doesn't work on Windows",
+)
+def test_create_cff_new_gitrepo(tmp_git_repo1):
+    path, _ = tmp_git_repo1
+    res = create_cff_citation(path)
+
+    assert res is True
+
+    repo = NapariPlugin(path)  # force reload
+    assert repo.citation_file.exists is True
+    assert repo.citation_file.data != {}
+
+    repo.citation_file.file.unlink()
+
+
 def test_cff_no_information(tmp_path):
     current_path = Path(__file__).parent.absolute()
     repo_path = current_path / "resources" / "CZI-29-faulty"
     repo = NapariPlugin(repo_path)
 
-    assert repo.citation_file.exists is False
+    assert repo.citation_file.exists is True
 
     res = create_cff_citation(repo_path)
 
-    assert res is True
+    assert res is False  # wasn't created
     assert repo.citation_file.exists is True
-    repo.citation_file.file.unlink()
 
 
 def test_cff_bibtex(tmp_path):
@@ -353,7 +391,7 @@ def test_create_cff_bibtex_append_all(tmp_path, citations_dir):
 
     # tests round-trip
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     pref = result["preferred-citation"]
@@ -400,7 +438,7 @@ def test_create_cff_apa_append_all(tmp_path, citations_dir):
 
     # tests round-trip
     cff.save()
-    with cff.file.open(mode="r") as f:
+    with cff.file.open(mode="r", encoding="utf-8") as f:
         result = yaml.safe_load(f)
 
     pref = result["preferred-citation"]
@@ -463,23 +501,26 @@ def test_git_scrapping():
     assert infos["url"] in (
         "https://github.com/chanzuckerberg/napari-hub-cli",
         "git@github.com:chanzuckerberg/napari-hub-cli.git",
+        "https://github.com/chanzuckerberg/napari-hub-cli.git",
     )
     assert infos["title"] == "napari-hub-cli"
 
-    assert len(authors["authors"]) == 5
+    assert len(authors["authors"]) == 6
 
-    a1, a2, *_ = authors["authors"]
+    a1, _, *_, a2 = authors["authors"]
     assert a1["given-names"] in (
         "Simão",
         "Zoran",
         "Draga Doncila Pop",
         "Justin",
+        "Sean",
         "Vincent",
     )
     assert "family-names" not in a1 or a1["family-names"] in (
         "Bolota",
         "Kiggins",
         "Sinnema",
+        "Martin",
         "Aranega",
     )
 
@@ -488,11 +529,145 @@ def test_git_scrapping():
         "Zoran",
         "Draga Doncila Pop",
         "Justin",
+        "Sean",
         "Vincent",
     )
     assert "family-names" not in a2 or a2["family-names"] in (
         "Bolota",
         "Kiggins",
         "Sinnema",
+        "Martin",
         "Aranega",
     )
+
+
+def test_git_info_scrapping(tmp_path):
+    result = scrap_users(tmp_path)
+
+    assert result == {}
+
+
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="GitPython Actors feature doesn't work on Windows",
+)
+def test_git_info_scrapping_newrepo(tmp_git_repo1):
+    path, _ = tmp_git_repo1
+    authors = scrap_users(path)
+
+    assert len(authors["authors"]) == 1
+
+    assert authors["authors"][0]["given-names"] == "Da"
+    assert authors["authors"][0]["family-names"] == "Commiter"
+
+
+def test_doi_detection(citations_dir):
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.detect_doi_citations()
+    assert len(results) == 4
+    assert results[0] == "10.1101/2022.03.17.484806"
+    assert results[1] == "10.1177/0146167208318401"
+    assert results[2] == "10.1038/s41598-021-04676-9"
+    assert results[3] == "10.1037/0021-9010.76.1.143"
+
+
+def test_doi_detection_extraction(citations_dir, requests_mock):
+    requests_mock.get(
+        "https://doi.org/10.1101/2022.03.17.484806", text="@article{abc, title={ABC}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1101/2022.03.17.484806&style=bibtex&lang=en-US",
+        text="@article{abc, title={ABC}}",
+    )
+    requests_mock.get(
+        "https://doi.org/10.1177/0146167208318401", text="@article{def, title={DEF}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1177/0146167208318401&style=bibtex&lang=en-US",
+        text="@article{def, title={DEF}}",
+    )
+    requests_mock.get(
+        "https://doi.org/10.1038/s41598-021-04676-9", text="@article{ghi, title={GHI}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1038/s41598-021-04676-9&style=bibtex&lang=en-US",
+        text="@article{ghi, title={GHI}}",
+    )
+    requests_mock.get(
+        "https://doi.org/10.1037/0021-9010.76.1.143", text="@article{jkl, title={JKL}}"
+    )
+    requests_mock.get(
+        "https://citation.crosscite.org/format?doi=10.1037/0021-9010.76.1.143&style=bibtex&lang=en-US",
+        text="@article{jkl, title={JKL}}",
+    )
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.extract_citations_from_doi()
+    assert len(results) == 4
+    assert results[0].title == "ABC"
+    assert results[1].title == "DEF"
+    assert results[2].title == "GHI"
+    assert results[3].title == "JKL"
+
+    results = mdfile.extract_citations()
+    assert len(results) == 4
+    assert results[0].title == "ABC"
+    assert results[1].title == "DEF"
+    assert results[2].title == "GHI"
+    assert results[3].title == "JKL"
+
+
+@pytest.mark.online
+def test_doi_detection_extraction__online(citations_dir):
+    mdfile = MarkdownDescription.from_file(citations_dir / "example_doi_only.md")
+
+    results = mdfile.extract_citations()
+    assert len(results) == 4
+
+    assert (
+        results[0].title
+        == "Instance segmentation of mitochondria in electron microscopy images with a generalist deep learning model"
+    )
+    authors = results[0].authors
+    assert len(authors) == 2
+    assert authors[0]["given-names"] == "Ryan"
+    assert authors[0]["family-names"] == "Conrad"
+    assert authors[1]["given-names"] == "Kedar"
+    assert authors[1]["family-names"] == "Narayan"
+
+    assert (
+        results[1].title
+        == "Silence and Table Manners: When Environments Activate Norms"
+    )
+    # Joly, Janneke F. and Stapel, Diederik A. and Lindenberg, Siegwart M.
+    authors = results[1].authors
+    assert len(authors) == 3
+    assert authors[0]["given-names"] == "Janneke F."
+    assert authors[0]["family-names"] == "Joly"
+    assert authors[1]["given-names"] == "Diederik A."
+    assert authors[1]["family-names"] == "Stapel"
+    assert authors[2]["given-names"] == "Siegwart M."
+    assert authors[2]["family-names"] == "Lindenberg"
+
+    assert (
+        results[2].title
+        == "Accurate determination of marker location within whole-brain microscopy images"
+    )
+    authors = results[2].authors
+    assert len(authors) == 10
+    # Tyson, Adam L. and Vélez-Fort, Mateo and ...
+    assert authors[0]["given-names"] == "Adam L."
+    assert authors[0]["family-names"] == "Tyson"
+
+    assert (
+        results[3].title
+        == "The nomological validity of the Type A personality among employed adults."
+    )
+    # Ganster, Daniel C. and Schaubroeck, John and Sime, Wesley E. and Mayes, Bronston T.
+    authors = results[3].authors
+    assert len(authors) == 4
+    assert authors[0]["given-names"] == "Daniel C."
+    assert authors[0]["family-names"] == "Ganster"
+    assert authors[1]["given-names"] == "John"
+    assert authors[1]["family-names"] == "Schaubroeck"
