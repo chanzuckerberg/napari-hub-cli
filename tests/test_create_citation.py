@@ -1,18 +1,15 @@
 # coding: utf8
 import os
+import sys
 from pathlib import Path
-from git.util import Actor
-from git.repo import Repo
 
 import pytest
 import requests_mock
 import yaml
+from git.repo import Repo
+from git.util import Actor
 
-from napari_hub_cli.citation import (
-    create_cff_citation,
-    scrap_git_infos,
-    scrap_users,
-)
+from napari_hub_cli.citation import create_cff_citation, scrap_git_infos, scrap_users
 from napari_hub_cli.fs import NapariPlugin
 from napari_hub_cli.fs.configfiles import CitationFile
 from napari_hub_cli.fs.descriptions import MarkdownDescription
@@ -22,21 +19,22 @@ from napari_hub_cli.fs.descriptions import MarkdownDescription
 def citations_dir():
     return Path(__file__).parent / "resources" / "citations"
 
+
 @pytest.fixture(scope="module")
 def tmp_git_repo1(tmp_path_factory):
     author = Actor("Da Commiter", "commiter@gov.com")
 
     repo_path = tmp_path_factory.mktemp("git_repo1")
     repo = Repo.init(repo_path)
-    readme = repo_path / 'README.md'
-    readme.write_text('# Plugin example')
+    readme = repo_path / "README.md"
+    readme.write_text("# Plugin example")
     index = repo.index
     index.add([readme])
     index.commit("Add README.md", author=author)
 
     author2 = Actor("Da Commiter", "commiter+github@gov.com")
-    changelog = repo_path / 'CHANGELOG.md'
-    changelog.write_text('# Plugin changelog')
+    changelog = repo_path / "CHANGELOG.md"
+    changelog.write_text("# Plugin changelog")
     index = repo.index
     index.add([changelog])
     index.commit("Add CHANGELOG.md", author=author2)
@@ -213,6 +211,10 @@ def test_cff_already_existing_no_display(tmp_path):
     assert res is False
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="GitPython Actors feature doesn't work on Windows",
+)
 def test_create_cff_new_gitrepo(tmp_git_repo1):
     path, _ = tmp_git_repo1
     res = create_cff_citation(path)
@@ -545,6 +547,10 @@ def test_git_info_scrapping(tmp_path):
     assert result == {}
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="GitPython Actors feature doesn't work on Windows",
+)
 def test_git_info_scrapping_newrepo(tmp_git_repo1):
     path, _ = tmp_git_repo1
     authors = scrap_users(path)

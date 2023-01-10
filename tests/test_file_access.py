@@ -600,7 +600,7 @@ def test_markdown_title_extraction(resources):
 
 
 def test_markdown_title_extraction_notitle(resources):
-    readme = MarkdownDescription.from_file(resources / "citations"/ "citations1.md")
+    readme = MarkdownDescription.from_file(resources / "citations" / "citations1.md")
 
     title = readme.title
 
