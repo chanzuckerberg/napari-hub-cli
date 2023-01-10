@@ -4,6 +4,7 @@
 
 Command line utilities for inspecting and validating plugins for the napari hub.
 
+**NOTE:** the project is still under developement and this version is not yet deployed in Pypi.
 
 
 # Installation
