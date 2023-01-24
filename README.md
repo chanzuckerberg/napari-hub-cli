@@ -51,10 +51,14 @@ napari-hub-cli --help
 
 ## Documentation Checklist
 
-The command used to create the Documentation Checklist is
+The command used to create the **Documentation Checklist for a local Plugin** is
 
 ```bash
  $ napari-hub-cli check-metadata /tmp/example-plugin
+```
+while the command used to create the **Documentation Checklist for a remote Plugin** (only accessible in the ```extra``` branch) is
+```bash
+ $ napari-hub-cli check-plugin /tmp/example-plugin
 ```
 
 The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
@@ -83,19 +87,20 @@ Additionally, the recommended file locations for each metadata are suggested in 
 Below you can find a table with the Napari recommended file locations and fallback files where the metadata is checked:
 
 
-| Metadata / Files  | Recommended File                | Fallback File(s) |
-| ----------------- | ------------------------------- | ---------------- |
-| Display Name      | ```npe2 - napari.manifest```    | ```PyPI```       |
-| Summary Sentence  | ```napari-hub/config.yml```     | ```PyPI```       |
-| Intro Paragraph   | ```napari-hub/description.md``` | ```PyPI```       |
-| Intro Video       | ```napari-hub/description.md``` | ```PyPI```       |
-| Intro Screenshot  | ```napari-hub/description.md``` | ```PyPI```       |
-| Usage Section     | ```napari-hub/description.md``` | ```PyPI```       |
-| Source Code Link  | ```PyPI```                      | ```n/a```        |
-| User Support Link | ```PyPI```                      | ```n/a```        |
-| Bug Tracker Link  | ```PyPI```                      | ```n/a```        |
-| Author            | ```PyPI```                      | ```n/a```        |
-| Citation          | ```CITATION.cff```              | ```n/a```        |
+| Metadata / Files    | Recommended File                | Fallback File(s) |
+| ------------------- | ------------------------------- | ---------------- |
+| Display Name        | ```npe2 - napari.manifest```    | ```PyPI```       |
+| Summary Sentence    | ```napari-hub/config.yml```     | ```PyPI```       |
+| Intro Paragraph     | ```napari-hub/description.md``` | ```PyPI```       |
+| Intro Video         | ```napari-hub/description.md``` | ```PyPI```       |
+| Intro Screenshot    | ```napari-hub/description.md``` | ```PyPI```       |
+| Usage Section       | ```napari-hub/description.md``` | ```PyPI```       |
+| Installation Section| ```napari-hub/description.md``` | ```PyPI```       |
+| Source Code Link    | ```PyPI```                      | ```n/a```        |
+| User Support Link   | ```PyPI```                      | ```n/a```        |
+| Bug Tracker Link    | ```PyPI```                      | ```n/a```        |
+| Author              | ```PyPI```                      | ```n/a```        |
+| Citation            | ```CITATION.cff```              | ```n/a```        |
 
 
 Example output (with all possible scenarios):
