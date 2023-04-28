@@ -18,6 +18,23 @@ from urllib.error import HTTPError
 
 GITHUB_PATTERN = r"https://github.com/.+/.+"
 
+def get_osi_approved_licenses():
+    """
+    Retrieves the list of SPDX identifiers for all OSI-approved licenses from https://opensource.org/licenses/.
+    
+    Returns
+    -------
+    list of str
+        The list of SPDX identifiers for all OSI-approved licenses.
+    """
+    response = requests.get("https://api.opensource.org/licenses/")
+    licenses = []
+    if response.status_code == 200:
+        pattern = r"/licenses/([a-z0-9-]+)"
+        matches = re.findall(pattern, response.text)
+        licenses = matches
+    return licenses
+
 
 def get_github_license(meta):
     """Use Source Code field to get license from GitHub repo
@@ -30,7 +47,7 @@ def get_github_license(meta):
     Returns
     -------
     str
-        the license spdx identifier, or None
+        The license SPDX identifier, or None if not found or not an OSI-approved license.
     """
     
     if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"]):
@@ -45,7 +62,7 @@ def get_github_license(meta):
             response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
-                if spdx_id != "NOASSERTION":
+                if spdx_id != "NOASSERTION" and spdx_id.lower() in get_osi_approved_licenses():
                     return spdx_id
 
 
