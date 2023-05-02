@@ -154,7 +154,12 @@ class NapariPlugin(object):
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
-        self.requirements = InstallationRequirements(self)
+        self.requirements = InstallationRequirements(
+            path / "requirements.txt",
+            self.extractfrom_config("requirements"),
+            self.supported_python_version,
+            self.supported_platforms,
+        )
         self.forced_gen = forced_gen
 
     @property

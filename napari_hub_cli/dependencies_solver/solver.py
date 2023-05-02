@@ -150,5 +150,6 @@ class DependencySolver(InstallCommand):
     def solve_dependencies(self, *args, **kwargs):
         logger = logging.getLogger("pip._internal.cli.req_command")
         logger.disabled = True
+        logging.shutdown()
         with self.main_context():
             return self.resolve(*args, **kwargs)

@@ -10,7 +10,7 @@ WIN32 = ["win32"]
 LINUX = [
     "manylinux2014_x86_64",
 ]
-MACOS = ["macosx_10_9_x86_64"]
+MACOS = ["macosx_10_9_x86_64", "macosx_10_15_x86_64"]
 
 _platform_specs = {
     "win": WIN64,
@@ -34,7 +34,8 @@ class Options(dict):
         )
 
     def __hash__(self):
-        return hash((self.python_version, tuple(self.platforms)))
+        platforms = tuple(self.platforms) if self.platforms else self.platforms
+        return hash((self.python_version, platforms))
 
 
 def build_options(python_version, platform, abis=None):
@@ -84,7 +85,7 @@ def build_options(python_version, platform, abis=None):
             "pre": None,
             "prefer_binary": False,
             "constraints": [],
-            "use_pep517": False,
+            "use_pep517": True,
             "config_settings": None,
             "editables": [],
             "requirements": [],
