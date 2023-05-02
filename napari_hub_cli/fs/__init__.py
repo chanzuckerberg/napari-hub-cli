@@ -237,3 +237,23 @@ class NapariPlugin(object):
             # If only "python 3" without more information, we will consider the current version
             return versions
         return tuple(v for v in versions if len(v) > 1)
+
+    @property
+    def supported_platforms(self):
+        classifiers = self.classifiers
+        if not classifiers:
+            return None
+        platforms = set()
+        for entry in classifiers:
+            if "Operating System" not in entry:
+                continue
+            if "OS Independent" in entry:
+                return ("win", "linux", "macos")
+            platform = entry.lower()
+            if "windows" in platform:
+                platforms.add("win")
+            if "linux" in platform:
+                platforms.add("linux")
+            if "macos" in platform:
+                platforms.add("macos")
+        return platforms

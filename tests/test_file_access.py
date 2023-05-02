@@ -665,3 +665,30 @@ def test_python_version(resources):
     assert plugin.supported_python_version
     assert len(plugin.supported_python_version) == 1
     assert plugin.supported_python_version[0] == (3, )
+
+
+def test_platforms(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 3
+    assert "win" in plugin.supported_platforms
+    assert "linux" in plugin.supported_platforms
+    assert "macos" in plugin.supported_platforms
+
+
+    plugin = NapariPlugin(resources / "CZI-29-test2")
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 2
+    assert "win" in plugin.supported_platforms
+    assert "linux" in plugin.supported_platforms
+    assert "macos" not in plugin.supported_platforms
+
+
+    plugin = NapariPlugin(resources / "CZI-29-small")
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 1
+    assert "macos" in plugin.supported_platforms
+
+    plugin = NapariPlugin(resources / "CZI-29-faulty")
+    assert plugin.supported_platforms is None
