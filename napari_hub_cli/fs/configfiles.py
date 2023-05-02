@@ -256,7 +256,7 @@ class SetupCfg(Metadata, ConfigFile):
 
     @property
     def classifiers(self):
-        return [s for s in self.metadata.get('classifiers', "").splitlines() if s]
+        return [s for s in self.metadata.get("classifiers", "").splitlines() if s]
 
 
 class PyProjectToml(Metadata, ConfigFile):
@@ -366,7 +366,7 @@ class PyProjectToml(Metadata, ConfigFile):
 
     @property
     def classifiers(self):
-        return self.project_data.get('classifiers', [])
+        return self.project_data.get("classifiers", [])
 
 
 class Npe2Yaml(Metadata, ConfigFile):

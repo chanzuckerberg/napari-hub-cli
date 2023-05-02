@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from napari_hub_cli.dependencies_solver.utils import LINUX, MACOS, WIN32, WIN64
 
 from napari_hub_cli.fs import ConfigFile, NapariPlugin
 from napari_hub_cli.fs.configfiles import (
@@ -692,3 +693,32 @@ def test_platforms(resources):
 
     plugin = NapariPlugin(resources / "CZI-29-faulty")
     assert plugin.supported_platforms is None
+
+
+def test_requirements(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    requirements = plugin.requirements
+    assert requirements.options_list
+
+    assert len(requirements.options_list) == 9
+    assert requirements.options_list[0].python_version == (3, 7)
+    assert requirements.options_list[0].platforms == WIN64
+    assert requirements.options_list[1].python_version == (3, 7)
+    assert requirements.options_list[1].platforms == LINUX
+    assert requirements.options_list[2].python_version == (3, 7)
+    assert requirements.options_list[2].platforms == MACOS
+
+    assert requirements.options_list[3].python_version == (3, 8)
+    assert requirements.options_list[3].platforms == WIN64
+    assert requirements.options_list[4].python_version == (3, 8)
+    assert requirements.options_list[4].platforms == LINUX
+    assert requirements.options_list[5].python_version == (3, 8)
+    assert requirements.options_list[5].platforms == MACOS
+
+    assert requirements.options_list[6].python_version == (3, 9)
+    assert requirements.options_list[6].platforms == WIN64
+    assert requirements.options_list[7].python_version == (3, 9)
+    assert requirements.options_list[7].platforms == LINUX
+    assert requirements.options_list[8].python_version == (3, 9)
+    assert requirements.options_list[8].platforms == MACOS

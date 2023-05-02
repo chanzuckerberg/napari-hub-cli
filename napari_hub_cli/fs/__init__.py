@@ -6,6 +6,7 @@ import tomli_w
 import yaml
 
 from ..utils import delete_file_tree, parse_setup
+from ..dependencies_solver import InstallationRequirements
 
 format_parsers = {}
 format_unparsers = {}
@@ -153,6 +154,7 @@ class NapariPlugin(object):
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
+        self.requirements = InstallationRequirements(self)
         self.forced_gen = forced_gen
 
     @property
@@ -226,7 +228,7 @@ class NapariPlugin(object):
     def supported_python_version(self):
         classifiers = self.classifiers
         if not classifiers:
-            return ((3, ), )
+            return ((3,),)
         versions = []
         for entry in classifiers:
             if "Programming Language :: Python ::" not in entry:
