@@ -46,6 +46,7 @@ def test_setup_py(resources):
     assert file.find_npe2() is None
 
     assert file.classifiers
+    assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
@@ -66,7 +67,7 @@ def test_setup2_py(resources):
     assert file.find_npe2() is not None
     assert file.find_npe2() == resources / "module_path" / "napari.yaml"
 
-    assert file.classifiers is None
+    assert file.classifiers == []
 
 
 def test_setup3_py(resources):
@@ -86,6 +87,7 @@ def test_setup3_py(resources):
     assert file.find_npe2() is None
 
     assert file.classifiers
+    assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
@@ -110,6 +112,7 @@ def test_setup_cfg(resources):
     assert file.long_description().raw_content != ""
 
     assert file.classifiers
+    assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
@@ -133,7 +136,7 @@ def test_setup2_cfg(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
 
-    assert file.classifiers is None
+    assert file.classifiers == []
 
 
 def test_setup3_cfg(resources):
@@ -181,6 +184,7 @@ def test_pyproject_toml(resources):
     assert file.long_description().raw_content != ""
 
     assert file.classifiers
+    assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
@@ -204,7 +208,7 @@ def test_pyproject2_toml(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
 
-    assert file.classifiers is None
+    assert file.classifiers == []
 
 
 def test_pyproject3_toml(resources):
@@ -228,6 +232,7 @@ def test_pyproject3_toml(resources):
     assert file.long_description().raw_content != ""
 
     assert file.classifiers
+    assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
@@ -629,3 +634,34 @@ def test_markdown_title_extraction_notitle(resources):
     title = readme.title
 
     assert title is None
+
+
+def test_python_version(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 3
+    assert (3, 7) in plugin.supported_python_version
+    assert (3, 8) in plugin.supported_python_version
+    assert (3, 9) in plugin.supported_python_version
+    assert (3,) not in plugin.supported_python_version
+
+
+    plugin = NapariPlugin(resources / "CZI-29-test2")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 1
+    assert plugin.supported_python_version[0] == (3, )
+
+
+    plugin = NapariPlugin(resources / "CZI-29-small")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 3
+    assert (3, 7) in plugin.supported_python_version
+    assert (3, 8) in plugin.supported_python_version
+    assert (3, 9) in plugin.supported_python_version
+    assert (3,) not in plugin.supported_python_version
+
+    plugin = NapariPlugin(resources / "CZI-29-faulty")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 1
+    assert plugin.supported_python_version[0] == (3, )

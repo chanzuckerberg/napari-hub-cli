@@ -161,15 +161,15 @@ class NapariPlugin(object):
 
     @property
     def classifiers(self):
-        return self.extractfrom_config("classifiers")
+        return self.extractfrom_config("classifiers", default=())
 
     @lru_cache()
-    def extractfrom_config(self, attribute):
+    def extractfrom_config(self, attribute, default=None):
         for f in self.pypi_files:
             value = getattr(f, attribute)
             if value:
                 return value
-        return None
+        return default
 
     def first_pypi_config(self):
         for f in self.pypi_files:
@@ -221,3 +221,19 @@ class NapariPlugin(object):
     def delete(self):
         """Deletes the path towards the repository on the File System"""
         delete_file_tree(f"{self.path.absolute()}")
+
+    @property
+    def supported_python_version(self):
+        classifiers = self.classifiers
+        if not classifiers:
+            return ((3, ), )
+        versions = []
+        for entry in classifiers:
+            if "Programming Language :: Python ::" not in entry:
+                continue
+            version = entry.split(" :: ")[2].split(".")
+            versions.append(tuple(int(n) for n in version))
+        if len(versions) == 1 and len(versions[0]):
+            # If only "python 3" without more information, we will consider the current version
+            return versions
+        return tuple(v for v in versions if len(v) > 1)
