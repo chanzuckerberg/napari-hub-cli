@@ -21,7 +21,6 @@ class InstallationRequirements(object):
             except Exception:
                 self.requirements = []
 
-
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
         python_versions = self.plugin.supported_python_version
@@ -29,23 +28,25 @@ class InstallationRequirements(object):
         options_list = []
         for python_version, platform in product(python_versions, platforms):
             options = build_options(python_version, platform)
+            options.named_platform = platform
             options_list.append(options)
         return options_list
 
     @lru_cache()
-    def solve_dependencies(self, options_index):
+    def solve_dependencies(self, options):
         # We consider that the folder path is actually the package name
-        package_name = self.plugin.path.name
         try:
-            return self.solver.solve_dependencies(
-                package_name, self.options_list[options_index]
-            )
+            return self.solver.solve_dependencies(self.requirements, options)
         except Exception:
             return None
 
-    # @property
-    # def exists_in_pypi(self):
-    #     requests.get()
+    @lru_cache()
+    def _get_platform_options(self, platform):
+        options_platform = []
+        for options in self.options_list:
+            if platform in options.named_platform:
+                options_platform.append(options)
+        return options_platform
 
     # def alldeps_are_wheels(self, platforms):
     #     probable_C = []

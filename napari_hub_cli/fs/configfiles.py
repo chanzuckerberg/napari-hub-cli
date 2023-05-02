@@ -264,7 +264,13 @@ class SetupCfg(Metadata, ConfigFile):
 
     @property
     def requirements(self):
-        return [s for s in self.data.get("options", {}).get("install_requires", "").splitlines() if s]
+        return [
+            s
+            for s in self.data.get("options", {})
+            .get("install_requires", "")
+            .splitlines()
+            if s
+        ]
 
 
 class PyProjectToml(Metadata, ConfigFile):

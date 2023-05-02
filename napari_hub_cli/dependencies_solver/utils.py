@@ -27,6 +27,15 @@ class Options(dict):
     def __getattr__(self, key):
         return self[key]
 
+    def __equ__(self, other):
+        return (
+            self.python_version == other.python_version
+            and self.platforms == other.platforms
+        )
+
+    def __hash__(self):
+        return hash((self.python_version, tuple(self.platforms)))
+
 
 def build_options(python_version, platform, abis=None):
     platforms = _platform_specs.get(platform, platform) if platform else None

@@ -228,7 +228,7 @@ class NapariPlugin(object):
     def supported_python_version(self):
         classifiers = self.classifiers
         if not classifiers:
-            return ((3,),)
+            return (None,)
         versions = []
         for entry in classifiers:
             if "Programming Language :: Python ::" not in entry:
@@ -237,7 +237,7 @@ class NapariPlugin(object):
             versions.append(tuple(int(n) for n in version))
         if len(versions) == 1 and len(versions[0]):
             # If only "python 3" without more information, we will consider the current version
-            return versions
+            return (None,)
         return tuple(v for v in versions if len(v) > 1)
 
     @property
