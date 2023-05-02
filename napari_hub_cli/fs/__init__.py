@@ -5,8 +5,8 @@ import tomli
 import tomli_w
 import yaml
 
-from ..utils import delete_file_tree, parse_setup
 from ..dependencies_solver import InstallationRequirements
+from ..utils import delete_file_tree, parse_setup
 
 format_parsers = {}
 format_unparsers = {}
@@ -244,7 +244,7 @@ class NapariPlugin(object):
     def supported_platforms(self):
         classifiers = self.classifiers
         if not classifiers:
-            return None
+            return [None]
         platforms = set()
         for entry in classifiers:
             if "Operating System" not in entry:

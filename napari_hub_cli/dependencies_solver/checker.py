@@ -1,5 +1,6 @@
 from functools import lru_cache
 from itertools import product
+from pathlib import Path
 
 from .solver import DependencySolver
 from .utils import build_options
@@ -10,6 +11,16 @@ class InstallationRequirements(object):
         self.plugin = plugin
         self.solver = DependencySolver("solver", "")
         self.options_list = self._build_options()
+        self.requirements = self.plugin.extractfrom_config("requirements")
+        if self.requirements is None:
+            try:
+                file = self.plugin.path / "requirements.txt"
+                with file.open(encoding="utf-8"):
+                    content = file.read_text()
+                self.requirements = content.splitlines()
+            except Exception:
+                self.requirements = []
+
 
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
@@ -22,11 +33,13 @@ class InstallationRequirements(object):
         return options_list
 
     @lru_cache()
-    def solve_dependencies(self):
+    def solve_dependencies(self, options_index):
         # We consider that the folder path is actually the package name
         package_name = self.plugin.path.name
         try:
-            return self.solver.solve_dependencies(package_name)
+            return self.solver.solve_dependencies(
+                package_name, self.options_list[options_index]
+            )
         except Exception:
             return None
 

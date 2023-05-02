@@ -22,7 +22,6 @@ setup(
     summary="Test Summary",
     long_description=read("README.md"),
     python_requires=">=3.7",
-    install_requires=["numpy", "napari-plugin-engine>=0.1.4"],
     entry_points={
         "napari.manifest": [
             "plugin_name = module_path:napari.yaml",

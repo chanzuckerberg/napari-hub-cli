@@ -21,9 +21,4 @@ setup(
         "Framework :: napari",
     ],
     setup_requires=["setuptools_scm"],
-    install_requires=[
-        "JPype1>=1.2.1",
-        "matplotlib",
-        "imageio_ffmpeg",
-    ],
 )

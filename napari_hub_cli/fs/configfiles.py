@@ -100,6 +100,10 @@ class SetupPy(Metadata, ConfigFile):
     def classifiers(self):
         return self.data.get("classifiers", [])
 
+    @property
+    def requirements(self):
+        return self.data.get("install_requires", [])
+
 
 class NapariConfig(Metadata, ConfigFile):
     has_labels = Exists("labels")
@@ -258,6 +262,10 @@ class SetupCfg(Metadata, ConfigFile):
     def classifiers(self):
         return [s for s in self.metadata.get("classifiers", "").splitlines() if s]
 
+    @property
+    def requirements(self):
+        return [s for s in self.data.get("options", {}).get("install_requires", "").splitlines() if s]
+
 
 class PyProjectToml(Metadata, ConfigFile):
     @property
@@ -367,6 +375,10 @@ class PyProjectToml(Metadata, ConfigFile):
     @property
     def classifiers(self):
         return self.project_data.get("classifiers", [])
+
+    @property
+    def requirements(self):
+        return self.project_data.get("dependencies", [])
 
 
 class Npe2Yaml(Metadata, ConfigFile):
