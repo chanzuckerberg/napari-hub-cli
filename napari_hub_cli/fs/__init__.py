@@ -157,10 +157,18 @@ class NapariPlugin(object):
 
     @property
     def summary(self):
+        return self.extractfrom_config("summary")
+
+    @property
+    def classifiers(self):
+        return self.extractfrom_config("classifiers")
+
+    @lru_cache()
+    def extractfrom_config(self, attribute):
         for f in self.pypi_files:
-            summary = f.summary
-            if summary:
-                return summary
+            value = getattr(f, attribute)
+            if value:
+                return value
         return None
 
     def first_pypi_config(self):

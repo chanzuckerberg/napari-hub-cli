@@ -45,6 +45,9 @@ def test_setup_py(resources):
 
     assert file.find_npe2() is None
 
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
 
 def test_setup2_py(resources):
     content = resources / "setup2.py"
@@ -63,6 +66,8 @@ def test_setup2_py(resources):
     assert file.find_npe2() is not None
     assert file.find_npe2() == resources / "module_path" / "napari.yaml"
 
+    assert file.classifiers is None
+
 
 def test_setup3_py(resources):
     content = resources / "setup3.py"
@@ -79,6 +84,9 @@ def test_setup3_py(resources):
     assert file.has_summary is True
 
     assert file.find_npe2() is None
+
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
 def test_setup_cfg(resources):
@@ -101,6 +109,9 @@ def test_setup_cfg(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
 
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
 
 def test_setup2_cfg(resources):
     content = resources / "setup2.cfg"
@@ -121,6 +132,8 @@ def test_setup2_cfg(resources):
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
+
+    assert file.classifiers is None
 
 
 def test_setup3_cfg(resources):
@@ -143,6 +156,9 @@ def test_setup3_cfg(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
 
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
 
 def test_pyproject_toml(resources):
     content = resources / "pyproject.toml"
@@ -163,6 +179,9 @@ def test_pyproject_toml(resources):
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
+
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
 def test_pyproject2_toml(resources):
@@ -185,6 +204,8 @@ def test_pyproject2_toml(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
 
+    assert file.classifiers is None
+
 
 def test_pyproject3_toml(resources):
     content = resources / "pyproject3.toml"
@@ -205,6 +226,9 @@ def test_pyproject3_toml(resources):
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
+
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
 
 
 def test_markdown_non_existingfile(resources):
