@@ -45,7 +45,7 @@ def test_requirements_resolution_installable(plugin):
     assert set(name for name, _ in installed) == {"numpy", "cython", "pyecore", "lxml", "ordered-set", "future-fstrings", "restrictedpython"}
 
     assert reqs.num_installed_packages(options=reqs.options_list[0]) == 7
-    assert reqs.has_C_extensions_dependencies(options=reqs.options_list[0]) is True
+    assert reqs.has_no_C_extensions_dependencies(options=reqs.options_list[0]) is False
     assert reqs.alldeps_wheel(options=reqs.options_list[0]) is True
     assert reqs.is_installable(options=reqs.options_list[0]) is True
 
@@ -58,7 +58,7 @@ def test_requirements_resolution_installable(plugin):
     assert set(name for name, _ in installed) == {"numpy", "cython", "pyecore", "lxml", "ordered-set", "future-fstrings", "restrictedpython"}
 
     assert reqs.num_installed_packages(options=reqs.options_list[1]) == 7
-    assert reqs.has_C_extensions_dependencies(options=reqs.options_list[1]) is True
+    assert reqs.has_no_C_extensions_dependencies(options=reqs.options_list[1]) is False
     assert reqs.alldeps_wheel(options=reqs.options_list[1]) is True
     assert reqs.is_installable(options=reqs.options_list[1]) is True
 
@@ -88,9 +88,9 @@ def test_requirements_integration():
     assert reqs.installable_windows is True
     assert reqs.installable_macos is True
 
-    assert reqs.has_C_ext_windows is False
-    assert reqs.has_C_ext_linux is False
-    assert reqs.has_C_ext_macos is False
+    assert reqs.has_no_C_ext_windows is True
+    assert reqs.has_no_C_ext_linux is True
+    assert reqs.has_no_C_ext_macos is True
 
     assert reqs.allwheel_linux is True
     assert reqs.allwheel_macos is True
@@ -101,9 +101,9 @@ def test_requirements_integration():
     assert reqs.installable_windows is True
     assert reqs.installable_macos is True
 
-    assert reqs.has_C_ext_windows is True
-    assert reqs.has_C_ext_linux is True
-    assert reqs.has_C_ext_macos is True
+    assert reqs.has_no_C_ext_windows is False
+    assert reqs.has_no_C_ext_linux is False
+    assert reqs.has_no_C_ext_macos is False
 
     assert reqs.allwheel_linux is True
     assert reqs.allwheel_macos is True

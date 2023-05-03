@@ -12,12 +12,18 @@ INSTALLABLE_MACOS = MetaFeature("Installable on MacOS", "installable_macos")
 ALL_WHEELS_WIN = MetaFeature("All deps are wheels for Windows", "allwheel_windows")
 ALL_WHEELS_LINUX = MetaFeature("All deps are wheels for Linux", "allwheel_linux")
 ALL_WHEELS_MACOS = MetaFeature("All deps are wheels for MacOS", "allwheel_macos")
-HAS_C_EXT_WIN = MetaFeature("Has deps with C extensions", "has_C_ext_windows")
-HAS_C_EXT_LINUX = MetaFeature("Has deps with C extensions", "has_C_ext_linux")
-HAS_C_EXT_MACOS = MetaFeature("Has deps with C extensions", "has_C_ext_macos")
+HAS_C_EXT_WIN = MetaFeature(
+    "Has no deps with C extensions for Windows", "has_no_C_ext_windows"
+)
+HAS_C_EXT_LINUX = MetaFeature(
+    "Has no deps with C extensions for Linux", "has_no_C_ext_linux"
+)
+HAS_C_EXT_MACOS = MetaFeature(
+    "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
+)
 
 
-def project_quality_check(plugin_repo: NapariPlugin):
+def project_quality_suite(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
     return [
         Requirement(

@@ -158,7 +158,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, requirements):
     return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
 
 
-def analyse_local_plugin_metadata(repo_path, requirement_suite):
+def analyse_local_plugin(repo_path, requirement_suite):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -234,6 +234,8 @@ def display_checklist(analysis_result):
 
     # Display detailed information
     for feature in analysis_result.missing_features():
+        if not feature.meta.advise_location:
+            continue
         files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files]
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()

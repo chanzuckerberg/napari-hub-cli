@@ -13,7 +13,7 @@ import os
 import sys
 
 from .autofix import analyse_plugins_then_create_PR
-from .checklist import analyse_local_plugin_metadata, display_checklist
+from .checklist import analyse_local_plugin, display_checklist
 from .checklist.analysis import (
     analyze_all_remote_plugins,
     build_csv_dict,
@@ -21,6 +21,7 @@ from .checklist.analysis import (
     write_csv,
     DEFAULT_SUITE,
 )
+from .checklist.projectquality import project_quality_suite
 from .citation import create_cff_citation
 from .utils import get_all_napari_plugin_names
 
@@ -61,7 +62,16 @@ def documentation_checklist(plugin_path):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin_metadata(plugin_path, DEFAULT_SUITE)
+    check_list = analyse_local_plugin(plugin_path, DEFAULT_SUITE)
+    display_checklist(check_list)
+    return 0
+
+
+def code_quality_checklist(plugin_path):
+    if not os.path.exists(plugin_path):
+        print(f"Nothing found at path: {plugin_path}")
+        return 1
+    check_list = analyse_local_plugin(plugin_path, project_quality_suite)
     display_checklist(check_list)
     return 0
 
@@ -114,6 +124,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
+    # metadata check
     subcommand = subparsers.add_parser(
         "check-metadata", help="Checks consistency of a local plugin"
     )
@@ -126,6 +137,14 @@ def parse_args(args):
     )
     subcommand.add_argument("plugin_name", help="Name of the plugin in Napari HUB")
     subcommand.set_defaults(func=remote_documentation_checklist)
+
+    ## code quality check
+    subcommand = subparsers.add_parser(
+        "check-quality", help="Checks the code quality of a local plugin"
+    )
+    subcommand.add_argument("plugin_path", help="Local path to your plugin")
+    subcommand.set_defaults(func=code_quality_checklist)
+
 
     ## all-plugin-report
     subcommand = subparsers.add_parser(
