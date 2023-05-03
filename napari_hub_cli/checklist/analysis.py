@@ -25,6 +25,9 @@ from .metadata import (
 from .projectmetadata import project_metadata_check
 
 
+DEFAULT_SUITE = project_metadata_check
+
+
 class FakeProgress(object):
     def start(self):
         ...
@@ -41,7 +44,7 @@ class FakeProgress(object):
 
 def analyse_remote_plugin(
     plugin_name,
-    requirements_suite=project_metadata_check,
+    requirements_suite=DEFAULT_SUITE,
     api_url=NAPARI_HUB_API_URL,
     display_info=False,
     cleanup=True,
@@ -95,7 +98,7 @@ def analyse_remote_plugin(
 def analyse_remote_plugin_url(
     plugin_name,
     plugin_url,
-    requirements_suite=project_metadata_check,
+    requirements_suite=DEFAULT_SUITE,
     display_info=False,
     cleanup=True,
     directory=None,
@@ -137,14 +140,15 @@ def analyse_remote_plugin_url(
         return result
 
 
-def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
-    result = analyse_remote_plugin(plugin_name, api_url=api_url, display_info=True)
+def display_remote_analysis(plugin_name, requirements_suite=DEFAULT_SUITE, api_url=NAPARI_HUB_API_URL):
+    result = analyse_remote_plugin(plugin_name, requirements_suite, api_url=api_url, display_info=True)
     display_checklist(result)
     _display_error_message(plugin_name, result)
     return result.status == AnalysisStatus.SUCCESS
 
 
 def analyze_all_remote_plugins(
+    requirements_suite=DEFAULT_SUITE,
     api_url=NAPARI_HUB_API_URL, display_info=False, directory=None
 ):
     all_results = {}
@@ -155,7 +159,7 @@ def analyze_all_remote_plugins(
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
             result = analyse_remote_plugin(
-                name, display_info=False, directory=directory
+                name, requirements_suite, display_info=False, directory=directory
             )
             all_results[name] = result
             p.update(

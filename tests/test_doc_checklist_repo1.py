@@ -3,12 +3,12 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message, create_commits
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
 from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
-    project_metadata_check,
 )
 from napari_hub_cli.checklist import (
     analyse_local_plugin_metadata,
@@ -143,7 +143,7 @@ def test_check_feature_missing(test_repo):
 
 
 def test_create_checkist(test_repo):
-    result = analyse_local_plugin_metadata(test_repo.path, project_metadata_check)
+    result = analyse_local_plugin_metadata(test_repo.path, DEFAULT_SUITE)
 
     assert len(result.features) == 13
 
@@ -164,7 +164,7 @@ def test_create_checkist(test_repo):
 
 # smoke test
 def test_display_checklist(test_repo):
-    result = analyse_local_plugin_metadata(test_repo.path, project_metadata_check)
+    result = analyse_local_plugin_metadata(test_repo.path, DEFAULT_SUITE)
     display_checklist(result)
 
 
@@ -173,7 +173,7 @@ def test_has_citation_file(test_repo):
 
 
 def test_access_specific_result(test_repo):
-    result = analyse_local_plugin_metadata(test_repo.path, project_metadata_check)
+    result = analyse_local_plugin_metadata(test_repo.path, DEFAULT_SUITE)
 
     specific = result[DISPLAY_NAME]
     assert specific is not None
@@ -184,7 +184,7 @@ def test_access_specific_result(test_repo):
 
 
 def test_build_issue_message(test_repo):
-    result = analyse_local_plugin_metadata(test_repo.path, project_metadata_check)
+    result = analyse_local_plugin_metadata(test_repo.path, DEFAULT_SUITE)
     features = result.features
 
     assert len(features) > 0

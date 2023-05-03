@@ -12,6 +12,8 @@ import argparse
 import os
 import sys
 
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+
 from .checklist import analyse_local_plugin_metadata, display_checklist
 from .citation import create_cff_citation
 
@@ -52,7 +54,7 @@ def documentation_checklist(plugin_path):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin_metadata(plugin_path)
+    check_list = analyse_local_plugin_metadata(plugin_path, DEFAULT_SUITE)
     display_checklist(check_list)
     return 0
 

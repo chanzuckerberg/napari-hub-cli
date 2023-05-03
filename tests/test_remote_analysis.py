@@ -4,6 +4,7 @@ import pytest
 import requests_mock
 
 from napari_hub_cli.checklist.analysis import (
+    DEFAULT_SUITE,
     analyse_remote_plugin,
     analyze_all_remote_plugins,
     build_csv_dict,
@@ -14,9 +15,7 @@ from napari_hub_cli.checklist.metadata import (
     AnalysisStatus,
     PluginAnalysisResult,
     analyse_local_plugin_metadata,
-
 )
-from napari_hub_cli.checklist.projectmetadata import project_metadata_check
 from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.utils import (
     NonExistingNapariPluginError,
@@ -157,7 +156,7 @@ def test_build_csv_empty():
 
 def test_build_csv():
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin_metadata(current_path / "resources/CZI-29-test", project_metadata_check)
+    checklist = analyse_local_plugin_metadata(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     assert rows != []
@@ -174,7 +173,7 @@ def test_write_csv_empty(tmp_path):
 def test_write_csv(tmp_path):
     output = tmp_path / "output.csv"
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin_metadata(current_path / "resources/CZI-29-test", project_metadata_check)
+    checklist = analyse_local_plugin_metadata(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     write_csv(rows, output)
