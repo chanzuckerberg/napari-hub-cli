@@ -150,16 +150,23 @@ def display_remote_analysis(
     return result.status == AnalysisStatus.SUCCESS
 
 
-def analyze_all_remote_plugins(
+def analyze_remote_plugins(
+    all_plugins=False,
+    plugins_name=None,
     requirements_suite=DEFAULT_SUITE,
     api_url=NAPARI_HUB_API_URL,
     display_info=False,
     directory=None,
 ):
     all_results = {}
-    plugins_name = get_all_napari_plugin_names(api_url)
+    if all_plugins:
+        plugins_name = get_all_napari_plugin_names(api_url)
+    else:
+        plugins_name = plugins_name or []
     total = len(plugins_name)
-    description = "Analysing all plugins in Napari-HUB repository..."
+    description = f"""Analysing plugins in Napari-HUB repository...
+Plugins: {'all' if all_plugins else plugins_name}
+    """
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
