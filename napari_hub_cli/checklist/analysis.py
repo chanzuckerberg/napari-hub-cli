@@ -164,9 +164,8 @@ def analyze_remote_plugins(
     else:
         plugins_name = plugins_name or []
     total = len(plugins_name)
-    description = f"""Analysing plugins in Napari-HUB repository...
-Plugins: {'all' if all_plugins else plugins_name}
-    """
+    print(f"Selected plugins: {'all' if all_plugins else plugins_name}")
+    description = "Analysing plugins in Napari-HUB repository..."
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
