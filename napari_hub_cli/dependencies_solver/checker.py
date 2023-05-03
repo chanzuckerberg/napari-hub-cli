@@ -1,6 +1,26 @@
+from contextlib import suppress
+
+# This hack is here to remove a warning message that is yield by "_distutils_hack"
+with suppress(ImportError):
+    import sys
+
+    def hack_clear_distutils():
+        if "distutils" not in sys.modules:
+            return
+        mods = [
+            name
+            for name in sys.modules
+            if name == "distutils" or name.startswith("distutils.")
+        ]
+        for name in mods:
+            del sys.modules[name]
+
+    import _distutils_hack as hack
+
+    hack.clear_distutils = hack_clear_distutils
+
 from functools import lru_cache
 from itertools import product
-from typing import List
 
 from pip._internal.exceptions import DistributionNotFound
 
