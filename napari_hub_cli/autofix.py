@@ -14,7 +14,7 @@ from xdg import xdg_config_home
 
 from .checklist import (
     AnalysisStatus,
-    analyse_local_plugin_metadata,
+    analyse_local_plugin,
     analyse_remote_plugin_url,
 )
 from .checklist.projectmetadata import CITATION, CITATION_VALID, project_metadata_check
@@ -283,7 +283,7 @@ def analyse_then_create_PR(
 
 def autofix_repository(path):
     # creates the checklist
-    result = analyse_local_plugin_metadata(path, project_metadata_check)
+    result = analyse_local_plugin(path, project_metadata_check)
 
     # perform modifications on the files
     # modify + add + commit

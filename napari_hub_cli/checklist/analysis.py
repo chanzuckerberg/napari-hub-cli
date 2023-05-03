@@ -19,7 +19,7 @@ from ..utils import (
 from .metadata import (
     AnalysisStatus,
     PluginAnalysisResult,
-    analyse_local_plugin_metadata,
+    analyse_local_plugin,
     display_checklist,
 )
 from .projectmetadata import project_metadata_check
@@ -134,7 +134,7 @@ def analyse_remote_plugin_url(
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url
                 )
-        result = analyse_local_plugin_metadata(test_repo, requirements_suite)
+        result = analyse_local_plugin(test_repo, requirements_suite)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result

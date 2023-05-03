@@ -158,7 +158,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, requirements):
     return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
 
 
-def analyse_local_plugin_metadata(repo_path, requirement_suite):
+def analyse_local_plugin(repo_path, requirement_suite):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
