@@ -96,6 +96,14 @@ class SetupPy(Metadata, ConfigFile):
     def create_npe2_entry(self):
         raise NotImplementedError("Modification of setup.py is not yet supported")
 
+    @property
+    def classifiers(self):
+        return self.data.get("classifiers", [])
+
+    @property
+    def requirements(self):
+        return self.data.get("install_requires", [])
+
 
 class NapariConfig(Metadata, ConfigFile):
     has_labels = Exists("labels")
@@ -250,6 +258,20 @@ class SetupCfg(Metadata, ConfigFile):
         modules = [self._find_src_location()]
         return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
 
+    @property
+    def classifiers(self):
+        return [s for s in self.metadata.get("classifiers", "").splitlines() if s]
+
+    @property
+    def requirements(self):
+        return [
+            s
+            for s in self.data.get("options", {})
+            .get("install_requires", "")
+            .splitlines()
+            if s
+        ]
+
 
 class PyProjectToml(Metadata, ConfigFile):
     @property
@@ -355,6 +377,14 @@ class PyProjectToml(Metadata, ConfigFile):
         manifest_entry[project_name] = f"{project_name}:napari.yaml"
         modules = self._find_src_location()
         return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
+
+    @property
+    def classifiers(self):
+        return self.project_data.get("classifiers", [])
+
+    @property
+    def requirements(self):
+        return self.project_data.get("dependencies", [])
 
 
 class Npe2Yaml(Metadata, ConfigFile):

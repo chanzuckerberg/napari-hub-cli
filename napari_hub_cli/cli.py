@@ -13,12 +13,13 @@ import os
 import sys
 
 from .autofix import analyse_plugins_then_create_PR
-from .checklist import analyse_local_plugin, display_checklist
+from .checklist import analyse_local_plugin_metadata, display_checklist
 from .checklist.analysis import (
     analyze_all_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
+    DEFAULT_SUITE,
 )
 from .citation import create_cff_citation
 from .utils import get_all_napari_plugin_names
@@ -60,7 +61,7 @@ def documentation_checklist(plugin_path):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(plugin_path)
+    check_list = analyse_local_plugin_metadata(plugin_path, DEFAULT_SUITE)
     display_checklist(check_list)
     return 0
 
