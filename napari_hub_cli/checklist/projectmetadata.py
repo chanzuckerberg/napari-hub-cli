@@ -75,7 +75,7 @@ LABELS = MetaFeature(
 )
 
 
-def project_metadata_check(plugin_repo: NapariPlugin):
+def project_metadata_suite(plugin_repo: NapariPlugin):
     pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description

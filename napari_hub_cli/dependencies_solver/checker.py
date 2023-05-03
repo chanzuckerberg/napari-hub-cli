@@ -47,7 +47,7 @@ class InstallationRequirements(ConfigFile):
     def _get_platform_options(self, platform):
         options_platform = []
         for options in self.options_list:
-            if platform in options.named_platform:
+            if options.named_platform and platform in options.named_platform:
                 options_platform.append(options)
         return options_platform
 
@@ -74,9 +74,9 @@ class InstallationRequirements(ConfigFile):
         _, _, _, installed = self.analysis_package(options)
         return len(installed)
 
-    def has_C_extensions_dependencies(self, options):
+    def has_no_C_extensions_dependencies(self, options):
         _, _, c_exts, _ = self.analysis_package(options)
-        return len(set(c_exts) - accepted_C_packages) > 0
+        return len(set(c_exts) - accepted_C_packages) == 0
 
     def alldeps_wheel(self, options):
         _, all_wheels, _, _ = self.analysis_package(options)
@@ -86,9 +86,9 @@ class InstallationRequirements(ConfigFile):
         installable, _, _, _ = self.analysis_package(options)
         return installable
 
-    def _isfor_platform(self, platform, result_index):
+    def _isfor_platform(self, platform, result_field_index):
         for options in self._get_platform_options(platform):
-            res = self.analysis_package(options)[result_index]
+            res = self.analysis_package(options)[result_field_index]
             if not res:
                 return False
         return True
@@ -118,28 +118,28 @@ class InstallationRequirements(ConfigFile):
         return self._isfor_platform("macos", 1)
 
     @property
-    def has_C_ext_windows(self):
+    def has_no_C_ext_windows(self):
         for options in self._get_platform_options("win"):
-            res = self.has_C_extensions_dependencies(options)
-            if res:
-                return True
-        return False
+            res = self.has_no_C_extensions_dependencies(options)
+            if not res:
+                return False
+        return True
 
     @property
-    def has_C_ext_linux(self):
+    def has_no_C_ext_linux(self):
         for options in self._get_platform_options("linux"):
-            res = self.has_C_extensions_dependencies(options)
-            if res:
-                return True
-        return False
+            res = self.has_no_C_extensions_dependencies(options)
+            if not res:
+                return False
+        return True
 
     @property
-    def has_C_ext_macos(self):
+    def has_no_C_ext_macos(self):
         for options in self._get_platform_options("macos"):
-            res = self.has_C_extensions_dependencies(options)
-            if res:
-                return True
-        return False
+            res = self.has_no_C_extensions_dependencies(options)
+            if not res:
+                return False
+        return True
 
     @property
     def has_windows_support(self):

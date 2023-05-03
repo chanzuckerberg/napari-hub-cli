@@ -234,6 +234,8 @@ def display_checklist(analysis_result):
 
     # Display detailed information
     for feature in analysis_result.missing_features():
+        if not feature.meta.advise_location:
+            continue
         files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files]
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()

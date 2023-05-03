@@ -12,12 +12,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 from xdg import xdg_config_home
 
-from .checklist import (
-    AnalysisStatus,
-    analyse_local_plugin,
-    analyse_remote_plugin_url,
-)
-from .checklist.projectmetadata import CITATION, CITATION_VALID, project_metadata_check
+from .checklist import AnalysisStatus, analyse_local_plugin, analyse_remote_plugin_url
+from .checklist.projectmetadata import CITATION, CITATION_VALID, project_metadata_suite
 from .citation import create_cff_citation
 from .utils import NonExistingNapariPluginError, delete_file_tree, get_repository_url
 
@@ -283,7 +279,7 @@ def analyse_then_create_PR(
 
 def autofix_repository(path):
     # creates the checklist
-    result = analyse_local_plugin(path, project_metadata_check)
+    result = analyse_local_plugin(path, project_metadata_suite)
 
     # perform modifications on the files
     # modify + add + commit
