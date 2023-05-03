@@ -16,6 +16,7 @@ def plugin(resources):
     return NapariPlugin(resources / "CZI-29-test2")
 
 
+@pytest.mark.online
 def test_requirements_resolution(plugin):
     reqs = plugin.requirements
     assert len(reqs.requirements) == 3
@@ -31,6 +32,7 @@ def test_requirements_resolution(plugin):
     assert result
 
 
+@pytest.mark.online
 def test_requirements_resolution_installable(plugin):
     reqs = plugin.requirements
 
@@ -69,6 +71,9 @@ def test_requirements_build():
     assert c_exts == []
     assert installed == []
 
+
+@pytest.mark.online
+def test_requirements_build_notallwheels():
     reqs = InstallationRequirements(path=None, requirements=["probreg"])
     installable, all_wheel, c_exts, installed = reqs.analysis_package(options=reqs.options_list[0])
     assert installable is True
@@ -76,6 +81,7 @@ def test_requirements_build():
     assert len(c_exts) > 0
 
 
+@pytest.mark.online
 def test_requirements_integration():
     reqs = InstallationRequirements(path=None, requirements=["numpy"], platforms=["win", "linux", "macos"])
     assert reqs.installable_linux is True

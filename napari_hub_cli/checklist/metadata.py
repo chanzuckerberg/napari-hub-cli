@@ -13,10 +13,6 @@ CHECKLIST_STYLE = {
 }
 
 
-ENTRIES_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing"
-LABELS_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/A-plugin-developer%E2%80%99s-guide-to-categories-on-the-napari-hub"
-
-
 @dataclass
 class MetaFeature(object):
     name: str
@@ -25,6 +21,7 @@ class MetaFeature(object):
     automatically_fixable: bool
     doc_url: str
     force_main_file_usage: bool = True
+    optional: bool = False
 
 
 @dataclass
@@ -76,74 +73,6 @@ class Requirement(object):
     fallbacks: List[RepositoryFile]
 
 
-DISPLAY_NAME = MetaFeature(
-    "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
-)
-SUMMARY = MetaFeature(
-    "Summary Sentence", "has_summary", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-SOURCECODE = MetaFeature(
-    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-AUTHOR = MetaFeature(
-    "Author Name", "has_author", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-BUGTRACKER = MetaFeature(
-    "Issue Submission Link",
-    "has_bugtracker",
-    ".napari-hub/config.yml",
-    True,
-    ENTRIES_DOC_URL,
-)
-USER_SUPPORT = MetaFeature(
-    "Support Channel Link",
-    "has_usersupport",
-    ".napari-hub/config.yml",
-    True,
-    ENTRIES_DOC_URL,
-)
-VIDEO_SCREENSHOT = MetaFeature(
-    "Screenshot/Video",
-    "has_videos_or_screenshots",
-    ".napari-hub/DESCRIPTION.yml",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-USAGE = MetaFeature(
-    "Usage Overview",
-    "has_usage",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-INTRO = MetaFeature(
-    "Intro Paragraph",
-    "has_intro",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-INSTALLATION = MetaFeature(
-    "Installation",
-    "has_installation",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True, ENTRIES_DOC_URL)
-CITATION_VALID = MetaFeature(
-    "Citation Format is Valid", "is_valid", "CITATION.CFF", False, ENTRIES_DOC_URL
-)
-
-LABELS = MetaFeature(
-    "Labels", "has_labels", ".napari-hub/config.yml", False, LABELS_DOC_URL
-)
-
-
 def check_feature(meta, main_files, fallbacks):
     """Checks for a metadata presence in primary and secondary sources
     Parameters
@@ -185,7 +114,21 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def analyse_local_plugin(repopath):
+def analyse_requirements(plugin_repo: NapariPlugin, requirements):
+    result = []
+    for requirement in requirements:
+        for feature in requirement.features:
+            result.append(
+                check_feature(
+                    feature,
+                    main_files=requirement.main_files,
+                    fallbacks=requirement.fallbacks,
+                )
+            )
+    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
+
+
+def analyse_local_plugin_metadata(repopath):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -200,65 +143,11 @@ def analyse_local_plugin(repopath):
     repo = Path(repopath)
     plugin_repo = NapariPlugin(repo)
 
-    pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files
-    napari_cfg = plugin_repo.config_yml
-    description = plugin_repo.description
-    npe2_yaml = plugin_repo.npe2_yaml
+    from .projectmetadata import project_metadata_check
 
-    long_descr_setup_cfg = setup_cfg.long_description()
-    long_descr_setup_py = setup_py.long_description()
-    long_descr_pyproject_toml = pyproject_toml.long_description()
+    requirements = project_metadata_check(plugin_repo)
 
-    requirements = [
-        Requirement(
-            features=[DISPLAY_NAME],
-            main_files=[npe2_yaml],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SUMMARY],
-            main_files=[napari_cfg],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
-            main_files=[pyproject_toml, setup_cfg, setup_py],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
-            main_files=[
-                description,
-            ],
-            fallbacks=[
-                long_descr_setup_cfg,
-                long_descr_setup_py,
-                long_descr_pyproject_toml,
-            ],
-        ),
-        Requirement(
-            features=[CITATION, CITATION_VALID],
-            main_files=[plugin_repo.citation_file],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[LABELS],
-            main_files=[napari_cfg],
-            fallbacks=[],
-        ),
-    ]
-
-    result = []
-    for requirement in requirements:
-        for feature in requirement.features:
-            result.append(
-                check_feature(
-                    feature,
-                    main_files=requirement.main_files,
-                    fallbacks=requirement.fallbacks,
-                )
-            )
-    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
+    return analyse_requirements(plugin_repo, requirements)
 
 
 def display_checklist(analysis_result):
@@ -280,7 +169,7 @@ def display_checklist(analysis_result):
 
     # Display summary result
     for feature in analysis_result.features:
-        if feature.meta is CITATION:
+        if feature.meta.optional:
             console.print()
             console.print("OPTIONAL ", style="underline")
         mark, style = CHECKLIST_STYLE[feature.found]
