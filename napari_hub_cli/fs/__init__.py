@@ -5,7 +5,6 @@ import tomli
 import tomli_w
 import yaml
 
-from ..dependencies_solver import InstallationRequirements
 from ..utils import delete_file_tree, parse_setup
 
 format_parsers = {}
@@ -68,6 +67,12 @@ def parse_yaml(yml_file):
     return {}
 
 
+@register_parser([".txt"])
+def parse_txt(file):
+    content = file.read_text(encoding="utf-8")
+    return {"content": content}
+
+
 @register_unparser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
 def unparse_yaml(yml_file, data):
     with yml_file.open(mode="w", encoding="utf-8") as f:
@@ -95,6 +100,12 @@ def unparse_toml(toml_file, data):
     with toml_file.open(mode="wb") as f:
         content = tomli_w.dump(data, f)
     return content
+
+
+@register_unparser([".txt"])
+def unparse_txt(file, data):
+    file.write_text(data.get("content", ""), encoding="utf-8")
+    return True
 
 
 class RepositoryFile(object):
@@ -133,6 +144,7 @@ class ConfigFile(RepositoryFile):
 
 class NapariPlugin(object):
     def __init__(self, path, forced_gen=0):
+        from ..dependencies_solver import InstallationRequirements
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -154,9 +166,12 @@ class NapariPlugin(object):
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
+
+        req_file, reqs = self.extractfrom_config("requirements")
+        req_file = req_file.file if req_file else path / "requirements.txt"
         self.requirements = InstallationRequirements(
-            path / "requirements.txt",
-            self.extractfrom_config("requirements"),
+            req_file,
+            reqs,
             self.supported_python_version,
             self.supported_platforms,
         )
@@ -164,19 +179,19 @@ class NapariPlugin(object):
 
     @property
     def summary(self):
-        return self.extractfrom_config("summary")
+        return self.extractfrom_config("summary")[1]
 
     @property
     def classifiers(self):
-        return self.extractfrom_config("classifiers", default=())
+        return self.extractfrom_config("classifiers", default=())[1]
 
     @lru_cache()
-    def extractfrom_config(self, attribute, default=None):
+    def extractfrom_config(self, attribute, default=None, failback=None):
         for f in self.pypi_files:
             value = getattr(f, attribute)
             if value:
-                return value
-        return default
+                return (f, value)
+        return (failback, default)
 
     def first_pypi_config(self):
         for f in self.pypi_files:

@@ -17,9 +17,9 @@ CHECKLIST_STYLE = {
 class MetaFeature(object):
     name: str
     attribute: str
-    advise_location: str
-    automatically_fixable: bool
-    doc_url: str
+    advise_location: str = ""
+    automatically_fixable: bool = False
+    doc_url: str = ""
     force_main_file_usage: bool = True
     optional: bool = False
 
