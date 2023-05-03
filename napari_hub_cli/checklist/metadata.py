@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from rich.console import Console
 
@@ -25,8 +25,13 @@ class MetaFeature(object):
 
 
 @dataclass
-class Feature(object):
+class BaseFeature(object):
     meta: MetaFeature
+    result: Any
+
+
+@dataclass
+class Feature(BaseFeature):
     found: bool
     found_in: Optional[RepositoryFile]
     only_in_fallback: bool
@@ -73,6 +78,12 @@ class Requirement(object):
     fallbacks: List[RepositoryFile]
 
 
+def gather_base_feature(meta, main_files):
+    key = f"{meta.attribute}"
+    for main_file in main_files:
+        return BaseFeature(meta, getattr(main_file, key))
+
+
 def check_feature(meta, main_files, fallbacks):
     """Checks for a metadata presence in primary and secondary sources
     Parameters
@@ -93,9 +104,11 @@ def check_feature(meta, main_files, fallbacks):
     has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
     for main_file in main_files:
+        result = getattr(main_file, key)
         if getattr(main_file, key):
             return Feature(
                 meta,
+                result,
                 True,
                 main_file,
                 False,
@@ -105,12 +118,13 @@ def check_feature(meta, main_files, fallbacks):
                 fallbacks,
             )
     for fallback in fallbacks:
+        result = getattr(fallback, key)
         if getattr(fallback, key):
             return Feature(
-                meta, True, fallback, True, True, scanned_files, main_files, fallbacks
+                meta, result, True, fallback, True, True, scanned_files, main_files, fallbacks
             )
     return Feature(
-        meta, False, None, False, has_fallback, scanned_files, main_files, fallbacks
+        meta, None, False, None, False, has_fallback, scanned_files, main_files, fallbacks
     )
 
 
