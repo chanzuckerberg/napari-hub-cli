@@ -1,10 +1,10 @@
 from functools import lru_cache
 from gettext import install
 from itertools import product
-from pathlib import Path
 
-from pip._internal.exceptions import DistributionNotFound, InstallationError
+from pip._internal.exceptions import DistributionNotFound
 
+from ..fs import ConfigFile
 from .solver import DependencySolver
 from .utils import build_options
 
@@ -14,22 +14,15 @@ accepted_C_packages = {
 }
 
 
-class InstallationRequirements(object):
+class InstallationRequirements(ConfigFile):
     def __init__(self, path, requirements, python_versions=None, platforms=None):
-        # self.plugin = plugin
+        super().__init__(path)
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
-        self.path = path
         self.python_versions = python_versions if python_versions else [None]
         self.platforms = platforms if platforms else [None]
-        # self.requirements = self.plugin.extractfrom_config("requirements")
-        if self.requirements is None:
-            try:
-                with self.path.open(encoding="utf-8"):
-                    content = self.path.read_text()
-                self.requirements = content.splitlines()
-            except Exception:
-                self.requirements = []
+        if not self.requirements:
+            self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
 
     def _build_options(self):
@@ -147,3 +140,15 @@ class InstallationRequirements(object):
             if res:
                 return True
         return False
+
+    @property
+    def has_windows_support(self):
+        return "win" in self.platforms
+
+    @property
+    def has_linux_support(self):
+        return "linux" in self.platforms
+
+    @property
+    def has_macos_support(self):
+        return "macos" in self.platforms

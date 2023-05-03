@@ -108,3 +108,10 @@ def test_requirements_integration():
     assert reqs.allwheel_linux is True
     assert reqs.allwheel_macos is True
     assert reqs.allwheel_windows is True
+
+
+def test_platform_support(plugin):
+    reqs = plugin.requirements
+    assert reqs.has_windows_support is True
+    assert reqs.has_linux_support is True
+    assert reqs.has_macos_support is False
