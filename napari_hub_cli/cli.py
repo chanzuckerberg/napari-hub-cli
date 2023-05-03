@@ -7,7 +7,6 @@ Exit code status are the following:
 * 3 = non-existing plugin in the Napari HUB platform
 * 4 = CFF citation file not created
 """
-
 import argparse
 import os
 import sys
@@ -15,11 +14,11 @@ import sys
 from .autofix import analyse_plugins_then_create_PR
 from .checklist import analyse_local_plugin, display_checklist
 from .checklist.analysis import (
-    analyze_all_remote_plugins,
+    DEFAULT_SUITE,
+    analyze_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
-    DEFAULT_SUITE,
 )
 from .checklist.projectquality import project_quality_suite
 from .citation import create_cff_citation
@@ -76,12 +75,45 @@ def code_quality_checklist(plugin_path):
     return 0
 
 
+def remote_code_quality_checklist(plugins, csv, dir, all):
+    """Analysis the code quality of a remote plugin or a list of remote plugins
+    Parameters
+    ----------
+    plugins: list[str]
+        List of plugin names to analyse on the Napari HUB platform
+    csv: str
+        An optional path towards a CSV file where to save the report
+    dir: str
+        Working directory in which plugins will be cloned (by default the tmp directory of your OS)
+    all: bool
+        If yes or no all the plugins of the Napari HUB platform should be considered
+    Returns
+    -------
+    int
+        the status of the result, 0 = OK, 3 = non-existing plugin in the Napari HUB platform
+    """
+    results = analyze_remote_plugins(
+        all_plugins=all,
+        plugins_name=plugins,
+        display_info=True,
+        directory=dir,
+        requirements_suite=project_quality_suite,
+    )
+    if csv:
+        rows = build_csv_dict(results)
+        write_csv(rows, csv)
+    else:
+        for result in results.values():
+            display_checklist(result)
+    return 0 if results else 3
+
+
 def remote_documentation_checklist(plugin_name):
     """Creates a documentation checklist about the available metadata from a plugin of the Napari HUB platform.
     Parameters
     ----------
     plugin_name : str
-        Name of the plugin to analyse on the Naparai HUB platform
+        Name of the plugin to analyse on the Napari HUB platform
     Returns
     -------
     int
@@ -98,7 +130,7 @@ def generate_report_all_plugins(output_csv):
     int
         the status of the result, 0 = OK
     """
-    results = analyze_all_remote_plugins(display_info=True)
+    results = analyze_remote_plugins(display_info=True)
     rows = build_csv_dict(results)
     write_csv(rows, output_csv)
     return 0
@@ -145,6 +177,33 @@ def parse_args(args):
     subcommand.add_argument("plugin_path", help="Local path to your plugin")
     subcommand.set_defaults(func=code_quality_checklist)
 
+    ## code quality check remote
+    subcommand = subparsers.add_parser(
+        "check-plugin-quality", help="Checks the code quality of plugins in Napari HUB"
+    )
+    subcommand.add_argument(
+        "-p",
+        "--plugins",
+        nargs="+",
+        help="List of plugins name to audit",
+    )
+    subcommand.add_argument(
+        "--csv",
+        help="File where to write the CSV report",
+    )
+    subcommand.add_argument(
+        "-d",
+        "--dir",
+        help="Working directory in which plugins will be cloned (by default the tmp directory of your OS)",
+    )
+    subcommand.add_argument(
+        "-a",
+        "--all",
+        default=False,
+        action="store_true",
+        help="Passing on all plugins registed in Napari-HUB platform",
+    )
+    subcommand.set_defaults(func=remote_code_quality_checklist)
 
     ## all-plugin-report
     subcommand = subparsers.add_parser(
