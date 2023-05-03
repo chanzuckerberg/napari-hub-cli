@@ -1,6 +1,6 @@
 from functools import lru_cache
-from gettext import install
 from itertools import product
+from typing import List
 
 from pip._internal.exceptions import DistributionNotFound
 

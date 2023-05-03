@@ -22,6 +22,7 @@ from .metadata import (
     analyse_local_plugin_metadata,
     display_checklist,
 )
+from .projectmetadata import project_metadata_check
 
 
 class FakeProgress(object):
@@ -40,6 +41,7 @@ class FakeProgress(object):
 
 def analyse_remote_plugin(
     plugin_name,
+    requirements_suite=project_metadata_check,
     api_url=NAPARI_HUB_API_URL,
     display_info=False,
     cleanup=True,
@@ -80,6 +82,7 @@ def analyse_remote_plugin(
         return analyse_remote_plugin_url(
             plugin_name,
             plugin_url,
+            requirements_suite=requirements_suite,
             display_info=display_info,
             cleanup=cleanup,
             directory=directory,
@@ -92,6 +95,7 @@ def analyse_remote_plugin(
 def analyse_remote_plugin_url(
     plugin_name,
     plugin_url,
+    requirements_suite=project_metadata_check,
     display_info=False,
     cleanup=True,
     directory=None,
@@ -127,7 +131,7 @@ def analyse_remote_plugin_url(
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url
                 )
-        result = analyse_local_plugin_metadata(test_repo)
+        result = analyse_local_plugin_metadata(test_repo, requirements_suite)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result

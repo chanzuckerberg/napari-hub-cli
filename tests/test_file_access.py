@@ -744,6 +744,7 @@ def test_requirements(resources):
     assert requirements.options_list[8].python_version == (3, 9)
     assert requirements.options_list[8].platforms == MACOS
 
+    assert requirements.requirements
     assert len(requirements.requirements) == 3
     assert "JPype1>=1.2.1" in requirements.requirements
     assert "matplotlib" in requirements.requirements
@@ -754,6 +755,8 @@ def test_requirements_list(resources):
     plugin = NapariPlugin(resources / "CZI-29-test2")
 
     reqs = plugin.requirements
+
+    assert reqs.requirements
     assert len(reqs.requirements) == 3
     assert "numpy" in reqs.requirements
     assert "cython" in reqs.requirements

@@ -121,10 +121,26 @@ def check_feature(meta, main_files, fallbacks):
         result = getattr(fallback, key)
         if getattr(fallback, key):
             return Feature(
-                meta, result, True, fallback, True, True, scanned_files, main_files, fallbacks
+                meta,
+                result,
+                True,
+                fallback,
+                True,
+                True,
+                scanned_files,
+                main_files,
+                fallbacks,
             )
     return Feature(
-        meta, None, False, None, False, has_fallback, scanned_files, main_files, fallbacks
+        meta,
+        None,
+        False,
+        None,
+        False,
+        has_fallback,
+        scanned_files,
+        main_files,
+        fallbacks,
     )
 
 
@@ -142,24 +158,24 @@ def analyse_requirements(plugin_repo: NapariPlugin, requirements):
     return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
 
 
-def analyse_local_plugin_metadata(repopath):
+def analyse_local_plugin_metadata(repo_path, requirement_suite):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
-    repo : str
+    repo_path : str
         local path to the plugin
+    requirements_suite: Func[NapariPlugin] -> Requirement
+        function that takes a NapariPlugin as input and generates the suite to test the repo against
 
     Returns
     -------
     PluginAnalysisResult:
         the result of the analysis ran against the local repository
     """
-    repo = Path(repopath)
+    repo = Path(repo_path)
     plugin_repo = NapariPlugin(repo)
 
-    from .projectmetadata import project_metadata_check
-
-    requirements = project_metadata_check(plugin_repo)
+    requirements = requirement_suite(plugin_repo)
 
     return analyse_requirements(plugin_repo, requirements)
 
