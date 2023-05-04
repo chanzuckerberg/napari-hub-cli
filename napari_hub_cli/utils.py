@@ -10,61 +10,40 @@ import weakref
 import requests
 import setuptools
 
-import re
-import contextlib
-
 from .constants import NAPARI_HUB_API_URL
-from urllib.error import HTTPError
 
-GITHUB_PATTERN = r"https://github.com/.+/.+"
+# def get_github_license(meta):
+#     """Use Source Code field to get license from GitHub repo
 
-def get_osi_approved_licenses():
-    """
-    Retrieves the list of SPDX identifiers for all OSI-approved licenses from https://opensource.org/licenses/.
-    
-    Returns
-    -------
-    list of str
-        The list of SPDX identifiers for all OSI-approved licenses.
-    """
-    response = requests.get("https://api.opensource.org/licenses/")
-    licenses = []
-    if response.status_code == 200:
-        pattern = r"/licenses/([a-z0-9-]+)"
-        matches = re.findall(pattern, response.text)
-        licenses = matches
-    return licenses
+#     Parameters
+#     ----------
+#     meta : dict
+#         dictionary of loaded metadata
 
+#     Returns
+#     -------
+#     str
+#         the license spdx identifier, or None
+#     """
+#     github_token = os.environ.get("GITHUB_TOKEN")
+#     auth_header = None
+#     if github_token:
+#         auth_header = {"Authorization": f"token {github_token}"}
 
-def get_github_license(meta):
-    """Use Source Code field to get license from GitHub repo
-
-    Parameters
-    ----------
-    meta : dict
-        dictionary of loaded metadata
-
-    Returns
-    -------
-    str
-        The license SPDX identifier, or None if not found or not an OSI-approved license.
-    """
-    
-    if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"]):
-        repo_url = meta["Source Code"]
-        api_url = repo_url.replace(
-            "https://github.com/", "https://api.github.com/repos/"
-        )
-        with contextlib.suppress(HTTPError):
-            response = requests.get(f"{api_url}/license")
-            if response.status_code != requests.codes.ok:
-                response.raise_for_status()
-            response_json = response.json()
-            if "license" in response_json and "spdx_id" in response_json["license"]:
-                spdx_id = response_json["license"]["spdx_id"]
-                if spdx_id != "NOASSERTION" and spdx_id.lower() in get_osi_approved_licenses():
-                    return spdx_id
-
+#     if "Source Code" in meta and re.match(GITHUB_PATTERN, meta["Source Code"].value):
+#         repo_url = meta["Source Code"].value
+#         api_url = repo_url.replace(
+#             "https://github.com/", "https://api.github.com/repos/"
+#         )
+#         with suppress(HTTPError):
+#             response = requests.get(f"{api_url}/license", headers=auth_header)
+#             if response.status_code != requests.codes.ok:
+#                 response.raise_for_status()
+#             response_json = response.json()
+#             if "license" in response_json and "spdx_id" in response_json["license"]:
+#                 spdx_id = response_json["license"]["spdx_id"]
+#                 if spdx_id != "NOASSERTION":
+#                     return spdx_id
 
 
 class NonExistingNapariPluginError(Exception):
