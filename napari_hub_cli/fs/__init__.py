@@ -141,6 +141,8 @@ class NapariPlugin(object):
         )
         from .descriptions import MarkdownDescription
 
+        from .license import License
+
         self.path = path
         self.setup_py = SetupPy(path / "setup.py")
         self.setup_cfg = SetupCfg(path / "setup.cfg")
@@ -154,6 +156,7 @@ class NapariPlugin(object):
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
         self.forced_gen = forced_gen
+        self.license = License(path / "LICENSE")
 
     @property
     def summary(self):
