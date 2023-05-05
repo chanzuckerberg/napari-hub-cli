@@ -20,18 +20,20 @@ def test_real_repo():
     url = 'https://github.com/brainglobe/brainreg-napari'
     return NapariPlugin(current_path / "resources" / "licenses", url)
 
-    
+
+@pytest.mark.online
 def test_get_real_osi_licenses(test_real_repo):
     license = test_real_repo.license
-    print(dir(license))
+    license.get_osi_approved_licenses.cache_clear()  # type: ignore
     approved_licenses = license.get_osi_approved_licenses()
-    print(approved_licenses)
     license_id = license.get_github_license()
-    
+
     assert 'AAL' in approved_licenses
     assert 'AFL-3.0' in approved_licenses
     assert license_id is not None
     assert license_id in approved_licenses
+
+    license.get_osi_approved_licenses.cache_clear()  # type: ignore
 
     # def test_get_real_github_license(self, test_real_repo):
     #     license = test_real_repo.license

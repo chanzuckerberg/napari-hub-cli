@@ -1,19 +1,18 @@
-
-
+import contextlib
 import re
+from functools import lru_cache
+
 import requests
 from requests.exceptions import HTTPError
-import contextlib
+
 from ..fs import RepositoryFile
-from mistletoe import Document
-from functools import lru_cache
 
 
 class License(RepositoryFile):
     """
     Represents a license file in a GitHub repository and provides methods for
     retrieving its SPDX identifier and checking if it is an OSI-approved license.
-    
+
     Parameters
     ----------
     file : str
@@ -27,7 +26,7 @@ class License(RepositoryFile):
         self.url = url
 
     @classmethod
-    # @lru_cache()
+    @lru_cache()
     def get_osi_approved_licenses(cls):
         """
         Retrieves the list of SPDX identifiers for all OSI-approved licenses from https://opensource.org/licenses/.
@@ -39,10 +38,9 @@ class License(RepositoryFile):
         """
         OSI_LICENSES_URL = "https://api.opensource.org/licenses/"
         response = requests.get(OSI_LICENSES_URL)
-        licenses = []
         if response.status_code == 200:
-            licenses = [entry['id'] for entry in response.json()]
-        return licenses
+            return [entry["id"] for entry in response.json()]
+        return []
 
     def get_github_license(self):
         """
@@ -80,5 +78,4 @@ class License(RepositoryFile):
             True if the license is OSI-approved, False otherwise.
         """
         spdx_id = self.get_github_license()
-        return spdx_id  in self.get_osi_approved_licenses()
-          
+        return spdx_id in self.get_osi_approved_licenses()
