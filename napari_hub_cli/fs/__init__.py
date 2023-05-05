@@ -1,11 +1,12 @@
 from configparser import ConfigParser
 from functools import lru_cache
+from webbrowser import get
 
 import tomli
 import tomli_w
 import yaml
 
-from ..utils import delete_file_tree, parse_setup
+from ..utils import delete_file_tree, parse_setup, scrap_git_infos
 
 format_parsers = {}
 format_unparsers = {}
@@ -131,7 +132,7 @@ class ConfigFile(RepositoryFile):
 
 
 class NapariPlugin(object):
-    def __init__(self, path,url, forced_gen=0):
+    def __init__(self, path, url=None, forced_gen=0):
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -140,7 +141,6 @@ class NapariPlugin(object):
             SetupPy,
         )
         from .descriptions import MarkdownDescription
-
         from .license import License
 
         self.path = path
@@ -157,7 +157,11 @@ class NapariPlugin(object):
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
         self.forced_gen = forced_gen
-        self.license = License(path / "LICENSE", url)
+
+        pypi_config = self.first_pypi_config()
+        source_code = pypi_config.sourcecode if pypi_config else None
+        plugin_url = self.url or source_code or scrap_git_infos(self.path).get("url")
+        self.license = License(path / "LICENSE", plugin_url)
 
     @property
     def summary(self):
