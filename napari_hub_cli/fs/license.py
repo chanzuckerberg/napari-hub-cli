@@ -27,7 +27,7 @@ class License(RepositoryFile):
         self.url = url
 
     @classmethod
-    @lru_cache()
+    # @lru_cache()
     def get_osi_approved_licenses(cls):
         """
         Retrieves the list of SPDX identifiers for all OSI-approved licenses from https://opensource.org/licenses/.
@@ -41,7 +41,7 @@ class License(RepositoryFile):
         response = requests.get(OSI_LICENSES_URL)
         licenses = []
         if response.status_code == 200:
-            licenses = [entry.id for entry in response.json()]
+            licenses = [entry['id'] for entry in response.json()]
         return licenses
 
     def get_github_license(self):
@@ -54,7 +54,6 @@ class License(RepositoryFile):
             The SPDX identifier of the license, or None if not found or not an OSI-approved license.
         """
         GITHUB_PATTERN = r"https://github.com/.+/.+"
-
         if re.match(GITHUB_PATTERN, self.url):
             repo_url = self.url
             api_url = repo_url.replace(
@@ -81,5 +80,5 @@ class License(RepositoryFile):
             True if the license is OSI-approved, False otherwise.
         """
         spdx_id = self.get_github_license()
-        return spdx_id and spdx_id.lower() in self.get_osi_approved_licenses()
+        return spdx_id  in self.get_osi_approved_licenses()
           

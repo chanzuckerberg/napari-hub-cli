@@ -131,7 +131,7 @@ class ConfigFile(RepositoryFile):
 
 
 class NapariPlugin(object):
-    def __init__(self, path, forced_gen=0):
+    def __init__(self, path,url, forced_gen=0):
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -144,6 +144,7 @@ class NapariPlugin(object):
         from .license import License
 
         self.path = path
+        self.url = url
         self.setup_py = SetupPy(path / "setup.py")
         self.setup_cfg = SetupCfg(path / "setup.cfg")
         if (path / ".napari").exists():
@@ -156,7 +157,7 @@ class NapariPlugin(object):
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
         self.forced_gen = forced_gen
-        self.license = License(path / "LICENSE")
+        self.license = License(path / "LICENSE", url)
 
     @property
     def summary(self):
