@@ -253,8 +253,11 @@ class NapariPlugin(object):
         for entry in classifiers:
             if "Programming Language :: Python ::" not in entry:
                 continue
-            version = entry.split(" :: ")[2].split(".")
-            versions.append(tuple(int(n) for n in version))
+            try:
+                version = entry.split(" :: ")[2].split(".")
+                versions.append(tuple(int(n) for n in version))
+            except ValueError:
+                continue
         if len(versions) == 1 and len(versions[0]):
             # If only "python 3" without more information, we will consider the current version
             return (None,)
