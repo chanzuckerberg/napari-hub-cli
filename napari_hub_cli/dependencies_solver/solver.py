@@ -97,8 +97,9 @@ class DependencySolver(InstallCommand):
     def resolve(self, packages, options):
         self.tempdir_registry = self.enter_context(tempdir_registry())
         self.enter_context(global_tempdir_manager())
+        # from pip._internal.utils.logging import setup_logging
         # level_number = setup_logging(
-        #     verbosity=logging.DEBUG,
+        #     verbosity=2,
         #     no_color=options.no_color,
         #     user_log_file=options.log,
         # )

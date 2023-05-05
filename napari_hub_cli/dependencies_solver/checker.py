@@ -52,7 +52,7 @@ class InstallationRequirements(ConfigFile):
         options_list = []
         for python_version, platform in product(python_versions, platforms):
             options = build_options(python_version, platform)
-            options.named_platform = platform
+            options.named_platform = platform if platform else {"win", "linux", "macos"}
             options_list.append(options)
         return options_list
 
