@@ -1,13 +1,8 @@
 from unittest import mock
 from napari_hub_cli.fs import NapariPlugin
-from napari_hub_cli.fs.license import License
-import tempfile
 from pathlib import Path
-
 import pytest
-import requests_mock
-import json
-from .config_enum import CONFIG, DEMO_GITHUB_REPO
+
 
 RESOURCES = Path(__file__).parent / "resources"
 MOCK_REQUESTS = None
@@ -29,6 +24,7 @@ def test_get_real_osi_licenses(test_real_repo):
     for osi_license in licenses_to_check:
         assert osi_license in approved_licenses
     assert len(licenses_to_check) <= len(approved_licenses)
+    assert len(set(approved_licenses)) == len(approved_licenses)
     license.get_osi_approved_licenses.cache_clear()  # type: ignore
 
 @pytest.mark.online
@@ -36,6 +32,7 @@ def test_get_real_github_licenses(test_real_repo):
     license = test_real_repo.license
     license_id = license.get_github_license()
     assert license_id is not None
+    assert len(license_id) > 0
     assert license_id in 'MIT'
 
 @pytest.mark.online
