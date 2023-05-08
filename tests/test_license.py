@@ -15,17 +15,24 @@ def test_real_repo():
     return NapariPlugin(current_path / "resources" / "licenses"/ "repo_example1", url)
 
 
+@pytest.fixture(autouse=True)
+def clear_cache(test_real_repo):
+    license = test_real_repo.license
+    license.get_osi_approved_licenses.cache_clear()  # type: ignore
+    yield
+    license.get_osi_approved_licenses.cache_clear()  # type: ignore
+
+
 @pytest.mark.online
 def test_get_real_osi_licenses(test_real_repo):
     license = test_real_repo.license
-    license.get_osi_approved_licenses.cache_clear()  # type: ignore
     approved_licenses = license.get_osi_approved_licenses()
     licenses_to_check = ['AAL', 'AFL-3.0', 'AGPL-3.0', 'APL-1.0', 'APSL-2.0', 'Apache-1.1', 'Apache-2.0', 'Artistic-1.0', 'Artistic-2.0', 'BSD-2', 'BSD-3', 'BSL-1.0', 'CATOSL-1.1', 'CDDL-1.0', 'CECILL-2.1', 'CNRI-Python', 'CPAL-1.0', 'CPL-1.0', 'CUA-OPL-1.0', 'CVW', 'ECL-1.0', 'ECL-2.0', 'EFL-1.0', 'EFL-2.0', 'EPL-1.0', 'EUDatagrid', 'EUPL-1.1', 'Entessa', 'Fair', 'Frameworx-1.0', 'GPL-2.0', 'GPL-3.0', 'HPND', 'IPA', 'IPL-1.0', 'ISC', 'Intel', 'LGPL-2.1', 'LGPL-3.0', 'LPL-1.0', 'LPL-1.02', 'LPPL-1.3c', 'LiLiQ-P-1.1', 'LiLiQ-R+', 'LiLiQ-R-1.1', 'MIT', 'MPL-1.0', 'MPL-1.1', 'MPL-2.0', 'MS-PL', 'MS-RL', 'MirOS', 'Motosoto', 'Multics', 'NASA-1.3', 'NCSA', 'NGPL', 'NPOSL-3.0', 'NTP', 'Naumen', 'Nokia', 'OCLC-2.0', 'OFL-1.1', 'OGTSL', 'OPL-2.1', 'OSL-1.0', 'OSL-2.1', 'OSL-3.0', 'PHP-3.0', 'PostgreSQL', 'Python-2.0', 'QPL-1.0', 'RPL-1.1', 'RPL-1.5', 'RPSL-1.0', 'RSCPL', 'SISSL', 'SPL-1.0', 'Simple-2.0', 'Sleepycat', 'UPL', 'VSL-1.0', 'W3C', 'WXwindows', 'Watcom-1.0', 'Xnet', 'ZPL-2.0', 'Zlib', 'jabberpl']
     for osi_license in licenses_to_check:
         assert osi_license in approved_licenses
     assert len(licenses_to_check) <= len(approved_licenses)
     assert len(set(approved_licenses)) == len(approved_licenses)
-    license.get_osi_approved_licenses.cache_clear()  # type: ignore
+
 
 @pytest.mark.online
 def test_get_real_github_licenses(test_real_repo):
@@ -35,17 +42,16 @@ def test_get_real_github_licenses(test_real_repo):
     assert len(license_id) > 0
     assert license_id in 'MIT'
 
+
 @pytest.mark.online
 def test_check_real_github_osi_license(test_real_repo):
     license = test_real_repo.license
-    license.get_osi_approved_licenses.cache_clear()  # type: ignore
     approved_licenses = license.get_osi_approved_licenses()
     license_id = license.get_github_license()
     false_license_id = 'HELLO'
     assert license_id is not None
     assert license_id in approved_licenses
     assert false_license_id not in approved_licenses
-    license.get_osi_approved_licenses.cache_clear()  # type: ignore
 
 
 @pytest.fixture(scope="module")
