@@ -22,7 +22,7 @@ with suppress(ImportError):
 from functools import lru_cache
 from itertools import product
 
-from pip._internal.exceptions import DistributionNotFound
+from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError
 
 from ..fs import ConfigFile
 from .solver import DependencySolver
@@ -61,6 +61,8 @@ class InstallationRequirements(ConfigFile):
         try:
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound:
+            return None
+        except InstallationSubprocessError:
             return None
 
     @lru_cache()
