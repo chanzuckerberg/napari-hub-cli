@@ -4,8 +4,9 @@ import pytest
 import requests_mock
 
 from napari_hub_cli.checklist.analysis import (
+    DEFAULT_SUITE,
     analyse_remote_plugin,
-    analyze_all_remote_plugins,
+    analyze_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
@@ -139,13 +140,21 @@ def test_analyze_all_remote_plugins(napari_hub):
         "http://my_repo_url",
         json={},
     )
-    results = analyze_all_remote_plugins()
+    results = analyze_remote_plugins(all_plugins=True)
 
     assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
 
-    results = analyze_all_remote_plugins(display_info=True)
+    results = analyze_remote_plugins(all_plugins=True, display_info=True)
 
     assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
+
+    results = analyze_remote_plugins(plugins_name=["avidaq"], display_info=True)
+
+    assert list(results.keys()) == ["avidaq"]
+
+    results = analyze_remote_plugins(plugins_name=[], display_info=True)
+
+    assert list(results.keys()) == []
 
 
 def test_build_csv_empty():
@@ -155,7 +164,7 @@ def test_build_csv_empty():
 
 def test_build_csv():
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     assert rows != []
@@ -172,7 +181,7 @@ def test_write_csv_empty(tmp_path):
 def test_write_csv(tmp_path):
     output = tmp_path / "output.csv"
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     write_csv(rows, output)

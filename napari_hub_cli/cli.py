@@ -13,6 +13,8 @@ import os
 import sys
 
 from .checklist import analyse_local_plugin, display_checklist
+from .checklist.analysis import DEFAULT_SUITE
+from .checklist.projectquality import project_quality_suite
 from .citation import create_cff_citation
 
 
@@ -52,7 +54,16 @@ def documentation_checklist(plugin_path):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(plugin_path)
+    check_list = analyse_local_plugin(plugin_path, DEFAULT_SUITE)
+    display_checklist(check_list)
+    return 0
+
+
+def code_quality_checklist(plugin_path):
+    if not os.path.exists(plugin_path):
+        print(f"Nothing found at path: {plugin_path}")
+        return 1
+    check_list = analyse_local_plugin(plugin_path, project_quality_suite)
     display_checklist(check_list)
     return 0
 
@@ -61,11 +72,19 @@ def parse_args(args):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
+    # metadata check
     subcommand = subparsers.add_parser(
         "check-metadata", help="Checks consistency of a local plugin"
     )
     subcommand.add_argument("plugin_path", help="Local path to your plugin")
     subcommand.set_defaults(func=documentation_checklist)
+
+    ## code quality check
+    subcommand = subparsers.add_parser(
+        "check-quality", help="Checks the code quality of a local plugin"
+    )
+    subcommand.add_argument("plugin_path", help="Local path to your plugin")
+    subcommand.set_defaults(func=code_quality_checklist)
 
     ## create-cff-citation
     subcommand = subparsers.add_parser(
