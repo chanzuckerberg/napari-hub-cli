@@ -57,7 +57,7 @@ class License(RepositoryFile):
             api_url = repo_url.replace(
                 "https://github.com/", "https://api.github.com/repos/"
             )
-            with contextlib.suppress(HTTPError):
+            try:
                 response = requests.get(f"{api_url}/license")
                 if response.status_code != requests.codes.ok:
                     response.raise_for_status()
@@ -66,6 +66,9 @@ class License(RepositoryFile):
                     spdx_id = response_json["license"]["spdx_id"]
                     if spdx_id != "NOASSERTION":
                         return spdx_id
+            except Exception as e:
+                raise e
+
 
     @property
     def is_osi_approved(self):

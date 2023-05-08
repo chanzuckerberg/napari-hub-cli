@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 from functools import lru_cache
-from webbrowser import get
 
 import tomli
 import tomli_w
