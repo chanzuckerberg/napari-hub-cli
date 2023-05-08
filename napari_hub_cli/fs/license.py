@@ -69,7 +69,6 @@ class License(RepositoryFile):
             except Exception as e:
                 raise e
 
-
     @property
     def is_osi_approved(self):
         """

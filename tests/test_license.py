@@ -1,4 +1,6 @@
 from unittest import mock
+
+from requests import HTTPError
 from napari_hub_cli.fs import NapariPlugin
 from pathlib import Path
 import pytest
@@ -36,22 +38,28 @@ def test_get_real_osi_licenses(test_real_repo):
 
 @pytest.mark.online
 def test_get_real_github_licenses(test_real_repo):
-    license = test_real_repo.license
-    license_id = license.get_github_license()
-    assert license_id is not None
-    assert len(license_id) > 0
-    assert license_id in 'MIT'
+    try:
+        license = test_real_repo.license
+        license_id = license.get_github_license()
+        assert license_id is not None
+        assert len(license_id) > 0
+        assert license_id in 'MIT'
+    except HTTPError as e:
+        pytest.skip(f"HTTP Error, probably github limit rate {e}")
 
 
 @pytest.mark.online
 def test_check_real_github_osi_license(test_real_repo):
-    license = test_real_repo.license
-    approved_licenses = license.get_osi_approved_licenses()
-    license_id = license.get_github_license()
-    false_license_id = 'HELLO'
-    assert license_id is not None
-    assert license_id in approved_licenses
-    assert false_license_id not in approved_licenses
+    try:
+        license = test_real_repo.license
+        approved_licenses = license.get_osi_approved_licenses()
+        license_id = license.get_github_license()
+        false_license_id = 'HELLO'
+        assert license_id is not None
+        assert license_id in approved_licenses
+        assert false_license_id not in approved_licenses
+    except HTTPError as e:
+        pytest.skip(f"HTTP Error, probably github limit rate {e}")
 
 
 @pytest.fixture(scope="module")
