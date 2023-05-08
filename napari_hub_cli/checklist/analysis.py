@@ -22,6 +22,9 @@ from .metadata import (
     analyse_local_plugin,
     display_checklist,
 )
+from .projectmetadata import project_metadata_suite
+
+DEFAULT_SUITE = project_metadata_suite
 
 
 class FakeProgress(object):
@@ -40,6 +43,7 @@ class FakeProgress(object):
 
 def analyse_remote_plugin(
     plugin_name,
+    requirements_suite=DEFAULT_SUITE,
     api_url=NAPARI_HUB_API_URL,
     display_info=False,
     cleanup=True,
@@ -80,6 +84,7 @@ def analyse_remote_plugin(
         return analyse_remote_plugin_url(
             plugin_name,
             plugin_url,
+            requirements_suite=requirements_suite,
             display_info=display_info,
             cleanup=cleanup,
             directory=directory,
@@ -92,6 +97,7 @@ def analyse_remote_plugin(
 def analyse_remote_plugin_url(
     plugin_name,
     plugin_url,
+    requirements_suite=DEFAULT_SUITE,
     display_info=False,
     cleanup=True,
     directory=None,
@@ -127,31 +133,44 @@ def analyse_remote_plugin_url(
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url
                 )
-        result = analyse_local_plugin(test_repo)
+        result = analyse_local_plugin(test_repo, requirements_suite)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result
 
 
-def display_remote_analysis(plugin_name, api_url=NAPARI_HUB_API_URL):
-    result = analyse_remote_plugin(plugin_name, api_url=api_url, display_info=True)
+def display_remote_analysis(
+    plugin_name, requirements_suite=DEFAULT_SUITE, api_url=NAPARI_HUB_API_URL
+):
+    result = analyse_remote_plugin(
+        plugin_name, requirements_suite, api_url=api_url, display_info=True
+    )
     display_checklist(result)
     _display_error_message(plugin_name, result)
     return result.status == AnalysisStatus.SUCCESS
 
 
-def analyze_all_remote_plugins(
-    api_url=NAPARI_HUB_API_URL, display_info=False, directory=None
+def analyze_remote_plugins(
+    all_plugins=False,
+    plugins_name=None,
+    requirements_suite=DEFAULT_SUITE,
+    api_url=NAPARI_HUB_API_URL,
+    display_info=False,
+    directory=None,
 ):
     all_results = {}
-    plugins_name = get_all_napari_plugin_names(api_url)
+    if all_plugins:
+        plugins_name = get_all_napari_plugin_names(api_url)
+    else:
+        plugins_name = plugins_name or []
     total = len(plugins_name)
-    description = "Analysing all plugins in Napari-HUB repository..."
+    print(f"Selected plugins: {'all' if all_plugins else plugins_name}")
+    description = "Analysing plugins in Napari-HUB repository..."
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
             result = analyse_remote_plugin(
-                name, display_info=False, directory=directory
+                name, requirements_suite, display_info=False, directory=directory
             )
             all_results[name] = result
             p.update(

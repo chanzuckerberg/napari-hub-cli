@@ -3,13 +3,16 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message
-from napari_hub_cli.checklist.metadata import (
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     INTRO,
     LABELS,
     LABELS_DOC_URL,
-    VIDEO_SCREENSHOT,
+    VIDEO_SCREENSHOT
+)
+from napari_hub_cli.checklist import (
     analyse_local_plugin,
     display_checklist,
 )
@@ -98,7 +101,7 @@ def test_check_citation(test_repo):
 
 
 def test_create_checkist(test_repo):
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     assert len(result.features) == 13
 
@@ -126,7 +129,7 @@ def test_create_checkist(test_repo):
 def test_display_checklist(test_repo):
     INTRO.force_main_file_usage = True
 
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
     display_checklist(result)
 
     INTRO.force_main_file_usage = False  # We cheat here
@@ -135,7 +138,7 @@ def test_display_checklist(test_repo):
 def test_build_issue_message(test_repo):
     INTRO.force_main_file_usage = True
 
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     features = result.features
 
