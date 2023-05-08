@@ -6,9 +6,12 @@ import stat
 import tempfile
 import warnings
 import weakref
+from re import sub
 
 import requests
 import setuptools
+from git import GitError, InvalidGitRepositoryError
+from git.repo import Repo
 
 from .constants import NAPARI_HUB_API_URL
 
@@ -127,6 +130,24 @@ def get_repository_url(plugin_name, api_url=NAPARI_HUB_API_URL):
         raise NonExistingNapariPluginError(plugin_name, closest=closest_name)
 
     return plugin_info["code_repository"]
+
+
+def scrap_git_infos(local_repo):
+    try:
+        repo = Repo(local_repo.absolute())
+    except InvalidGitRepositoryError:
+        return {}
+
+    try:
+        url = repo.remote().url  # pragma: no cover
+
+        title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
+        return {
+            "title": title,
+            "url": url,
+        }
+    except Exception:
+        return {"title": "", "url": ""}
 
 
 # TODO Improve me by mocking failing imports

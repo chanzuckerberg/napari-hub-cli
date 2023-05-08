@@ -1,34 +1,16 @@
 from contextlib import suppress
 from pathlib import Path
-from re import sub
 
-from git import GitError, InvalidGitRepositoryError
+from git import InvalidGitRepositoryError
 from git.repo import Repo
 from rich.console import Console
 
 from .fs import NapariPlugin
+from .utils import scrap_git_infos
 
 
 def fake_print(*args):
     ...
-
-
-def scrap_git_infos(local_repo):
-    try:
-        repo = Repo(local_repo.absolute())
-    except InvalidGitRepositoryError:
-        return {}
-
-    try:
-        url = repo.remote().url  # pragma: no cover
-
-        title = sub(r"\.git$", "", [s for s in url.split("/") if s][-1])
-        return {
-            "title": title,
-            "url": url,
-        }
-    except Exception:
-        return {"title": "", "url": ""}
 
 
 def scrap_users(local_repo):
