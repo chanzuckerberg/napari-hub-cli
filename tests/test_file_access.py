@@ -44,6 +44,9 @@ def test_setup_py(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is True
+    assert file.version == "0.0.1"
+
     assert file.find_npe2() is None
 
     assert file.classifiers
@@ -69,6 +72,9 @@ def test_setup2_py(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is False
+    assert file.version is None
+
     assert file.find_npe2() is not None
     assert file.find_npe2() == resources / "module_path" / "napari.yaml"
 
@@ -89,6 +95,9 @@ def test_setup3_py(resources):
     assert file.has_author is True
     assert file.has_bugtracker is False
     assert file.has_summary is True
+
+    assert file.has_version is True
+    assert file.version == "1.0.1"
 
     assert file.find_npe2() is None
 
@@ -113,6 +122,9 @@ def test_setup_cfg(resources):
     assert file.has_author is True
     assert file.has_bugtracker is False
     assert file.has_summary is True
+
+    assert file.has_version is True
+    assert file.version == "0.0.1"
 
     assert file.find_npe2() is None
 
@@ -145,6 +157,9 @@ def test_setup2_cfg(resources):
     assert file.has_author is True
     assert file.has_bugtracker is False
     assert file.has_summary is True
+
+    assert file.has_version is False
+    assert file.version is None
 
     assert file.find_npe2() is None
 
@@ -197,6 +212,9 @@ def test_pyproject_toml(resources):
     assert file.has_author is False
     assert file.has_bugtracker is False
     assert file.has_summary is False
+
+    assert file.has_version is True
+    assert file.version == "0.0.1"
 
     assert file.find_npe2() is not None
 

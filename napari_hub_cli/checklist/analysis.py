@@ -1,6 +1,7 @@
 # https://api.napari-hub.org/plugins
 
 import csv
+import itertools
 from pathlib import Path
 
 import requests
@@ -220,6 +221,9 @@ def build_csv_dict(dict_results):
             "Analysis Status": analysis_result.status.name,
             "Repository URL": analysis_result.url,
         }
+        for feature in analysis_result.additionals:
+            row[feature.meta.name] = feature.result
+
         for feature in analysis_result.features:
             row[feature.meta.name] = feature.found
             if feature.has_fallback_files:

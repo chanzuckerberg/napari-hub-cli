@@ -15,8 +15,6 @@ from napari_hub_cli.checklist.projectmetadata import (
 from napari_hub_cli.citation import create_cff_citation
 from napari_hub_cli.fs import NapariPlugin
 
-_, DEFAULT_SUITE = DEFAULT_SUITE
-
 
 @pytest.fixture(scope="module")
 def test_repo():

@@ -6,6 +6,11 @@ LABELS_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/A-plugin-dev
 
 TITLE = "Documentation"
 
+# Additional data
+HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
+PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+
+# Checklist
 DISPLAY_NAME = MetaFeature(
     "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
 )
@@ -88,6 +93,13 @@ def suite_generator(plugin_repo: NapariPlugin):
 
     return RequirementSuite(
         title=TITLE,
+        additionals=[
+            Requirement(
+                features=[HAS_VERSION, PLUGIN_VERSION],
+                main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+        ],
         requirements=[
             Requirement(
                 features=[DISPLAY_NAME],
