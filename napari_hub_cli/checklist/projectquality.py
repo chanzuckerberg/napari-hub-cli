@@ -21,11 +21,18 @@ HAS_C_EXT_LINUX = MetaFeature(
 HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
+HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 
 
 def project_quality_suite(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
+    license = plugin_repo.license
     return [
+        Requirement(
+            features=[HAS_OSI_LICENSE],
+            main_files=[license],
+            fallbacks=[],
+        ),
         Requirement(
             features=[
                 HAS_SUPPORT_LINX,

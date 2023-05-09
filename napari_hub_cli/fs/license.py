@@ -39,7 +39,12 @@ class License(RepositoryFile):
         OSI_LICENSES_URL = "https://api.opensource.org/licenses/"
         response = requests.get(OSI_LICENSES_URL)
         if response.status_code == 200:
-            return [entry["id"] for entry in response.json()]
+            all_ids = (
+                [entry["id"]]
+                + [ident["identifier"] for ident in entry.get("identifiers", [])]
+                for entry in response.json()
+            )
+            return [id for ids in all_ids for id in ids]
         return []
 
     def get_github_license(self):
@@ -52,7 +57,8 @@ class License(RepositoryFile):
             The SPDX identifier of the license, or None if not found or not an OSI-approved license.
         """
         GITHUB_PATTERN = r"https://github.com/.+/.+"
-        if re.match(GITHUB_PATTERN, self.url):
+        url = self.url or ""
+        if re.match(GITHUB_PATTERN, url):
             repo_url = self.url
             api_url = repo_url.replace(
                 "https://github.com/", "https://api.github.com/repos/"
