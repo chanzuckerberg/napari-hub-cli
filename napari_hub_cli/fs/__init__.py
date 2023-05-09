@@ -142,9 +142,15 @@ class ConfigFile(RepositoryFile):
         return format_unparsers[self.file.suffix](self.file, self.data)
 
 
+class VirtualJsonFile(RepositoryFile):
+    def __init__(self, virtualpath):
+        super().__init__(virtualpath)
+
+
 class NapariPlugin(object):
     def __init__(self, path, url=None, forced_gen=0):
         from ..dependencies_solver import InstallationRequirements
+        from .condainfo import CondaInfo
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -177,6 +183,12 @@ class NapariPlugin(object):
             self.supported_python_version,
             self.supported_platforms,
         )
+        self.condainfo = CondaInfo(
+            path / "conda-infos.json",
+            self.name,
+            self.supported_python_version,
+            self.supported_platforms,
+        )
         self.forced_gen = forced_gen
 
         pypi_config = self.first_pypi_config()
@@ -191,6 +203,10 @@ class NapariPlugin(object):
     @property
     def classifiers(self):
         return self.extractfrom_config("classifiers", default=())[1]
+
+    @property
+    def name(self):
+        return self.extractfrom_config("name")[1]
 
     @lru_cache()
     def extractfrom_config(self, attribute, default=None, failback=None):
