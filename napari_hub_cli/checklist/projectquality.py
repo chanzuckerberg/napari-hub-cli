@@ -1,5 +1,7 @@
 from ..fs import NapariPlugin
-from .metadata import MetaFeature, Requirement
+from .metadata import MetaFeature, Requirement, RequirementSuite
+
+TITLE = "Code Quality"
 
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_windows_support")
@@ -28,43 +30,38 @@ HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analy
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
-def project_quality_suite(plugin_repo: NapariPlugin):
+def suite_generator(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
-    return [
-        Requirement(
-            features=[HAS_LICENSE, HAS_OSI_LICENSE],
-            main_files=[license],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[
-                HAD_UNKNOWN_ERROR,
-                HAS_SUPPORT_LINX,
-                HAS_SUPPORT_MACOS,
-                HAS_SUPPORT_WIN,
-                INSTALLABLE_LINUX,
-                INSTALLABLE_MACOS,
-                INSTALLABLE_WIN,
-                ALL_WHEELS_LINUX,
-                ALL_WHEELS_MACOS,
-                ALL_WHEELS_WIN,
-                HAS_C_EXT_LINUX,
-                HAS_C_EXT_MACOS,
-                HAS_C_EXT_WIN,
-            ],
-            main_files=[requirements],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[
-                NPE2_ERRORS,
-                CONDA_LINUX,
-                CONDA_WIN,
-                CONDA_MACOS,
-            ],
-            main_files=[condainfo],
-            fallbacks=[],
-        ),
-    ]
+    return RequirementSuite(
+        title=TITLE,
+        requirements=[
+            Requirement(
+                features=[HAS_OSI_LICENSE],
+                main_files=[license],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_SUPPORT_LINX,
+                    HAS_SUPPORT_MACOS,
+                    HAS_SUPPORT_WIN,
+                    INSTALLABLE_LINUX,
+                    INSTALLABLE_MACOS,
+                    INSTALLABLE_WIN,
+                    ALL_WHEELS_LINUX,
+                    ALL_WHEELS_MACOS,
+                    ALL_WHEELS_WIN,
+                    HAS_C_EXT_LINUX,
+                    HAS_C_EXT_MACOS,
+                    HAS_C_EXT_WIN,
+                ],
+                main_files=[requirements],
+                fallbacks=[],
+            ),
+        ],
+    )
+
+
+project_quality_suite = (TITLE, suite_generator)

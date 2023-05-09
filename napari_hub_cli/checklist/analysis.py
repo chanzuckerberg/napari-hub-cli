@@ -71,15 +71,20 @@ def analyse_remote_plugin(
         In which directory the repository should be cloned. If not set, a tmp directory is automatically created in the
         tmp folder of the system.
     """
+    title, _ = requirements_suite
     try:
         plugin_url = get_repository_url(plugin_name, api_url=api_url)
         if not plugin_url:
-            return PluginAnalysisResult.with_status(AnalysisStatus.MISSING_URL)
+            return PluginAnalysisResult.with_status(
+                AnalysisStatus.MISSING_URL, title=title
+            )
 
         access = requests.get(plugin_url)
         if access.status_code != 200:
             return PluginAnalysisResult.with_status(
-                AnalysisStatus.UNACCESSIBLE_REPOSITORY, url=plugin_url
+                AnalysisStatus.UNACCESSIBLE_REPOSITORY,
+                url=plugin_url,
+                title=title,
             )
         return analyse_remote_plugin_url(
             plugin_name,
@@ -91,7 +96,9 @@ def analyse_remote_plugin(
         )
     except NonExistingNapariPluginError as e:
         print(e.message)
-        return PluginAnalysisResult.with_status(AnalysisStatus.NON_EXISTING_PLUGIN)
+        return PluginAnalysisResult.with_status(
+            AnalysisStatus.NON_EXISTING_PLUGIN, title=title
+        )
 
 
 def analyse_remote_plugin_url(
@@ -107,6 +114,7 @@ def analyse_remote_plugin_url(
         if directory
         else TemporaryDirectory(delete=cleanup)
     )
+    title, suite_gen = requirements_suite
 
     with directory as tmpdirname:
         tmp_dir = Path(tmpdirname)
@@ -131,9 +139,9 @@ def analyse_remote_plugin_url(
         except GitCommandError:
             if not test_repo.exists():
                 return PluginAnalysisResult.with_status(
-                    AnalysisStatus.BAD_URL, url=plugin_url
+                    AnalysisStatus.BAD_URL, url=plugin_url, title=title
                 )
-        result = analyse_local_plugin(test_repo, requirements_suite)
+        result = analyse_local_plugin(test_repo, suite_gen)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result
