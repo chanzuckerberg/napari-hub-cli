@@ -3,11 +3,8 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message
+from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
 from napari_hub_cli.checklist.projectquality import project_quality_suite
-from napari_hub_cli.checklist import (
-    analyse_local_plugin,
-    display_checklist,
-)
 from napari_hub_cli.fs import NapariPlugin
 
 

@@ -1,7 +1,7 @@
 import os
 import shutil
-from contextlib import suppress
 import sys
+from contextlib import suppress
 
 import pytest
 import requests_mock as req

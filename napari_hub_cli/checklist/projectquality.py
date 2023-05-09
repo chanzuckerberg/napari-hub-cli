@@ -1,8 +1,6 @@
 from ..fs import NapariPlugin
 from .metadata import MetaFeature, Requirement
 
-NODOC = ""
-
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_windows_support")
 HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_windows_support")

@@ -53,7 +53,5 @@ class CondaInfo(VirtualJsonFile):
     def is_macos_supported(self):
         platforms = self._query_platforms()
         return (
-            "noarch" in platforms
-            or "osx-64" in platforms
-            or "osx-arm64" in platforms
+            "noarch" in platforms or "osx-64" in platforms or "osx-arm64" in platforms
         )

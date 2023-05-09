@@ -1,10 +1,10 @@
 from pathlib import Path
-from napari_hub_cli.fs import NapariPlugin
-from napari_hub_cli.fs.condainfo import CondaInfo
 
 import pytest
 import requests_mock as req
 
+from napari_hub_cli.fs import NapariPlugin
+from napari_hub_cli.fs.condainfo import CondaInfo
 
 URL = CondaInfo.URL
 
