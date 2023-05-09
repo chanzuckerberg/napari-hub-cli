@@ -4,7 +4,7 @@ from .metadata import MetaFeature, Requirement
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_windows_support")
 HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_windows_support")
-INSTALLABLE_WIN = MetaFeature("Installable on windows", "installable_windows")
+INSTALLABLE_WIN = MetaFeature("Installable on Windows", "installable_windows")
 INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux")
 INSTALLABLE_MACOS = MetaFeature("Installable on MacOS", "installable_macos")
 ALL_WHEELS_WIN = MetaFeature("All deps are wheels for Windows", "allwheel_windows")
@@ -20,10 +20,14 @@ HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
+CONDA_LINUX = MetaFeature("Conda installable on Linux", "is_linux_supported")
+CONDA_WIN = MetaFeature("Conda installable on Windows", "is_windows_supported")
+CONDA_MACOS = MetaFeature("Conda installable on MacOS", "is_macos_supported")
 
 
 def project_quality_suite(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
+    condainfo = plugin_repo.condainfo
     license = plugin_repo.license
     return [
         Requirement(
@@ -47,6 +51,15 @@ def project_quality_suite(plugin_repo: NapariPlugin):
                 HAS_C_EXT_WIN,
             ],
             main_files=[requirements],
+            fallbacks=[],
+        ),
+        Requirement(
+            features=[
+                CONDA_LINUX,
+                CONDA_WIN,
+                CONDA_MACOS,
+            ],
+            main_files=[condainfo],
             fallbacks=[],
         ),
     ]
