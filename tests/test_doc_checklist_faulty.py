@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message
+from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
 from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
 from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
@@ -10,11 +11,7 @@ from napari_hub_cli.checklist.projectmetadata import (
     INTRO,
     LABELS,
     LABELS_DOC_URL,
-    VIDEO_SCREENSHOT
-)
-from napari_hub_cli.checklist import (
-    analyse_local_plugin,
-    display_checklist,
+    VIDEO_SCREENSHOT,
 )
 from napari_hub_cli.fs import NapariPlugin
 

@@ -38,7 +38,6 @@ def napari_hub(requests_mock):
 
 
 def test_closest_plugin_name(napari_hub):
-
     assert closest_plugin_name("avidaq") == "avidaq"
     assert closest_plugin_name("avida") == "avidaq"
     assert closest_plugin_name("foo") is None
@@ -164,7 +163,9 @@ def test_build_csv_empty():
 
 def test_build_csv():
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
+    checklist = analyse_local_plugin(
+        current_path / "resources/CZI-29-test", DEFAULT_SUITE
+    )
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     assert rows != []
@@ -181,7 +182,9 @@ def test_write_csv_empty(tmp_path):
 def test_write_csv(tmp_path):
     output = tmp_path / "output.csv"
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test", DEFAULT_SUITE)
+    checklist = analyse_local_plugin(
+        current_path / "resources/CZI-29-test", DEFAULT_SUITE
+    )
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     write_csv(rows, output)
@@ -211,7 +214,6 @@ def test_analysis_local_directory(napari_hub, tmp_path):
 
 @pytest.mark.online
 def test_closest_plugin_name__online():
-
     assert closest_plugin_name("avidaq") == "avidaq"
     assert closest_plugin_name("avida") == "avidaq"
     assert closest_plugin_name("foo") is None
