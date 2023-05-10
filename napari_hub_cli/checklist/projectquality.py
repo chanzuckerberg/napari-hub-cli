@@ -22,6 +22,7 @@ HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
+HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
 
 
 def project_quality_suite(plugin_repo: NapariPlugin):
@@ -35,6 +36,7 @@ def project_quality_suite(plugin_repo: NapariPlugin):
         ),
         Requirement(
             features=[
+                HAD_UNKNOWN_ERROR,
                 HAS_SUPPORT_LINX,
                 HAS_SUPPORT_MACOS,
                 HAS_SUPPORT_WIN,
