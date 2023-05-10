@@ -44,6 +44,7 @@ class InstallationRequirements(ConfigFile):
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
+        self.errors = None
 
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
@@ -59,11 +60,14 @@ class InstallationRequirements(ConfigFile):
     @lru_cache()
     def solve_dependencies(self, options):
         try:
+            self.errors = None
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound:
             return None
         except InstallationSubprocessError:
             return None
+        except Exception as e:
+            self.errors = e
 
     @lru_cache()
     def _get_platform_options(self, platform):
@@ -174,3 +178,7 @@ class InstallationRequirements(ConfigFile):
     @property
     def has_macos_support(self):
         return "macos" in self.platforms
+
+    @property
+    def had_no_unknown_error(self):
+        return self.errors is None
