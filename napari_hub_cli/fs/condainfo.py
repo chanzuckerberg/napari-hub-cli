@@ -7,7 +7,9 @@ from ..fs import VirtualJsonFile
 
 
 class CondaInfo(VirtualJsonFile):
-    URL = "https://npe2api.vercel.app/api/conda"
+    BASE_URL = "https://npe2api.vercel.app/"
+    CONDA_URL = f"{BASE_URL}/api/conda"
+    ERRORS_URL = f"{BASE_URL}/errors.json"
 
     def __init__(self, virtualpath, name, python_version, platforms):
         super().__init__(virtualpath)
@@ -16,21 +18,29 @@ class CondaInfo(VirtualJsonFile):
         self.name = name
 
     @lru_cache()
-    def _fetch_data(self):
-        infos = requests.get(f"{self.URL}/{self.name}")
+    def _fetch_data(self, url):
+        infos = requests.get(url)
         if infos.status_code != 200:
             return {}
         return infos.json()
 
     def _query_platforms(self):
-        data = self._fetch_data()
+        data = self._fetch_data(f"{self.CONDA_URL}/{self.name}")
         if not data:
             return []
         return data.get("conda_platforms", [])
 
+    def _query_errors(self):
+        return self._fetch_data(self.ERRORS_URL)
+
+    @property
+    def has_npe_parse_errors(self):
+        data = self._query_errors()
+        return self.name in data
+
     @property
     def is_on_conda(self):
-        infos = self._fetch_data()
+        infos = self._query_platforms()
         if not infos:
             return False
         return True

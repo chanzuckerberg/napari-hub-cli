@@ -20,9 +20,10 @@ HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
-CONDA_LINUX = MetaFeature("Conda installable on Linux", "is_linux_supported")
-CONDA_WIN = MetaFeature("Conda installable on Windows", "is_windows_supported")
-CONDA_MACOS = MetaFeature("Conda installable on MacOS", "is_macos_supported")
+NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
+CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
+CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
+CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
 
 
 def project_quality_suite(plugin_repo: NapariPlugin):
@@ -55,6 +56,7 @@ def project_quality_suite(plugin_repo: NapariPlugin):
         ),
         Requirement(
             features=[
+                NPE2_ERRORS,
                 CONDA_LINUX,
                 CONDA_WIN,
                 CONDA_MACOS,
