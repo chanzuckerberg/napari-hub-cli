@@ -102,7 +102,7 @@ class SetupPy(Metadata, ConfigFile):
 
     @property
     def requirements(self):
-        return self.data.get("install_requires", [])
+        return [s.split("#")[0].strip() for s in self.data.get("install_requires", [])]
 
 
 class NapariConfig(Metadata, ConfigFile):
@@ -265,7 +265,7 @@ class SetupCfg(Metadata, ConfigFile):
     @property
     def requirements(self):
         return [
-            s
+            s.split("#")[0].strip()
             for s in self.data.get("options", {})
             .get("install_requires", "")
             .splitlines()

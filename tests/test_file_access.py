@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-from napari_hub_cli.dependencies_solver.utils import LINUX, MACOS, WIN32, WIN64
 
+from napari_hub_cli.dependencies_solver.utils import LINUX, MACOS, WIN32, WIN64
 from napari_hub_cli.fs import ConfigFile, NapariPlugin
 from napari_hub_cli.fs.configfiles import (
     NapariConfig,
@@ -49,7 +49,6 @@ def test_setup_py(resources):
     assert file.classifiers
     assert len(file.classifiers) == 11
     assert "Programming Language :: Python :: 3.9" in file.classifiers
-
 
     assert len(file.requirements) == 2
     assert "napari-plugin-engine>=0.1.4" in file.requirements
@@ -128,6 +127,9 @@ def test_setup_cfg(resources):
     assert len(file.requirements) == 2
     assert "numpy" in file.requirements
     assert "cython" in file.requirements
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_setup2_cfg(resources):
@@ -177,6 +179,10 @@ def test_setup3_cfg(resources):
     assert file.classifiers
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
+
 
 def test_pyproject_toml(resources):
     content = resources / "pyproject.toml"
@@ -205,6 +211,10 @@ def test_pyproject_toml(resources):
     assert len(file.requirements) == 2
     assert "numpy" in file.requirements
     assert "cython" in file.requirements
+
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_pyproject2_toml(resources):
@@ -668,12 +678,10 @@ def test_python_version(resources):
     assert (3, 9) in plugin.supported_python_version
     assert (3,) not in plugin.supported_python_version
 
-
     plugin = NapariPlugin(resources / "CZI-29-test2")
     assert plugin.supported_python_version
     assert len(plugin.supported_python_version) == 1
     assert plugin.supported_python_version[0] is None
-
 
     plugin = NapariPlugin(resources / "CZI-29-small")
     assert plugin.supported_python_version
@@ -698,14 +706,12 @@ def test_platforms(resources):
     assert "linux" in plugin.supported_platforms
     assert "macos" in plugin.supported_platforms
 
-
     plugin = NapariPlugin(resources / "CZI-29-test2")
     assert plugin.supported_platforms
     assert len(plugin.supported_platforms) == 2
     assert "win" in plugin.supported_platforms
     assert "linux" in plugin.supported_platforms
     assert "macos" not in plugin.supported_platforms
-
 
     plugin = NapariPlugin(resources / "CZI-29-small")
     assert plugin.supported_platforms

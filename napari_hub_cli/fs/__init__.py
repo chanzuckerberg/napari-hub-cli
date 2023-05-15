@@ -5,7 +5,7 @@ import tomli
 import tomli_w
 import yaml
 
-from ..utils import delete_file_tree, parse_setup
+from ..utils import delete_file_tree, parse_setup, scrap_git_infos
 
 format_parsers = {}
 format_unparsers = {}
@@ -143,7 +143,7 @@ class ConfigFile(RepositoryFile):
 
 
 class NapariPlugin(object):
-    def __init__(self, path, forced_gen=0):
+    def __init__(self, path, url=None, forced_gen=0):
         from ..dependencies_solver import InstallationRequirements
         from .configfiles import (
             CitationFile,
@@ -153,8 +153,10 @@ class NapariPlugin(object):
             SetupPy,
         )
         from .descriptions import MarkdownDescription
+        from .license import License
 
         self.path = path
+        self.url = url
         self.setup_py = SetupPy(path / "setup.py")
         self.setup_cfg = SetupCfg(path / "setup.cfg")
         if (path / ".napari").exists():
@@ -176,6 +178,11 @@ class NapariPlugin(object):
             self.supported_platforms,
         )
         self.forced_gen = forced_gen
+
+        pypi_config = self.first_pypi_config()
+        source_code = pypi_config.sourcecode if pypi_config else None
+        plugin_url = self.url or source_code or scrap_git_infos(self.path).get("url")
+        self.license = License(path / "LICENSE", plugin_url)
 
     @property
     def summary(self):

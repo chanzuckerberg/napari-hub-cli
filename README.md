@@ -44,9 +44,7 @@ pip install -e .
 napari-hub-cli --help
 ```
 
-
-
-# Usage 
+# Usage
 
 
 ## Documentation Checklist
@@ -103,6 +101,7 @@ Below you can find a table with the Napari recommended file locations and fallba
 | Citation            | ```CITATION.cff```              | ```n/a```        |
 
 
+
 Example output (with all possible scenarios):
 
 <img width="556" alt="Metadata check from command line using the napari-hub-cli tool" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
@@ -119,13 +118,13 @@ To create a citation file (`CITATION.CFF`) for your plugin run
 This utility works by looking into:
 
 - GitHub Repository metadata
-- ```README.md```
+- `README.md`
 
-and creating a ```CITATION.CFF```, a plain text file with human- and machine-readable citation information for software and datasets.
+and creating a `CITATION.CFF`, a plain text file with human- and machine-readable citation information for software and datasets.
 
-For citations to be parsed from the ```README.md``` these need to have either the **APA**(American Psychological Association) style or **BibTex** style format.
+For citations to be parsed from the `README.md` these need to have either the **APA**(American Psychological Association) style or **BibTex** style format.
 
-The ```CITATION.CFF``` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
+The `CITATION.CFF` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
 
 
 
@@ -165,7 +164,8 @@ title: "My Research Software"
 
 Credit Redirection:
 
-```
+```yaml
+cff-version: 1.2.0
 authors:
   - family-names: Druskat
     given-names: Stephan

@@ -3,18 +3,15 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message, create_commits
+from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
 from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+from napari_hub_cli.checklist.metadata import Feature, check_feature
 from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
 )
-from napari_hub_cli.checklist import (
-    analyse_local_plugin,
-    display_checklist,
-)
-from napari_hub_cli.checklist.metadata import check_feature, Feature
 from napari_hub_cli.citation import create_cff_citation
 from napari_hub_cli.fs import NapariPlugin
 
