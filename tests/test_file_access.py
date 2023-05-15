@@ -127,6 +127,9 @@ def test_setup_cfg(resources):
     assert len(file.requirements) == 2
     assert "numpy" in file.requirements
     assert "cython" in file.requirements
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_setup2_cfg(resources):
@@ -176,6 +179,10 @@ def test_setup3_cfg(resources):
     assert file.classifiers
     assert "Programming Language :: Python :: 3.9" in file.classifiers
 
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
+
 
 def test_pyproject_toml(resources):
     content = resources / "pyproject.toml"
@@ -204,6 +211,10 @@ def test_pyproject_toml(resources):
     assert len(file.requirements) == 2
     assert "numpy" in file.requirements
     assert "cython" in file.requirements
+
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_pyproject2_toml(resources):

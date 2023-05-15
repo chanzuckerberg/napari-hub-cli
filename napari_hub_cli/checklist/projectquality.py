@@ -24,6 +24,8 @@ NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
+HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
+HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
 def project_quality_suite(plugin_repo: NapariPlugin):
@@ -32,12 +34,13 @@ def project_quality_suite(plugin_repo: NapariPlugin):
     license = plugin_repo.license
     return [
         Requirement(
-            features=[HAS_OSI_LICENSE],
+            features=[HAS_LICENSE, HAS_OSI_LICENSE],
             main_files=[license],
             fallbacks=[],
         ),
         Requirement(
             features=[
+                HAD_UNKNOWN_ERROR,
                 HAS_SUPPORT_LINX,
                 HAS_SUPPORT_MACOS,
                 HAS_SUPPORT_WIN,
