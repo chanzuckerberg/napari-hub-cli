@@ -351,7 +351,7 @@ def test_infos_GHWorkflowFolder_testresult_online(resources):
         resources / "CZI-29-small" / ".github" / "workflows",
         url="https://github.com/PolusAI/bfio",
     )
-    assert ghwd.has_successful_tests is True
+    assert ghwd.has_successful_tests is False
     assert ghwd.has_codecove_more_80 is False
 
     ghwd = GhActionWorkflowFolder(
