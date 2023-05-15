@@ -19,12 +19,21 @@ HAS_C_EXT_LINUX = MetaFeature(
 HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
+HAS_GITHUB_WORKFLOWS = MetaFeature("Github Action Workflows are configured", "exists")
+HAS_TESTS_WORKFLOWS = MetaFeature(
+    "Github Action tests are configured", "gh_test_config"
+)
+HAS_CODECOV_WORKFLOWS = MetaFeature(
+    "Github Action codecov is configured", "gh_codecov_config"
+)
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
-HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
+HAD_UNKNOWN_ERROR = MetaFeature(
+    "Had no unexpected error during dependency analysis", "had_no_unknown_error"
+)
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
@@ -32,6 +41,13 @@ def project_quality_suite(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
+    gh_workflow_folder = plugin_repo.gh_workflow_folder
+    if gh_workflow_folder.url is None:
+        # if there is no url, we cannot query github
+        main_gh_workfolder = [gh_workflow_folder]
+    else:
+        main_gh_workfolder = []
+
     return [
         Requirement(
             features=[HAS_LICENSE, HAS_OSI_LICENSE],
@@ -65,6 +81,11 @@ def project_quality_suite(plugin_repo: NapariPlugin):
                 CONDA_MACOS,
             ],
             main_files=[condainfo],
+            fallbacks=[],
+        ),
+        Requirement(
+            features=[HAS_GITHUB_WORKFLOWS, HAS_TESTS_WORKFLOWS, HAS_CODECOV_WORKFLOWS],
+            main_files=main_gh_workfolder,  # type: ignore
             fallbacks=[],
         ),
     ]
