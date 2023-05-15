@@ -22,7 +22,10 @@ setup(
     summary="Test Summary",
     long_description=read("README.md"),
     python_requires=">=3.7",
-    install_requires=["numpy", "napari-plugin-engine>=0.1.4"],
+    install_requires=[
+        "numpy  # comment here https://foo/bar",
+        "napari-plugin-engine>=0.1.4",
+    ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

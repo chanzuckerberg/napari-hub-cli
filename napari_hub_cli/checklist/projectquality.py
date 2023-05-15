@@ -21,13 +21,27 @@ HAS_C_EXT_LINUX = MetaFeature(
 HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
-
+HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
+HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
+HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 def project_quality_suite(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
+    license = plugin_repo.license
     return [
         Requirement(
+            features=[HAS_OSI_LICENSE],
+            main_files=[license],
+            fallbacks=[],
+        ),
+        Requirement(
+            features=[HAS_LICENSE],
+            main_files=[license],
+            fallbacks=[],
+        ),
+        Requirement(
             features=[
+                HAD_UNKNOWN_ERROR,
                 HAS_SUPPORT_LINX,
                 HAS_SUPPORT_MACOS,
                 HAS_SUPPORT_WIN,
