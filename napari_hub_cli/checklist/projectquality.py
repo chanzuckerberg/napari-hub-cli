@@ -30,7 +30,7 @@ HAS_SUCCESS_TESTS = MetaFeature(
     "Tests are passing for main/master branch", "has_successful_tests"
 )
 HAS_CODE_COV_80 = MetaFeature(
-    "Tests cover more than 80% of the code", "has_codecove_more_80"
+    "Tests cover more than 80% of the code for main/master branch", "has_codecove_more_80"
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
