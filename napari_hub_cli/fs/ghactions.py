@@ -21,11 +21,15 @@ class GhActionWorkflow(ConfigFile):
                         "python-version": m([..., "@_", ...])
                         @ "python_versions"
                     },
-                    "steps": {
-                        "run": regex("^tox.*")
-                        | regex("^python -m pytest .*")
-                        | regex("^pytest.*")
-                    },
+                    "steps": m(
+                        {
+                            "run": regex("^tox.*")
+                            | regex("^python -m tox.*")
+                            | regex("^python -m pytest.*")
+                            | regex("^pytest.*")
+                        }
+                    )
+                    | {"uses": regex(".*test.*")},
                 }
             }
         )
@@ -34,6 +38,28 @@ class GhActionWorkflow(ConfigFile):
         if result.is_match:
             # platforms = result.bindings[0].get('platforms')
             py_versions = result.bindings[0].get("python_versions")
+            py_versions = [
+                tuple(int(x) for x in str(version).split("."))
+                for version in py_versions
+            ]
+            return py_versions
+        pattern = m(
+            {
+                "jobs>unittest": {
+                    "*": {
+                        "python-version": m([..., "@_", ...]) @ "python_versions"
+                        | "@python_versions"
+                    },
+                    "steps": {"run": regex("^python -m unittest.*")},
+                }
+            }
+        )
+        result = pattern.match(self.data)
+        if result.is_match:
+            py_versions = result.bindings[0].get("python_versions")
+            py_versions = (
+                py_versions if isinstance(py_versions, list) else [py_versions]
+            )
             py_versions = [
                 tuple(int(x) for x in str(version).split("."))
                 for version in py_versions
@@ -98,7 +124,8 @@ class GhActionWorkflowFolder(RepositoryFile):
             entry = next(
                 x
                 for x in response_json["workflow_runs"]
-                if x.get("path", "__nothing__") in str(config.file)
+                if config
+                and x.get("path", "__nothing__") in str(config.file)
                 and x.get("head_branch") in ("main", "master")
                 and x.get("status") == "completed"
             )
@@ -114,7 +141,7 @@ class GhActionWorkflowFolder(RepositoryFile):
         return eoi is not None and eoi["conclusion"] == "success"
 
     def query_codecov_result(self):
-        coi = self._identify_EOI(self.gh_test_config)
+        coi = self._identify_EOI(self.gh_codecov_config)
         if not coi:
             return None
         api_url = self._compute_call_url()

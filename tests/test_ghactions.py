@@ -230,6 +230,26 @@ def test_infos_GHTests2(resources):
     assert ghw.defines_codecov_coverage is True
 
 
+def test_infos_GHTests3(resources):
+    ghw = GhActionWorkflow(
+        resources / "conda-infos1" / ".github" / "workflows" / "test.yml"
+    )
+
+    assert ghw.defines_test is True
+    assert ghw.supported_python_version == [(3, 9)]
+    assert ghw.defines_codecov_coverage is False
+
+
+def test_infos_GHTests4(resources):
+    ghw = GhActionWorkflow(
+        resources / "conda-infos2" / ".github" / "workflows" / "test_and_deploy.yml"
+    )
+
+    assert ghw.defines_test is True
+    assert ghw.supported_python_version == [(3, 8), (3, 9), (3, 10)]
+    assert ghw.defines_codecov_coverage is False
+
+
 def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
     ghwd = GhActionWorkflowFolder(
         resources / "CZI-29-small" / ".github" / "workflows",
@@ -316,3 +336,20 @@ def test_infos_GHWorkflowFolder_testresult(resources, fake_github_api):
         url="https://github.com/brainglobe/brainreg-napari5",
     )
     assert ghwd.has_successful_tests is True
+
+
+@pytest.mark.online
+def test_infos_GHWorkflowFolder_testresult_online(resources):
+    ghwd = GhActionWorkflowFolder(
+        resources / "CZI-29-small" / ".github" / "workflows",
+        url="https://github.com/brainglobe/brainreg-napari.git",
+    )
+    assert ghwd.has_successful_tests is True
+    assert ghwd.has_codecove_more_80 is False
+
+    ghwd = GhActionWorkflowFolder(
+        resources / "CZI-29-small" / ".github" / "workflows",
+        url="https://github.com/PolusAI/bfio",
+    )
+    assert ghwd.has_successful_tests is True
+    assert ghwd.has_codecove_more_80 is False
