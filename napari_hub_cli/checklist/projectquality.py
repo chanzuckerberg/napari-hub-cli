@@ -26,6 +26,12 @@ HAS_TESTS_WORKFLOWS = MetaFeature(
 HAS_CODECOV_WORKFLOWS = MetaFeature(
     "Github Action codecov is configured", "gh_codecov_config"
 )
+HAS_SUCCESS_TESTS = MetaFeature(
+    "Tests are passing for main/master branch", "has_successful_tests"
+)
+HAS_CODE_COV_80 = MetaFeature(
+    "Tests cover more than 80% of the code", "has_codecove_more_80"
+)
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
@@ -44,9 +50,9 @@ def project_quality_suite(plugin_repo: NapariPlugin):
     gh_workflow_folder = plugin_repo.gh_workflow_folder
     if gh_workflow_folder.url is None:
         # if there is no url, we cannot query github
-        main_gh_workfolder = [gh_workflow_folder]
-    else:
         main_gh_workfolder = []
+    else:
+        main_gh_workfolder = [gh_workflow_folder]
 
     return [
         Requirement(
@@ -84,7 +90,13 @@ def project_quality_suite(plugin_repo: NapariPlugin):
             fallbacks=[],
         ),
         Requirement(
-            features=[HAS_GITHUB_WORKFLOWS, HAS_TESTS_WORKFLOWS, HAS_CODECOV_WORKFLOWS],
+            features=[
+                HAS_GITHUB_WORKFLOWS,
+                HAS_TESTS_WORKFLOWS,
+                HAS_CODECOV_WORKFLOWS,
+                HAS_SUCCESS_TESTS,
+                HAS_CODE_COV_80,
+            ],
             main_files=main_gh_workfolder,  # type: ignore
             fallbacks=[],
         ),
