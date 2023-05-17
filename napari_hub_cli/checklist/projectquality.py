@@ -83,6 +83,16 @@ def suite_generator(plugin_repo: NapariPlugin):
                 main_files=[requirements],
                 fallbacks=[],
             ),
+            Requirement(
+                features=[
+                    NPE2_ERRORS,
+                    CONDA_LINUX,
+                    CONDA_WIN,
+                    CONDA_MACOS,
+                ],
+                main_files=[condainfo],
+                fallbacks=[],
+            ),
         ],
     )
 
