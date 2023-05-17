@@ -6,6 +6,8 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -42,12 +44,18 @@ def suite_generator(plugin_repo: NapariPlugin):
     pyproject_toml = plugin_repo.pyproject_toml
     setup_cfg = plugin_repo.setup_cfg
     setup_py = plugin_repo.setup_py
+    additional_info = plugin_repo.additional_info
     return RequirementSuite(
         title=TITLE,
         additionals=[
             Requirement(
                 features=[HAS_VERSION, PLUGIN_VERSION],
                 main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[TOOL_VERSION, TIMESTAMP],
+                main_files=[additional_info],
                 fallbacks=[],
             ),
         ],
