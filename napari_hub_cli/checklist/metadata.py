@@ -56,10 +56,12 @@ class PluginAnalysisResult(object):
     status: AnalysisStatus
     repository: Optional[NapariPlugin]
     url: Optional[str]
+    title: str
+    additionals: List[BaseFeature]
 
     @classmethod
-    def with_status(cls, status, url=None):
-        return cls([], status, None, url)
+    def with_status(cls, status, title, url=None):
+        return cls([], status, None, url, title=title, additionals=[])
 
     def __getitem__(self, meta):
         return next((f for f in self.features if f.meta is meta))
@@ -76,6 +78,13 @@ class Requirement(object):
     features: List[MetaFeature]
     main_files: List[RepositoryFile]
     fallbacks: List[RepositoryFile]
+
+
+@dataclass
+class RequirementSuite(object):
+    title: str
+    requirements: List[Requirement]
+    additionals: List[Requirement]
 
 
 def gather_base_feature(meta, main_files):
@@ -144,18 +153,35 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def analyse_requirements(plugin_repo: NapariPlugin, requirements):
-    result = []
+def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
+    reqs_result = []
+    requirements = suite.requirements
     for requirement in requirements:
         for feature in requirement.features:
-            result.append(
+            reqs_result.append(
                 check_feature(
                     feature,
                     main_files=requirement.main_files,
                     fallbacks=requirement.fallbacks,
                 )
             )
-    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
+    additional_results = []
+    for additional in suite.additionals:
+        for feature in additional.features:
+            additional_results.append(
+                gather_base_feature(
+                    feature,
+                    main_files=additional.main_files,
+                )
+            )
+    return PluginAnalysisResult(
+        reqs_result,
+        AnalysisStatus.SUCCESS,
+        plugin_repo,
+        url=None,
+        title=suite.title,
+        additionals=additional_results,
+    )
 
 
 def analyse_local_plugin(repo_path, requirement_suite):
@@ -174,6 +200,8 @@ def analyse_local_plugin(repo_path, requirement_suite):
     """
     repo = Path(repo_path)
     plugin_repo = NapariPlugin(repo)
+    if isinstance(requirement_suite, tuple):
+        _, requirement_suite = requirement_suite
 
     requirements = requirement_suite(plugin_repo)
 
@@ -194,8 +222,13 @@ def display_checklist(analysis_result):
     console = Console()
     console.print()
     console.print(
-        "Napari Plugin - Documentation Checklist", style="bold underline2 blue"
+        f"Napari Plugin - {analysis_result.title} Checklist",
+        style="bold underline2 blue",
     )
+
+    # Display additional informations
+    for feature in analysis_result.additionals:
+        console.print(f"  {feature.meta.name}: {feature.result}")
 
     # Display summary result
     for feature in analysis_result.features:

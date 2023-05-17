@@ -20,9 +20,14 @@ class Metadata(object):  # pragma: no cover
     has_bugtracker = Exists("bugtracker")
     has_author = Exists("author")
     has_summary = Exists("summary")
+    has_version = Exists("version")
 
 
 class SetupPy(Metadata, ConfigFile):
+    @property
+    def version(self):
+        return self.data.get("version")
+
     @property
     def name(self):
         return self.data.get("display_name", self.data.get("name"))
@@ -149,6 +154,10 @@ class SetupCfg(Metadata, ConfigFile):
     @property
     def project_urls(self):
         return self.metadata.get("project_urls", "")
+
+    @property
+    def version(self):
+        return self.metadata.get("version")
 
     @property
     def name(self):
@@ -281,6 +290,10 @@ class PyProjectToml(Metadata, ConfigFile):
     @property
     def project_urls(self):
         return self.project_data.get("urls", {})
+
+    @property
+    def version(self):
+        return self.project_data.get("version")
 
     @property
     def name(self):
