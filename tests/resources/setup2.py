@@ -14,7 +14,6 @@ def read(fname):
 
 setup(
     name="test-plugin-name",
-    version="0.0.1",
     author="Jane Doe",
     author_email="example@email.com",
     license="BSD-3",

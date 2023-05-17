@@ -1,6 +1,15 @@
 from ..fs import NapariPlugin
-from .metadata import MetaFeature, Requirement
+from .metadata import MetaFeature, Requirement, RequirementSuite
 
+TITLE = "Code Quality"
+
+# Additional data
+HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
+PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
+
+# Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_windows_support")
 HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_windows_support")
@@ -28,42 +37,64 @@ HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analy
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
-def project_quality_suite(plugin_repo: NapariPlugin):
+def suite_generator(plugin_repo: NapariPlugin):
     requirements = plugin_repo.requirements
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
-    return [
-        Requirement(
-            features=[HAS_LICENSE, HAS_OSI_LICENSE],
-            main_files=[license],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[
-                HAS_SUPPORT_LINX,
-                HAS_SUPPORT_MACOS,
-                HAS_SUPPORT_WIN,
-                INSTALLABLE_LINUX,
-                INSTALLABLE_MACOS,
-                INSTALLABLE_WIN,
-                ALL_WHEELS_LINUX,
-                ALL_WHEELS_MACOS,
-                ALL_WHEELS_WIN,
-                HAS_C_EXT_LINUX,
-                HAS_C_EXT_MACOS,
-                HAS_C_EXT_WIN,
-            ],
-            main_files=[requirements],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[
-                NPE2_ERRORS,
-                CONDA_LINUX,
-                CONDA_WIN,
-                CONDA_MACOS,
-            ],
-            main_files=[condainfo],
-            fallbacks=[],
-        ),
-    ]
+    pyproject_toml = plugin_repo.pyproject_toml
+    setup_cfg = plugin_repo.setup_cfg
+    setup_py = plugin_repo.setup_py
+    additional_info = plugin_repo.additional_info
+    return RequirementSuite(
+        title=TITLE,
+        additionals=[
+            Requirement(
+                features=[HAS_VERSION, PLUGIN_VERSION],
+                main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[TOOL_VERSION, TIMESTAMP],
+                main_files=[additional_info],
+                fallbacks=[],
+            ),
+        ],
+        requirements=[
+            Requirement(
+                features=[HAS_LICENSE, HAS_OSI_LICENSE],
+                main_files=[license],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_SUPPORT_LINX,
+                    HAS_SUPPORT_MACOS,
+                    HAS_SUPPORT_WIN,
+                    INSTALLABLE_LINUX,
+                    INSTALLABLE_MACOS,
+                    INSTALLABLE_WIN,
+                    ALL_WHEELS_LINUX,
+                    ALL_WHEELS_MACOS,
+                    ALL_WHEELS_WIN,
+                    HAS_C_EXT_LINUX,
+                    HAS_C_EXT_MACOS,
+                    HAS_C_EXT_WIN,
+                ],
+                main_files=[requirements],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    NPE2_ERRORS,
+                    CONDA_LINUX,
+                    CONDA_WIN,
+                    CONDA_MACOS,
+                ],
+                main_files=[condainfo],
+                fallbacks=[],
+            ),
+        ],
+    )
+
+
+project_quality_suite = (TITLE, suite_generator)

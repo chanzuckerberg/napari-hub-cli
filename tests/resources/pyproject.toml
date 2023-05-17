@@ -1,6 +1,7 @@
 [project]
 name = "myproject"
 display_name = "myproject"
+version = "0.0.1"
 readme = "README.md"
 classifiers = [
     "Development Status :: 4 - Beta",
