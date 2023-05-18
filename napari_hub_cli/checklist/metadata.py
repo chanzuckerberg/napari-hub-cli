@@ -90,7 +90,10 @@ class RequirementSuite(object):
 def gather_base_feature(meta, main_files):
     key = f"{meta.attribute}"
     for main_file in main_files:
-        return BaseFeature(meta, getattr(main_file, key))
+        res = getattr(main_file, key)
+        if res:
+            return BaseFeature(meta, res)
+    return None
 
 
 def check_feature(meta, main_files, fallbacks):
