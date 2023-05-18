@@ -34,9 +34,9 @@ class CondaInfo(VirtualJsonFile):
         return self._fetch_data(self.ERRORS_URL)
 
     @property
-    def has_npe_parse_errors(self):
+    def has_no_npe_parse_errors(self):
         data = self._query_errors()
-        return self.name in data
+        return self.name not in data
 
     @property
     def is_on_conda(self):
