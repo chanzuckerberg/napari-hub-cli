@@ -279,7 +279,8 @@ def analyse_then_create_PR(
 
 def autofix_repository(path):
     # creates the checklist
-    result = analyse_local_plugin(path, project_metadata_suite)
+    _, suite = project_metadata_suite
+    result = analyse_local_plugin(path, suite)
 
     # perform modifications on the files
     # modify + add + commit

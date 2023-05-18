@@ -7,6 +7,8 @@ from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
 from napari_hub_cli.checklist.projectquality import project_quality_suite
 from napari_hub_cli.fs import NapariPlugin
 
+_, SUITE = project_quality_suite
+
 
 @pytest.fixture(scope="module")
 def test_repo():
@@ -16,5 +18,5 @@ def test_repo():
 
 # smoke test
 def test_display_checklist(test_repo):
-    result = analyse_local_plugin(test_repo.path, project_quality_suite)
+    result = analyse_local_plugin(test_repo.path, SUITE)
     display_checklist(result)
