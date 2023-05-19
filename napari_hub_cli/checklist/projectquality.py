@@ -29,7 +29,7 @@ HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
-NPE2_ERRORS = MetaFeature("Has npe2 parsing errors", "has_npe_parse_errors")
+NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors")
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
