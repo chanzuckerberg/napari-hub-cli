@@ -109,6 +109,8 @@ def unparse_txt(file, data):
 
 
 class RepositoryFile(object):
+    isVirtual = False
+
     def __init__(self, file):
         self.file = file
 
@@ -143,6 +145,8 @@ class ConfigFile(RepositoryFile):
 
 
 class VirtualJsonFile(RepositoryFile):
+    isVirtual = True
+
     def __init__(self, virtualpath):
         super().__init__(virtualpath)
 
