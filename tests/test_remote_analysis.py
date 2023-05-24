@@ -23,6 +23,8 @@ from napari_hub_cli.utils import (
     get_repository_url,
 )
 
+_, DEFAULT_SUITE = DEFAULT_SUITE
+
 
 @pytest.fixture
 def napari_hub(requests_mock):
@@ -76,12 +78,15 @@ def test_get_plugin_url(napari_hub):
 
 
 def test_no_result_analysis():
-    result = PluginAnalysisResult.with_status(AnalysisStatus.UNACCESSIBLE_REPOSITORY)
+    result = PluginAnalysisResult.with_status(
+        AnalysisStatus.UNACCESSIBLE_REPOSITORY, title="my list"
+    )
 
     assert result.features == []
     assert result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY
     assert result.url is None
     assert result.repository is None
+    assert result.title == "my list"
 
 
 def test_analyse_remote_plugin_bad_url(napari_hub):

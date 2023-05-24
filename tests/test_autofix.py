@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 from contextlib import suppress
+from unittest.mock import DEFAULT
 
 import pytest
 import requests_mock as req
@@ -20,6 +21,8 @@ from napari_hub_cli.checklist import analyse_local_plugin
 from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
 from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.fs import NapariPlugin
+
+_, DEFAULT_SUITE = DEFAULT_SUITE
 
 
 @pytest.fixture

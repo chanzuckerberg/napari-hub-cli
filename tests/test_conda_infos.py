@@ -112,14 +112,14 @@ def test_conda_info1_errors_offline(resources, npe2api):
     repo = NapariPlugin(resources / "conda-infos1")
     infos: CondaInfo = repo.condainfo
 
-    assert infos.has_npe_parse_errors is False
+    assert infos.has_no_npe_parse_errors is True
 
 
 def test_conda_info4_errors_offline(resources, npe2api):
     repo = NapariPlugin(resources / "conda-infos4")
     infos: CondaInfo = repo.condainfo
 
-    assert infos.has_npe_parse_errors is True
+    assert infos.has_no_npe_parse_errors is False
 
 
 @pytest.mark.online
@@ -127,7 +127,7 @@ def test_conda_info1_errors(resources, npe2api):
     repo = NapariPlugin(resources / "conda-infos1")
     infos: CondaInfo = repo.condainfo
 
-    assert infos.has_npe_parse_errors is False
+    assert infos.has_no_npe_parse_errors is True
 
 
 @pytest.mark.online
@@ -135,4 +135,4 @@ def test_conda_info4_errors(resources, npe2api):
     repo = NapariPlugin(resources / "conda-infos4")
     infos: CondaInfo = repo.condainfo
 
-    assert infos.has_npe_parse_errors is True
+    assert infos.has_no_npe_parse_errors is False

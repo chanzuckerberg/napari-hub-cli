@@ -1,10 +1,16 @@
 from ..fs import NapariPlugin
-from .metadata import MetaFeature, Requirement
+from .metadata import MetaFeature, Requirement, RequirementSuite
 
 ENTRIES_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing"
 LABELS_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/A-plugin-developer%E2%80%99s-guide-to-categories-on-the-napari-hub"
 
+TITLE = "Documentation"
 
+# Additional data
+HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
+PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+
+# Checklist
 DISPLAY_NAME = MetaFeature(
     "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
 )
@@ -75,7 +81,7 @@ LABELS = MetaFeature(
 )
 
 
-def project_metadata_suite(plugin_repo: NapariPlugin):
+def suite_generator(plugin_repo: NapariPlugin):
     pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files
     napari_cfg = plugin_repo.config_yml
     description = plugin_repo.description
@@ -85,41 +91,54 @@ def project_metadata_suite(plugin_repo: NapariPlugin):
     long_descr_setup_py = setup_py.long_description()
     long_descr_pyproject_toml = pyproject_toml.long_description()
 
-    return [
-        Requirement(
-            features=[DISPLAY_NAME],
-            main_files=[npe2_yaml],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SUMMARY],
-            main_files=[napari_cfg],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
-            main_files=[pyproject_toml, setup_cfg, setup_py],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
-            main_files=[
-                description,
-            ],
-            fallbacks=[
-                long_descr_setup_cfg,
-                long_descr_setup_py,
-                long_descr_pyproject_toml,
-            ],
-        ),
-        Requirement(
-            features=[CITATION, CITATION_VALID],
-            main_files=[plugin_repo.citation_file],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[LABELS],
-            main_files=[napari_cfg],
-            fallbacks=[],
-        ),
-    ]
+    return RequirementSuite(
+        title=TITLE,
+        additionals=[
+            Requirement(
+                features=[HAS_VERSION, PLUGIN_VERSION],
+                main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+        ],
+        requirements=[
+            Requirement(
+                features=[DISPLAY_NAME],
+                main_files=[npe2_yaml],
+                fallbacks=[pyproject_toml, setup_cfg, setup_py],
+            ),
+            Requirement(
+                features=[SUMMARY],
+                main_files=[napari_cfg],
+                fallbacks=[pyproject_toml, setup_cfg, setup_py],
+            ),
+            Requirement(
+                features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
+                main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
+                main_files=[
+                    description,
+                ],
+                fallbacks=[
+                    long_descr_setup_cfg,
+                    long_descr_setup_py,
+                    long_descr_pyproject_toml,
+                ],
+            ),
+            Requirement(
+                features=[CITATION, CITATION_VALID],
+                main_files=[plugin_repo.citation_file],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[LABELS],
+                main_files=[napari_cfg],
+                fallbacks=[],
+            ),
+        ],
+    )
+
+
+project_metadata_suite = (TITLE, suite_generator)
