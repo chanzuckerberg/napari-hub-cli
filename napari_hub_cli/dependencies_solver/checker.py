@@ -33,6 +33,9 @@ accepted_C_packages = {
     "pandas",
 }
 
+INSTALLABLE = 0
+ALL_WHEELS = 1
+
 
 class InstallationRequirements(ConfigFile):
     def __init__(self, path, requirements, python_versions=None, platforms=None):
@@ -120,28 +123,32 @@ class InstallationRequirements(ConfigFile):
         return True
 
     @property
+    def number_of_dependencies(self):
+        return self.num_installed_packages(self.options_list[0])
+
+    @property
     def installable_windows(self):
-        return self._isfor_platform("win", 0)
+        return self._isfor_platform("win", INSTALLABLE)
 
     @property
     def installable_linux(self):
-        return self._isfor_platform("linux", 0)
+        return self._isfor_platform("linux", INSTALLABLE)
 
     @property
     def installable_macos(self):
-        return self._isfor_platform("macos", 0)
+        return self._isfor_platform("macos", INSTALLABLE)
 
     @property
     def allwheel_windows(self):
-        return self._isfor_platform("win", 1)
+        return self._isfor_platform("win", ALL_WHEELS)
 
     @property
     def allwheel_linux(self):
-        return self._isfor_platform("linux", 1)
+        return self._isfor_platform("linux", ALL_WHEELS)
 
     @property
     def allwheel_macos(self):
-        return self._isfor_platform("macos", 1)
+        return self._isfor_platform("macos", ALL_WHEELS)
 
     @property
     def has_no_C_ext_windows(self):
