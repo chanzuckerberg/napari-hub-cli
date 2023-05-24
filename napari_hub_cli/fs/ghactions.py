@@ -84,9 +84,32 @@ class GhActionWorkflow(ConfigFile):
 
 
 class GhActionWorkflowFolder(RepositoryFile):
+    GITHUB_PATTERN = r"https://github.com/(?P<owner>[^/]+)/(?P<repo>.+)"
+    CODECOV_API = "https://api.codecov.io/graphql/gh"
+    CODECOV_QUERY = """
+query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
+    owner(username:$name){
+        repository(name:$repo){
+            branch(name:$branch){
+                name
+                head {
+                    totals {
+                        percentCovered
+                        lineCount
+                        hitsCount
+                    }
+                }
+            }
+        }
+    }
+}
+"""
+
     def __init__(self, path, url):
         super().__init__(path)
         self.url = url
+        if url and url.endswith(".git"):
+            self.url = url[:-4]
         workflows = []
         for gh_workflow_file in self.file.glob("**/*.yml"):
             workflows.append(GhActionWorkflow(gh_workflow_file))
@@ -101,13 +124,11 @@ class GhActionWorkflowFolder(RepositoryFile):
         return next((f for f in self.workflows if f.defines_codecov_coverage), None)
 
     def _compute_call_url(self):
-        GITHUB_PATTERN = r"https://github.com/.+/.+"
-        url = self.url or ""
-        if url.endswith(".git"):
-            url = url[:-4]
-        if not re.match(GITHUB_PATTERN, url):
+        if not re.match(self.GITHUB_PATTERN, self.url):
             return None
-        api_url = url.replace("https://github.com/", "https://api.github.com/repos/")
+        api_url = self.url.replace(
+            "https://github.com/", "https://api.github.com/repos/"
+        )
         return api_url
 
     @lru_cache()
@@ -166,7 +187,28 @@ class GhActionWorkflowFolder(RepositoryFile):
         except Exception as e:  # pragma: no cover
             raise e
 
+    def query_codecov_api(self):
+        match_result = re.match(self.GITHUB_PATTERN, self.url)
+        if not match_result:
+            return None
+        owner, repo = match_result.groupdict().values()
+        json_payload = {
+            "query": self.CODECOV_QUERY,
+            "variables": {"name": owner, "repo": repo, "branch": "main"},
+        }
+        response = requests.post(self.CODECOV_API, json=json_payload)
+        json_r = response.json()
+        if json_r["data"]["owner"]["repository"]["branch"] is None:
+            json_payload["variables"]["branch"] = "master"
+            response = requests.post(self.CODECOV_API, json=json_payload)
+            json_r = response.json()
+            if json_r["data"]["owner"]["repository"]["branch"] is None:
+                return None
+        return json_r["data"]["owner"]["repository"]["branch"]["head"]["totals"][
+            "percentCovered"
+        ]
+
     @property
     def has_codecove_more_80(self):
-        result = self.query_codecov_result()
+        result = self.query_codecov_api()
         return result is not None and result >= 80  # type: ignore

@@ -173,6 +173,27 @@ def fake_github_api(requests_mock):
             ]
         },
     )
+    requests_mock.post(
+        f"https://api.codecov.io/graphql/gh",
+        json={
+            "data": {
+                "owner": {
+                    "repository": {
+                        "branch": {
+                            "name": "master",
+                            "head": {
+                                "totals": {
+                                    "percentCovered": 58.53,
+                                    "lineCount": 258,
+                                    "hitsCount": 151,
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        },
+    )
     return requests_mock
 
 
@@ -263,9 +284,9 @@ def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
         resources / "CZI-29-small" / ".github" / "workflows",
         url="https://github.com/brainglobe/brainreg-napari.git",
     )
-    coverage = ghwd.query_codecov_result()
-    assert coverage and coverage == 97.82
-    assert ghwd.has_codecove_more_80 is True
+    coverage = ghwd.query_codecov_api()
+    assert coverage and coverage == 58.53
+    assert ghwd.has_codecove_more_80 is False
 
     ghwd = GhActionWorkflowFolder(
         resources / "CZI-29-small" / ".github" / "workflows",
@@ -359,4 +380,11 @@ def test_infos_GHWorkflowFolder_testresult_online(resources):
         url="https://github.com/PolarizedLightFieldMicroscopy/napari-LF",
     )
     assert ghwd.has_successful_tests is True
+    assert ghwd.has_codecove_more_80 is False
+
+    ghwd = GhActionWorkflowFolder(
+        resources / "conda-infos2" / ".github" / "workflows",
+        url="https://gitlab.com/Polarizedscopy/napari-LF",
+    )
+    assert ghwd.has_successful_tests is False
     assert ghwd.has_codecove_more_80 is False
