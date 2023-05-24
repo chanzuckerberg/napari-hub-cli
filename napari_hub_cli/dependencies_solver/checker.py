@@ -6,7 +6,7 @@ with suppress(ImportError):
 
     def hack_clear_distutils():
         if "distutils" not in sys.modules:
-            return
+            return  # pragma: no cover
         mods = [
             name
             for name in sys.modules
@@ -35,6 +35,8 @@ accepted_C_packages = {
 
 INSTALLABLE = 0
 ALL_WHEELS = 1
+PROBABLE_C_DEPS = 2
+DEPENDENCIES = 3
 
 
 class InstallationRequirements(ConfigFile):
@@ -47,7 +49,7 @@ class InstallationRequirements(ConfigFile):
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
-        self.errors = None
+        self.errors = {}
 
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
@@ -63,14 +65,14 @@ class InstallationRequirements(ConfigFile):
     @lru_cache()
     def solve_dependencies(self, options):
         try:
-            self.errors = None
             return self.solver.solve_dependencies(self.requirements, options)
-        except DistributionNotFound:
+        except DistributionNotFound as e:
             return None
-        except InstallationSubprocessError:
-            return None
+        except InstallationSubprocessError as e:
+            return None  # pragma: no cover
         except Exception as e:
-            self.errors = e
+            self.errors[options] = e
+            return None
 
     @lru_cache()
     def _get_platform_options(self, platform):
@@ -116,11 +118,26 @@ class InstallationRequirements(ConfigFile):
         return installable
 
     def _isfor_platform(self, platform, result_field_index):
-        for options in self._get_platform_options(platform):
+        options_list = self._get_platform_options(platform)
+        if not options_list:
+            return False  # pragma: no cover
+        for options in options_list:
             res = self.analysis_package(options)[result_field_index]
             if not res:
-                return False
+                return False  # pragma: no cover
         return True
+
+    @property
+    def can_resolve_dependencies_linux(self):
+        return self._isfor_platform("linux", DEPENDENCIES)
+
+    @property
+    def can_resolve_dependencies_windows(self):
+        return self._isfor_platform("win", DEPENDENCIES)
+
+    @property
+    def can_resolve_dependencies_macos(self):
+        return self._isfor_platform("macos", DEPENDENCIES)
 
     @property
     def number_of_dependencies(self):
@@ -140,15 +157,21 @@ class InstallationRequirements(ConfigFile):
 
     @property
     def allwheel_windows(self):
-        return self._isfor_platform("win", ALL_WHEELS)
+        return self.can_resolve_dependencies_windows and self._isfor_platform(
+            "win", ALL_WHEELS
+        )
 
     @property
     def allwheel_linux(self):
-        return self._isfor_platform("linux", ALL_WHEELS)
+        return self.can_resolve_dependencies_linux and self._isfor_platform(
+            "linux", ALL_WHEELS
+        )
 
     @property
     def allwheel_macos(self):
-        return self._isfor_platform("macos", ALL_WHEELS)
+        return self.can_resolve_dependencies_macos and self._isfor_platform(
+            "macos", ALL_WHEELS
+        )
 
     @property
     def has_no_C_ext_windows(self):
@@ -156,7 +179,7 @@ class InstallationRequirements(ConfigFile):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_windows
 
     @property
     def has_no_C_ext_linux(self):
@@ -164,7 +187,7 @@ class InstallationRequirements(ConfigFile):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_linux
 
     @property
     def has_no_C_ext_macos(self):
@@ -172,7 +195,7 @@ class InstallationRequirements(ConfigFile):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_macos
 
     @property
     def has_windows_support(self):
@@ -188,4 +211,4 @@ class InstallationRequirements(ConfigFile):
 
     @property
     def had_no_unknown_error(self):
-        return self.errors is None
+        return len(self.errors) == 0

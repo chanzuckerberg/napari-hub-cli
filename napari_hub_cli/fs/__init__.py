@@ -154,6 +154,7 @@ class VirtualJsonFile(RepositoryFile):
 class NapariPlugin(object):
     def __init__(self, path, url=None, forced_gen=0):
         from ..dependencies_solver import InstallationRequirements
+        from .additional_info import AdditionalInfo
         from .condainfo import CondaInfo
         from .configfiles import (
             CitationFile,
@@ -164,7 +165,6 @@ class NapariPlugin(object):
         )
         from .descriptions import MarkdownDescription
         from .license import License
-        from .additional_info import AdditionalInfo
 
         self.path = path
         self.url = url

@@ -95,6 +95,8 @@ def test_requirements_build():
     assert c_exts == []
     assert installed == []
 
+    assert reqs.had_no_unknown_error is True
+
 
 @pytest.mark.online
 def test_requirements_build_notallwheels():

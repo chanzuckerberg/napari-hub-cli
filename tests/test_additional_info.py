@@ -1,6 +1,8 @@
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 import pytest
+
 from napari_hub_cli.fs import NapariPlugin
 
 
@@ -41,7 +43,7 @@ def test_existent_timestamp(test_real_repo):
     additional_info = test_real_repo.additional_info
     timestamp = additional_info.timestamp
     assert timestamp is not None
-    assert '202' in timestamp
+    assert "202" in timestamp
 
 
 @pytest.mark.online
