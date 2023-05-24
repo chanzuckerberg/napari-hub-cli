@@ -6,8 +6,8 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
-TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
-TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
+TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -28,12 +28,28 @@ HAS_C_EXT_LINUX = MetaFeature(
 HAS_C_EXT_MACOS = MetaFeature(
     "Has no deps with C extensions for MacOS", "has_no_C_ext_macos"
 )
+HAS_GITHUB_WORKFLOWS = MetaFeature("Github Action Workflows are configured", "exists")
+HAS_TESTS_WORKFLOWS = MetaFeature(
+    "Github Action tests are configured", "gh_test_config"
+)
+HAS_CODECOV_WORKFLOWS = MetaFeature(
+    "Github Action codecov is configured", "gh_codecov_config"
+)
+HAS_SUCCESS_TESTS = MetaFeature(
+    "Tests are passing for main/master branch", "has_successful_tests"
+)
+HAS_CODE_COV_80 = MetaFeature(
+    "Tests cover more than 80% of the code for main/master branch",
+    "has_codecove_more_80",
+)
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors")
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
-HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
+HAD_UNKNOWN_ERROR = MetaFeature(
+    "Had no unexpected error during dependency analysis", "had_no_unknown_error"
+)
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
@@ -45,6 +61,12 @@ def suite_generator(plugin_repo: NapariPlugin):
     setup_cfg = plugin_repo.setup_cfg
     setup_py = plugin_repo.setup_py
     additional_info = plugin_repo.additional_info
+    gh_workflow_folder = plugin_repo.gh_workflow_folder
+    if gh_workflow_folder.url is None:
+        # if there is no url, we cannot query github
+        main_gh_workfolder = []
+    else:
+        main_gh_workfolder = [gh_workflow_folder]
     return RequirementSuite(
         title=TITLE,
         additionals=[
@@ -91,6 +113,17 @@ def suite_generator(plugin_repo: NapariPlugin):
                     CONDA_MACOS,
                 ],
                 main_files=[condainfo],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_GITHUB_WORKFLOWS,
+                    HAS_TESTS_WORKFLOWS,
+                    HAS_CODECOV_WORKFLOWS,
+                    HAS_SUCCESS_TESTS,
+                    HAS_CODE_COV_80,
+                ],
+                main_files=main_gh_workfolder,  # type: ignore
                 fallbacks=[],
             ),
         ],

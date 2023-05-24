@@ -150,6 +150,7 @@ class VirtualJsonFile(RepositoryFile):
 class NapariPlugin(object):
     def __init__(self, path, url=None, forced_gen=0):
         from ..dependencies_solver import InstallationRequirements
+        from .additional_info import AdditionalInfo
         from .condainfo import CondaInfo
         from .configfiles import (
             CitationFile,
@@ -159,8 +160,8 @@ class NapariPlugin(object):
             SetupPy,
         )
         from .descriptions import MarkdownDescription
+        from .ghactions import GhActionWorkflowFolder
         from .license import License
-        from .additional_info import AdditionalInfo
 
         self.path = path
         self.url = url
@@ -197,6 +198,9 @@ class NapariPlugin(object):
         plugin_url = self.url or source_code or scrap_git_infos(self.path).get("url")
         self.license = License(path / "LICENSE", plugin_url)
         self.additional_info = AdditionalInfo(path)
+        self.gh_workflow_folder = GhActionWorkflowFolder(
+            path / ".github" / "workflows", plugin_url
+        )
 
     @property
     def summary(self):
