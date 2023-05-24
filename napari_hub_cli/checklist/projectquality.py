@@ -6,8 +6,8 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
-TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
-TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
+TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -47,7 +47,9 @@ NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors
 CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported")
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported")
-HAD_UNKNOWN_ERROR = MetaFeature("Had no unexpected error during dependency analysis", "had_no_unknown_error")
+HAD_UNKNOWN_ERROR = MetaFeature(
+    "Had no unexpected error during dependency analysis", "had_no_unknown_error"
+)
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
 
 
@@ -113,17 +115,17 @@ def suite_generator(plugin_repo: NapariPlugin):
                 main_files=[condainfo],
                 fallbacks=[],
             ),
-	   Requirement(
-            features=[
-                HAS_GITHUB_WORKFLOWS,
-                HAS_TESTS_WORKFLOWS,
-                HAS_CODECOV_WORKFLOWS,
-                HAS_SUCCESS_TESTS,
-                HAS_CODE_COV_80,
-            ],
-            main_files=main_gh_workfolder,  # type: ignore
-            fallbacks=[],
-        ),
+            Requirement(
+                features=[
+                    HAS_GITHUB_WORKFLOWS,
+                    HAS_TESTS_WORKFLOWS,
+                    HAS_CODECOV_WORKFLOWS,
+                    HAS_SUCCESS_TESTS,
+                    HAS_CODE_COV_80,
+                ],
+                main_files=main_gh_workfolder,  # type: ignore
+                fallbacks=[],
+            ),
         ],
     )
 
