@@ -151,5 +151,9 @@ class DependencySolver(InstallCommand):
     def solve_dependencies(self, *args, **kwargs):
         logger = logging.getLogger("pip._internal.cli.req_command")
         logger.disabled = True
-        with self.main_context():
-            return self.resolve(*args, **kwargs)
+        # We cannot use the context manager here or we get an assertion error
+        # pip is built considering a main context for the calls, it "command line" options
+        # are not made to be run in parallel
+        # with self.main_context():
+        self._in_main_context = True
+        return self.resolve(*args, **kwargs)
