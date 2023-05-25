@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 
 # This hack is here to remove a warning message that is yield by "_distutils_hack"
@@ -19,7 +20,7 @@ with suppress(ImportError):
 
     hack.clear_distutils = hack_clear_distutils
 
-from functools import lru_cache
+from functools import lru_cache, wraps
 from itertools import product
 
 from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError
@@ -32,6 +33,13 @@ accepted_C_packages = {
     "numpy",
     "pandas",
 }
+
+
+def dirty_threadpool(f):
+    def inner(self):
+        self._analyse_with_all_options()
+        return f(self)
+    return inner
 
 
 class InstallationRequirements(ConfigFile):
@@ -119,31 +127,43 @@ class InstallationRequirements(ConfigFile):
                 return False
         return True
 
+    @lru_cache()
+    def _analyse_with_all_options(self):
+        with ThreadPoolExecutor(max_workers=len(self.options_list)) as executor:
+            executor.map(self.analysis_package, self.options_list)
+
     @property
+    @dirty_threadpool
     def installable_windows(self):
         return self._isfor_platform("win", 0)
 
     @property
+    @dirty_threadpool
     def installable_linux(self):
         return self._isfor_platform("linux", 0)
 
     @property
+    @dirty_threadpool
     def installable_macos(self):
         return self._isfor_platform("macos", 0)
 
     @property
+    @dirty_threadpool
     def allwheel_windows(self):
         return self._isfor_platform("win", 1)
 
     @property
+    @dirty_threadpool
     def allwheel_linux(self):
         return self._isfor_platform("linux", 1)
 
     @property
+    @dirty_threadpool
     def allwheel_macos(self):
         return self._isfor_platform("macos", 1)
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_windows(self):
         for options in self._get_platform_options("win"):
             res = self.has_no_C_extensions_dependencies(options)
@@ -152,6 +172,7 @@ class InstallationRequirements(ConfigFile):
         return True
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_linux(self):
         for options in self._get_platform_options("linux"):
             res = self.has_no_C_extensions_dependencies(options)
@@ -160,6 +181,7 @@ class InstallationRequirements(ConfigFile):
         return True
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_macos(self):
         for options in self._get_platform_options("macos"):
             res = self.has_no_C_extensions_dependencies(options)

@@ -187,6 +187,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         except Exception as e:  # pragma: no cover
             raise e
 
+    @lru_cache()
     def query_codecov_api(self):
         match_result = re.match(self.GITHUB_PATTERN, self.url)
         if not match_result:
@@ -207,6 +208,14 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         return json_r["data"]["owner"]["repository"]["branch"]["head"]["totals"][
             "percentCovered"
         ]
+
+    @property
+    def reported_codecov_result(self):
+        return self.query_codecov_api()
+
+    @property
+    def has_codecove_results(self):
+        return self.query_codecov_api() is not None
 
     @property
     def has_codecove_more_80(self):
