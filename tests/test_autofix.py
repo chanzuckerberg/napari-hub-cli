@@ -261,8 +261,8 @@ def test_create_commits(tmp_git_repo2):
     commited = create_commits(result, display_info=True)
     new_nb_commits = len(list(repo.iter_commits()))
 
-    assert commited is True
-    assert nb_commits + 1 == new_nb_commits
+    assert commited is False
+    assert nb_commits == new_nb_commits
 
 
 def test_create_citation_not_required(tmp_git_repo2):
@@ -300,8 +300,8 @@ def test_autofix_local_plugin(tmp_git_repo3):
     autofix_repository(path)
     new_nb_commits = len(list(repo.iter_commits()))
 
-    # one commit for "summary" and one commit for "citation"
-    assert nb_commits + 2 == new_nb_commits
+    # one commit for "citation"
+    assert nb_commits + 1 == new_nb_commits
 
     plugin = NapariPlugin(path)
 

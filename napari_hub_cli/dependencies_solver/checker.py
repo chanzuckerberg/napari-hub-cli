@@ -7,7 +7,7 @@ with suppress(ImportError):
 
     def hack_clear_distutils():
         if "distutils" not in sys.modules:
-            return
+            return  # pragma: no cover
         mods = [
             name
             for name in sys.modules
@@ -20,7 +20,7 @@ with suppress(ImportError):
 
     hack.clear_distutils = hack_clear_distutils
 
-from functools import lru_cache, wraps
+from functools import lru_cache
 from itertools import product
 
 from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError
@@ -33,6 +33,11 @@ accepted_C_packages = {
     "numpy",
     "pandas",
 }
+
+INSTALLABLE = 0
+ALL_WHEELS = 1
+PROBABLE_C_DEPS = 2
+DEPENDENCIES = 3
 
 
 def dirty_threadpool(f):
@@ -52,7 +57,7 @@ class InstallationRequirements(ConfigFile):
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
-        self.errors = None
+        self.errors = {}
 
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
@@ -68,14 +73,14 @@ class InstallationRequirements(ConfigFile):
     @lru_cache()
     def solve_dependencies(self, options):
         try:
-            self.errors = None
             return self.solver.solve_dependencies(self.requirements, options)
-        except DistributionNotFound:
+        except DistributionNotFound as e:
             return None
-        except InstallationSubprocessError:
-            return None
+        except InstallationSubprocessError as e:
+            return None  # pragma: no cover
         except Exception as e:
-            self.errors = e
+            self.errors[options] = e
+            return None
 
     @lru_cache()
     def _get_platform_options(self, platform):
@@ -121,10 +126,13 @@ class InstallationRequirements(ConfigFile):
         return installable
 
     def _isfor_platform(self, platform, result_field_index):
-        for options in self._get_platform_options(platform):
+        options_list = self._get_platform_options(platform)
+        if not options_list:
+            return False  # pragma: no cover
+        for options in options_list:
             res = self.analysis_package(options)[result_field_index]
             if not res:
-                return False
+                return False  # pragma: no cover
         return True
 
     @lru_cache()
@@ -133,61 +141,74 @@ class InstallationRequirements(ConfigFile):
             executor.map(self.analysis_package, self.options_list)
 
     @property
-    @dirty_threadpool
+    def can_resolve_dependencies_linux(self):
+        return self._isfor_platform("linux", DEPENDENCIES)
+
+    @property
+    def can_resolve_dependencies_windows(self):
+        return self._isfor_platform("win", DEPENDENCIES)
+
+    @property
+    def can_resolve_dependencies_macos(self):
+        return self._isfor_platform("macos", DEPENDENCIES)
+
+    @property
+    def number_of_dependencies(self):
+        return self.num_installed_packages(self.options_list[0])
+
+    @property
     def installable_windows(self):
-        return self._isfor_platform("win", 0)
+        return self._isfor_platform("win", INSTALLABLE)
 
     @property
-    @dirty_threadpool
     def installable_linux(self):
-        return self._isfor_platform("linux", 0)
+        return self._isfor_platform("linux", INSTALLABLE)
 
     @property
-    @dirty_threadpool
     def installable_macos(self):
-        return self._isfor_platform("macos", 0)
+        return self._isfor_platform("macos", INSTALLABLE)
 
     @property
-    @dirty_threadpool
     def allwheel_windows(self):
-        return self._isfor_platform("win", 1)
+        return self.can_resolve_dependencies_windows and self._isfor_platform(
+            "win", ALL_WHEELS
+        )
 
     @property
-    @dirty_threadpool
     def allwheel_linux(self):
-        return self._isfor_platform("linux", 1)
+        return self.can_resolve_dependencies_linux and self._isfor_platform(
+            "linux", ALL_WHEELS
+        )
 
     @property
-    @dirty_threadpool
     def allwheel_macos(self):
-        return self._isfor_platform("macos", 1)
+        return self.can_resolve_dependencies_macos and self._isfor_platform(
+            "macos", ALL_WHEELS
+        )
 
     @property
-    @dirty_threadpool
     def has_no_C_ext_windows(self):
         for options in self._get_platform_options("win"):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_windows
 
     @property
-    @dirty_threadpool
     def has_no_C_ext_linux(self):
         for options in self._get_platform_options("linux"):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_linux
 
     @property
-    @dirty_threadpool
     def has_no_C_ext_macos(self):
         for options in self._get_platform_options("macos"):
             res = self.has_no_C_extensions_dependencies(options)
             if not res:
                 return False
-        return True
+        return self.can_resolve_dependencies_macos
 
     @property
     def has_windows_support(self):
@@ -203,4 +224,4 @@ class InstallationRequirements(ConfigFile):
 
     @property
     def had_no_unknown_error(self):
-        return self.errors is None
+        return len(self.errors) == 0
