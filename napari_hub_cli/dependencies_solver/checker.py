@@ -40,7 +40,7 @@ DEPENDENCIES = 3
 
 
 class InstallationRequirements(ConfigFile):
-    def __init__(self, path, requirements, python_versions=None, platforms=None):
+    def __init__(self, path, requirements, python_versions=None, platforms=('win', 'linux', 'macos')):
         super().__init__(path)
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
@@ -141,7 +141,7 @@ class InstallationRequirements(ConfigFile):
 
     @property
     def number_of_dependencies(self):
-        return self.num_installed_packages(self.options_list[0])
+        return max(self.num_installed_packages(o) for o in self.options_list)
 
     @property
     def installable_windows(self):
