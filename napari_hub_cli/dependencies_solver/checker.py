@@ -33,6 +33,10 @@ accepted_C_packages = {
     "pandas",
 }
 
+forbidden_deps = {
+    "pyside2",
+    "pyqt5",
+}
 
 class InstallationRequirements(ConfigFile):
     def __init__(self, path, requirements, python_versions=None, platforms=None):
@@ -182,3 +186,8 @@ class InstallationRequirements(ConfigFile):
     @property
     def had_no_unknown_error(self):
         return self.errors is None
+
+    @property
+    def has_no_forbidden_deps(self):
+        _, _, _, deps = self.analysis_package(self.options_list[0])
+        return all(name.lower() not in forbidden_deps for name, _ in deps)

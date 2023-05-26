@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.fs.pythonlint import PythonFile
+from napari_hub_cli.fs.pythonlint import PythonFile, PythonSrcDir
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +21,7 @@ def test_pythonfile_pyside2_detection(resources):
 
     res = srcfile.check_pyside2
     assert res == [
-        ("PySide2", srcfile.path, 2),
+        ("PySide2", srcfile.path, 3),
         ("PySide2", srcfile.path, 24),
         ("PySide2", srcfile.path, 25),
     ]
@@ -33,8 +33,40 @@ def test_pythonfile_pyqt5_detection(resources):
 
     res = srcfile.check_pyqt5
     assert res == [
-        ("PyQt5", srcfile.path, 1),
+        ("PyQt5", srcfile.path, 3),
+        ("PyQt5", srcfile.path, 16),
         ("PyQt5", srcfile.path, 17),
-        ("PyQt5", srcfile.path, 18),
     ]
     assert srcfile.check_pyside2 == []
+
+
+def test_pythonsrcdir_init(resources):
+    srcdir = PythonSrcDir(resources)
+
+    assert len(srcdir.files) == 3
+
+
+def test_pythonsrcdir_forbidden_imports_detection(resources):
+    srcdir = PythonSrcDir(resources)
+
+    res = srcdir.forbidden_imports_list
+
+    assert len(res) == 6
+    assert res == [
+        ("PySide2", srcdir.files[0].path, 3),
+        ("PySide2", srcdir.files[0].path, 24),
+        ("PySide2", srcdir.files[0].path, 25),
+        ("PyQt5", srcdir.files[1].path, 3),
+        ("PyQt5", srcdir.files[1].path, 16),
+        ("PyQt5", srcdir.files[1].path, 17),
+    ]
+    assert srcdir.has_no_forbidden_imports is False
+
+
+def test_pythonsrcdir_forbidden_imports_detection2(resources):
+    srcdir = PythonSrcDir(resources / "subdir")
+
+    res = srcdir.forbidden_imports_list
+
+    assert res == []
+    assert srcdir.has_no_forbidden_imports is True

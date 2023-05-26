@@ -52,3 +52,15 @@ class PythonSrcDir(RepositoryFile):
                 continue
             files.append(PythonFile(python_file))
         self.files = files
+
+    @property
+    def forbidden_imports_list(self):
+        imports = []
+        for file in self.files:
+            imports.extend(file.check_pyside2)
+            imports.extend(file.check_pyqt5)
+        return imports
+
+    @property
+    def has_no_forbidden_imports(self):
+        return len(self.forbidden_imports_list) == 0
