@@ -16,6 +16,11 @@ def test_pythonfile_init(resources):
     assert srcfile.ast
 
 
+    srcfile = PythonFile(resources / "f5.py")
+
+    assert srcfile.ast is None
+
+
 def test_pythonfile_pyside2_detection(resources):
     srcfile = PythonFile(resources / "f1.py")
 
