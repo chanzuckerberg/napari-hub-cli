@@ -39,7 +39,7 @@ class GhActionWorkflow(ConfigFile):
             # platforms = result.bindings[0].get('platforms')
             py_versions = result.bindings[0].get("python_versions")
             py_versions = [
-                tuple(int(x) for x in str(version).split("."))
+                tuple(int(x) for x in str(version).split(".") if x)
                 for version in py_versions
             ]
             return py_versions
@@ -61,7 +61,7 @@ class GhActionWorkflow(ConfigFile):
                 py_versions if isinstance(py_versions, list) else [py_versions]
             )
             py_versions = [
-                tuple(int(x) for x in str(version).split("."))
+                tuple(int(x) for x in str(version).split(".") if x)
                 for version in py_versions
             ]
             return py_versions
