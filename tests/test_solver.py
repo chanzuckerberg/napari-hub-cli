@@ -175,9 +175,13 @@ def test_requirements_installability():
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
 
-    reqs = InstallationRequirements(path=None, requirements=["triton"], python_versions=((3, 9), ), platforms=('win', 'linux', 'macos'))
+    reqs = InstallationRequirements(
+        path=None,
+        requirements=["triton"],
+        python_versions=((3, 9),),
+        platforms=("win", "linux", "macos"),
+    )
 
     assert reqs.installable_linux is True
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
-
