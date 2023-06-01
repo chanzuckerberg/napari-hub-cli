@@ -6,15 +6,20 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
-TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
-TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
-SUPPORTED_PYTHON_VERSIONS = MetaFeature("Supported Python versions", "supported_python_version")
+TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp")
+SUPPORTED_PYTHON_VERSIONS = MetaFeature(
+    "Supported Python versions", "supported_python_version"
+)
 SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms")
+NUMBER_DEPENDENCIES = MetaFeature(
+    "Number of Installed Depenencies", "number_of_dependencies"
+)
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
-HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_windows_support")
-HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_windows_support")
+HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_linux_support")
+HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_macos_support")
 INSTALLABLE_WIN = MetaFeature("Installable on Windows", "installable_windows")
 INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux")
 INSTALLABLE_MACOS = MetaFeature("Installable on MacOS", "installable_macos")
@@ -87,6 +92,11 @@ def suite_generator(plugin_repo: NapariPlugin):
                 main_files=[plugin_repo],
                 fallbacks=[],
             ),
+            Requirement(
+                features=[NUMBER_DEPENDENCIES],
+                main_files=[requirements],
+                fallbacks=[],
+            ),
         ],
         requirements=[
             Requirement(
@@ -108,6 +118,7 @@ def suite_generator(plugin_repo: NapariPlugin):
                     HAS_C_EXT_LINUX,
                     HAS_C_EXT_MACOS,
                     HAS_C_EXT_WIN,
+                    HAD_UNKNOWN_ERROR,
                 ],
                 main_files=[requirements],
                 fallbacks=[],

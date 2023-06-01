@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import requests
 import requests_mock as req
+import sys
 
 from napari_hub_cli.fs.ghactions import GhActionWorkflow, GhActionWorkflowFolder
 
@@ -272,6 +273,10 @@ def test_infos_GHTests4(resources):
     assert ghw.defines_codecov_coverage is False
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with request mocks on POST for Windows",
+)
 def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
     ghwd = GhActionWorkflowFolder(
         resources / "CZI-29-small" / ".github" / "workflows",
@@ -322,6 +327,10 @@ def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
     assert ghwd.has_codecove_more_80 is False
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with request mocks on POST for Windows",
+)
 def test_infos_GHWorkflowFolder_testresult(resources, fake_github_api):
     ghwd = GhActionWorkflowFolder(
         resources / "CZI-29-small" / ".github" / "workflows",
@@ -361,6 +370,10 @@ def test_infos_GHWorkflowFolder_testresult(resources, fake_github_api):
 
 
 @pytest.mark.online
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with request mocks on POST for Windows",
+)
 def test_infos_GHWorkflowFolder_testresult_online(resources):
     try:
         ghwd = GhActionWorkflowFolder(

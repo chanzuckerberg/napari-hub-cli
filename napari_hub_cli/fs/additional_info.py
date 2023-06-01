@@ -42,12 +42,4 @@ class AdditionalInfo(RepositoryFile):
         str
             A formatted string representing the current date and time.
         """
-        now = datetime.now()
-        day = now.day
-        month = now.strftime("%b")
-        year = now.year
-        hours = now.hour
-        minutes = now.minute
-        seconds = now.second
-        formatted_date = f"{day} {month} {year} - {hours}h {minutes}m {seconds}s"
-        return formatted_date
+        return datetime.now().strftime("%d %b %Y - %Hh %Mm %Ss")
