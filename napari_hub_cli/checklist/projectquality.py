@@ -6,8 +6,10 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
-TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version")
-TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp")
+TOOL_VERSION = MetaFeature("CLI Tool Version","get_cli_tool_version")
+TIMESTAMP = MetaFeature("Execution Timestamp","timestamp")
+SUPPORTED_PYTHON_VERSIONS = MetaFeature("Supported Python versions", "supported_python_version")
+SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -78,6 +80,11 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[TOOL_VERSION, TIMESTAMP],
                 main_files=[additional_info],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[SUPPORTED_PLATFORMS, SUPPORTED_PYTHON_VERSIONS],
+                main_files=[plugin_repo],
                 fallbacks=[],
             ),
         ],
