@@ -13,7 +13,7 @@ MOCK_REQUESTS = None
 @pytest.fixture(scope="module")
 def test_real_repo():
     current_path = Path(__file__).parent.absolute()
-    url = "https://github.com/brainglobe/brainreg-napari"
+    url = "https://github.com/brainglobe/brainreg-napari.git"
     return NapariPlugin(current_path / "resources" / "licenses" / "repo_example1", url)
 
 
