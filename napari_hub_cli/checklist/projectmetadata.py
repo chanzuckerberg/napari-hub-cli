@@ -14,15 +14,9 @@ PLUGIN_VERSION = MetaFeature("Plugin version", "version")
 DISPLAY_NAME = MetaFeature(
     "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
 )
-SUMMARY = MetaFeature(
-    "Summary Sentence", "has_summary", "", True, ENTRIES_DOC_URL
-)
-SOURCECODE = MetaFeature(
-    "Source Code", "has_sourcecode", "", True, ENTRIES_DOC_URL
-)
-AUTHOR = MetaFeature(
-    "Author Name", "has_author", "", True, ENTRIES_DOC_URL
-)
+SUMMARY = MetaFeature("Summary Sentence", "has_summary", "", True, ENTRIES_DOC_URL)
+SOURCECODE = MetaFeature("Source Code", "has_sourcecode", "", True, ENTRIES_DOC_URL)
+AUTHOR = MetaFeature("Author Name", "has_author", "", True, ENTRIES_DOC_URL)
 BUGTRACKER = MetaFeature(
     "Issue Submission Link",
     "has_bugtracker",
