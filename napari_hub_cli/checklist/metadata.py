@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from rich.console import Console
 
@@ -76,7 +76,7 @@ class PluginAnalysisResult(object):
 @dataclass
 class Requirement(object):
     features: List[MetaFeature]
-    main_files: List[RepositoryFile]
+    main_files: List[Union[RepositoryFile, NapariPlugin]]
     fallbacks: List[RepositoryFile]
 
 
@@ -241,7 +241,7 @@ def display_checklist(analysis_result):
             console.print("OPTIONAL ", style="underline")
         mark, style = CHECKLIST_STYLE[feature.found]
         found_localisation = (
-            f" ({feature.found_in.file.relative_to(repo)})" if feature.found else ""
+            f" ({feature.found_in.file.relative_to(repo)})" if feature.found and not feature.found_in.isVirtual else ""
         )
         console.print(f"{mark} {feature.meta.name}{found_localisation}", style=style)
 
