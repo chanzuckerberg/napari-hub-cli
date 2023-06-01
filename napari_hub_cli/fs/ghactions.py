@@ -39,7 +39,7 @@ class GhActionWorkflow(ConfigFile):
             # platforms = result.bindings[0].get('platforms')
             py_versions = result.bindings[0].get("python_versions")
             py_versions = [
-                tuple(int(x) for x in str(version).split("."))
+                tuple(int(x) for x in str(version).split(".") if x)
                 for version in py_versions
             ]
             return py_versions
@@ -61,7 +61,7 @@ class GhActionWorkflow(ConfigFile):
                 py_versions if isinstance(py_versions, list) else [py_versions]
             )
             py_versions = [
-                tuple(int(x) for x in str(version).split("."))
+                tuple(int(x) for x in str(version).split(".") if x)
                 for version in py_versions
             ]
             return py_versions
@@ -187,6 +187,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         except Exception as e:  # pragma: no cover
             raise e
 
+    @lru_cache()
     def query_codecov_api(self):
         match_result = re.match(self.GITHUB_PATTERN, self.url)
         if not match_result:
@@ -207,6 +208,14 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         return json_r["data"]["owner"]["repository"]["branch"]["head"]["totals"][
             "percentCovered"
         ]
+
+    @property
+    def reported_codecov_result(self):
+        return self.query_codecov_api()
+
+    @property
+    def has_codecove_results(self):
+        return self.query_codecov_api() is not None
 
     @property
     def has_codecove_more_80(self):

@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 
 # This hack is here to remove a warning message that is yield by "_distutils_hack"
@@ -37,6 +38,13 @@ INSTALLABLE = 0
 ALL_WHEELS = 1
 PROBABLE_C_DEPS = 2
 DEPENDENCIES = 3
+
+
+def dirty_threadpool(f):
+    def inner(self):
+        self._analyse_with_all_options()
+        return f(self)
+    return inner
 
 
 class InstallationRequirements(ConfigFile):
@@ -127,7 +135,23 @@ class InstallationRequirements(ConfigFile):
                 return False  # pragma: no cover
         return True
 
+    # lru cache here is a dirty trick to ensure that this function will be called only once
+    # but this only works if all the methods that will call it using the dirty decorator
+    # are called sequentially.
+    # if the methods with the dirty decorator are called in parallel, it's mandatory to
+    # use a lock on an instance variable to know if this function has been started already or not
+    @lru_cache()
+    def _analyse_with_all_options(self):
+        with ThreadPoolExecutor(max_workers=len(self.options_list)) as executor:
+            executor.map(self.analysis_package, self.options_list)
+
     @property
+    @dirty_threadpool
+    def can_resolve_dependencies_linux(self):
+        return self._isfor_platform("linux", DEPENDENCIES)
+
+    @property
+    @dirty_threadpool
     def can_resolve_dependencies_linux(self):
         return self._isfor_platform("linux", DEPENDENCIES)
 
@@ -136,44 +160,58 @@ class InstallationRequirements(ConfigFile):
         return self._isfor_platform("win", DEPENDENCIES)
 
     @property
+    @dirty_threadpool
     def can_resolve_dependencies_macos(self):
         return self._isfor_platform("macos", DEPENDENCIES)
 
     @property
+    @dirty_threadpool
+    def number_of_dependencies(self):
+        return self.num_installed_packages(self.options_list[0])
+
+    @property
+    @dirty_threadpool
     def number_of_dependencies(self):
         return max(self.num_installed_packages(o) for o in self.options_list)
 
     @property
+    @dirty_threadpool
     def installable_windows(self):
         return self._isfor_platform("win", INSTALLABLE)
 
     @property
+    @dirty_threadpool
     def installable_linux(self):
         return self._isfor_platform("linux", INSTALLABLE)
 
     @property
+    @dirty_threadpool
     def installable_macos(self):
         return self._isfor_platform("macos", INSTALLABLE)
 
     @property
+    @dirty_threadpool
     def allwheel_windows(self):
         return self.can_resolve_dependencies_windows and self._isfor_platform(
             "win", ALL_WHEELS
         )
 
     @property
+    @dirty_threadpool
     def allwheel_linux(self):
         return self.can_resolve_dependencies_linux and self._isfor_platform(
             "linux", ALL_WHEELS
         )
 
     @property
+    @dirty_threadpool
     def allwheel_macos(self):
         return self.can_resolve_dependencies_macos and self._isfor_platform(
             "macos", ALL_WHEELS
         )
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_windows(self):
         for options in self._get_platform_options("win"):
             res = self.has_no_C_extensions_dependencies(options)
@@ -182,6 +220,7 @@ class InstallationRequirements(ConfigFile):
         return self.can_resolve_dependencies_windows
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_linux(self):
         for options in self._get_platform_options("linux"):
             res = self.has_no_C_extensions_dependencies(options)
@@ -190,6 +229,7 @@ class InstallationRequirements(ConfigFile):
         return self.can_resolve_dependencies_linux
 
     @property
+    @dirty_threadpool
     def has_no_C_ext_macos(self):
         for options in self._get_platform_options("macos"):
             res = self.has_no_C_extensions_dependencies(options)
