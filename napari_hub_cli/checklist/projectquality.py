@@ -15,6 +15,7 @@ SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms")
 NUMBER_DEPENDENCIES = MetaFeature(
     "Number of Installed Depenencies", "number_of_dependencies"
 )
+CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -48,6 +49,10 @@ HAS_SUCCESS_TESTS = MetaFeature(
 HAS_CODE_COV_80 = MetaFeature(
     "Tests cover more than 80% of the code for main/master branch",
     "has_codecove_more_80",
+)
+HAS_CODE_COV_RESULTS = MetaFeature(
+    "Project has codecov result on main/master branch",
+    "has_codecove_results",
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved")
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors")
@@ -97,6 +102,11 @@ def suite_generator(plugin_repo: NapariPlugin):
                 main_files=[requirements],
                 fallbacks=[],
             ),
+            Requirement(
+                features=[CODECOV_RESULT],
+                main_files=main_gh_workfolder,  # type: ignore
+                fallbacks=[]
+            )
         ],
         requirements=[
             Requirement(
@@ -139,6 +149,7 @@ def suite_generator(plugin_repo: NapariPlugin):
                     HAS_TESTS_WORKFLOWS,
                     HAS_CODECOV_WORKFLOWS,
                     HAS_SUCCESS_TESTS,
+                    HAS_CODE_COV_RESULTS,
                     HAS_CODE_COV_80,
                 ],
                 main_files=main_gh_workfolder,  # type: ignore
