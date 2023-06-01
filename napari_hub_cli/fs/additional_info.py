@@ -1,11 +1,11 @@
-import re
 import os
+import re
+from datetime import datetime
 from functools import lru_cache
 
-from ..fs import RepositoryFile
-from datetime import datetime
-
 import napari_hub_cli._version as version
+
+from ..fs import RepositoryFile
 
 
 class AdditionalInfo(RepositoryFile):
@@ -32,7 +32,6 @@ class AdditionalInfo(RepositoryFile):
         """
         return version.__version__
 
-
     @property
     def timestamp(self):
         """
@@ -52,4 +51,3 @@ class AdditionalInfo(RepositoryFile):
         seconds = now.second
         formatted_date = f"{day} {month} {year} - {hours}h {minutes}m {seconds}s"
         return formatted_date
-
