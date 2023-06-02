@@ -174,7 +174,7 @@ def analyze_remote_plugins(
         plugins_name = plugins_name or []
     total = len(plugins_name)
     print(f"Selected plugins: {'all' if all_plugins else plugins_name}")
-    description = "Analysing plugins in Napari-HUB repository..."
+    description = "Analysing plugins in napari hub repository..."
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
@@ -202,7 +202,7 @@ def _display_error_message(plugin_name, result):
         )
     elif result.status is AnalysisStatus.MISSING_URL:
         print(
-            f"\N{BALLOT X} Plugin {plugin_name!r} does not have repository URL on the Naparay-HUB platform"
+            f"\N{BALLOT X} Plugin {plugin_name!r} does not have repository URL on the napari hub platform"
         )
     elif result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY:
         print(
