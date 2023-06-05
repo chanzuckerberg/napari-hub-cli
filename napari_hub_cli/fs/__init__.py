@@ -166,6 +166,7 @@ class NapariPlugin(object):
         from .descriptions import MarkdownDescription
         from .ghactions import GhActionWorkflowFolder
         from .license import License
+        from .pythonlint import PythonSrcDir
 
         self.path = path
         self.url = url
@@ -205,6 +206,7 @@ class NapariPlugin(object):
         self.gh_workflow_folder = GhActionWorkflowFolder(
             path / ".github" / "workflows", plugin_url
         )
+        self.linter = PythonSrcDir(self.path)
 
     @property
     def summary(self):

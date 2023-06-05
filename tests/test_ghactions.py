@@ -1,9 +1,9 @@
+import sys
 from pathlib import Path
 
 import pytest
 import requests
 import requests_mock as req
-import sys
 
 from napari_hub_cli.fs.ghactions import GhActionWorkflow, GhActionWorkflowFolder
 

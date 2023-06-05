@@ -16,6 +16,7 @@ NUMBER_DEPENDENCIES = MetaFeature(
     "Number of Installed Depenencies", "number_of_dependencies"
 )
 CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result")
+NUM_ANALYZED_PYFILES = MetaFeature("Number of analyzed Python files", "number_py_files")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -63,6 +64,8 @@ HAD_UNKNOWN_ERROR = MetaFeature(
     "Had no unexpected error during dependency analysis", "had_no_unknown_error"
 )
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
+HAS_NO_PYQT_PYSIDE_DEP = MetaFeature("Has no dependencies to PySide2 or PyQt5", "has_no_forbidden_deps")
+HAS_NO_PYQT_PYSIDE_CODE = MetaFeature("Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports")
 
 
 def suite_generator(plugin_repo: NapariPlugin):
@@ -74,11 +77,12 @@ def suite_generator(plugin_repo: NapariPlugin):
     setup_py = plugin_repo.setup_py
     additional_info = plugin_repo.additional_info
     gh_workflow_folder = plugin_repo.gh_workflow_folder
+    linter = plugin_repo.linter
     if gh_workflow_folder.url is None:
         # if there is no url, we cannot query github
         main_gh_workfolder = []
     else:
-        main_gh_workfolder = [gh_workflow_folder]
+        main_gh_workfolder = [gh_workflow_folder]  # pragma: no cover
     return RequirementSuite(
         title=TITLE,
         additionals=[
@@ -105,7 +109,12 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[CODECOV_RESULT],
                 main_files=main_gh_workfolder,  # type: ignore
-                fallbacks=[]
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[NUM_ANALYZED_PYFILES],
+                main_files=[linter],
+                fallbacks=[],
             )
         ],
         requirements=[
@@ -153,6 +162,20 @@ def suite_generator(plugin_repo: NapariPlugin):
                     HAS_CODE_COV_80,
                 ],
                 main_files=main_gh_workfolder,  # type: ignore
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_NO_PYQT_PYSIDE_DEP,
+                ],
+                main_files=[requirements],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_NO_PYQT_PYSIDE_CODE,
+                ],
+                main_files=[linter],
                 fallbacks=[],
             ),
         ],

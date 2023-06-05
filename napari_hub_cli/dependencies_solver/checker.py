@@ -34,6 +34,11 @@ accepted_C_packages = {
     "pandas",
 }
 
+forbidden_deps = {
+    "pyside2",
+    "pyqt5",
+}
+
 INSTALLABLE = 0
 ALL_WHEELS = 1
 PROBABLE_C_DEPS = 2
@@ -44,11 +49,18 @@ def dirty_threadpool(f):
     def inner(self):
         self._analyse_with_all_options()
         return f(self)
+
     return inner
 
 
 class InstallationRequirements(ConfigFile):
-    def __init__(self, path, requirements, python_versions=None, platforms=('win', 'linux', 'macos')):
+    def __init__(
+        self,
+        path,
+        requirements,
+        python_versions=None,
+        platforms=("win", "linux", "macos"),
+    ):
         super().__init__(path)
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
@@ -151,11 +163,6 @@ class InstallationRequirements(ConfigFile):
         return self._isfor_platform("linux", DEPENDENCIES)
 
     @property
-    @dirty_threadpool
-    def can_resolve_dependencies_linux(self):
-        return self._isfor_platform("linux", DEPENDENCIES)
-
-    @property
     def can_resolve_dependencies_windows(self):
         return self._isfor_platform("win", DEPENDENCIES)
 
@@ -163,11 +170,6 @@ class InstallationRequirements(ConfigFile):
     @dirty_threadpool
     def can_resolve_dependencies_macos(self):
         return self._isfor_platform("macos", DEPENDENCIES)
-
-    @property
-    @dirty_threadpool
-    def number_of_dependencies(self):
-        return self.num_installed_packages(self.options_list[0])
 
     @property
     @dirty_threadpool
@@ -252,3 +254,8 @@ class InstallationRequirements(ConfigFile):
     @property
     def had_no_unknown_error(self):
         return len(self.errors) == 0
+
+    @property
+    def has_no_forbidden_deps(self):
+        _, _, _, deps = self.analysis_package(self.options_list[0])
+        return all(name.lower() not in forbidden_deps for name, _ in deps)

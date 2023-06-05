@@ -14,5 +14,6 @@ setup(
         "JPype1>=1.2.1",
         "matplotlib",
         "imageio_ffmpeg",
+        "pyqt5-notificator "
     ],
 )
