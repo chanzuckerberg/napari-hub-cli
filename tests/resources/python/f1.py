@@ -1,6 +1,7 @@
 import sys
 
 from PySide2.QtWidgets import QApplication, QDialog, QLineEdit, QPushButton
+from napari_plugin_engine import napari_hook_implementation
 
 
 class Form(QDialog):
@@ -23,3 +24,16 @@ def inner():
     def inner2():
         import PySide2.QtWidgets
         from PySide2.QtWidgets import QApplication, QDialog, QLineEdit, QPushButton
+
+
+@napari_hook_implementation(firstresult=True)
+def napari_get_reader(path):
+    ...
+
+
+import napari_plugin_engine
+
+
+@napari_plugin_engine.napari_hook_implementation(stuff=False)
+def napari_get_reader(path):
+    ...
