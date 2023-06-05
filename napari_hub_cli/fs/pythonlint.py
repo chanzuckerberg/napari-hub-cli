@@ -1,5 +1,7 @@
 import ast
+from functools import wraps
 from pathlib import Path
+import time
 
 from iguala import match
 from iguala import regex as re
@@ -64,3 +66,7 @@ class PythonSrcDir(RepositoryFile):
     @property
     def has_no_forbidden_imports(self):
         return len(self.forbidden_imports_list) == 0
+
+    @property
+    def number_py_files(self):
+        return len(self.files)

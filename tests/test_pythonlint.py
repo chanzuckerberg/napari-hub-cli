@@ -48,7 +48,7 @@ def test_pythonfile_pyqt5_detection(resources):
 def test_pythonsrcdir_init(resources):
     srcdir = PythonSrcDir(resources)
 
-    assert len(srcdir.files) == 3
+    assert srcdir.number_py_files == 3
 
 
 def test_pythonsrcdir_forbidden_imports_detection(resources):
@@ -66,6 +66,7 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
         ("PyQt5", srcdir.files[1].path, 17),
     ]
     assert srcdir.has_no_forbidden_imports is False
+    assert srcdir.number_py_files == 3
 
 
 def test_pythonsrcdir_forbidden_imports_detection2(resources):
@@ -75,3 +76,4 @@ def test_pythonsrcdir_forbidden_imports_detection2(resources):
 
     assert res == []
     assert srcdir.has_no_forbidden_imports is True
+    assert srcdir.number_py_files == 1
