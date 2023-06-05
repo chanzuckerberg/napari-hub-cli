@@ -109,6 +109,8 @@ def unparse_txt(file, data):
 
 
 class RepositoryFile(object):
+    isVirtual = False
+
     def __init__(self, file):
         self.file = file
 
@@ -143,6 +145,8 @@ class ConfigFile(RepositoryFile):
 
 
 class VirtualJsonFile(RepositoryFile):
+    isVirtual = True
+
     def __init__(self, virtualpath):
         super().__init__(virtualpath)
 
@@ -160,6 +164,7 @@ class NapariPlugin(object):
             SetupPy,
         )
         from .descriptions import MarkdownDescription
+        from .ghactions import GhActionWorkflowFolder
         from .license import License
 
         self.path = path
@@ -197,6 +202,9 @@ class NapariPlugin(object):
         plugin_url = self.url or source_code or scrap_git_infos(self.path).get("url")
         self.license = License(path / "LICENSE", plugin_url)
         self.additional_info = AdditionalInfo(path)
+        self.gh_workflow_folder = GhActionWorkflowFolder(
+            path / ".github" / "workflows", plugin_url
+        )
 
     @property
     def summary(self):

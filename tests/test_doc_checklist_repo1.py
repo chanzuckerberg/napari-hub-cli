@@ -139,7 +139,7 @@ def test_check_feature_missing(test_repo):
     assert result.scanned_files == [setup_py]
 
 
-def test_create_checkist(test_repo):
+def test_create_checklist(test_repo):
     result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     assert len(result.features) == 13
@@ -151,12 +151,12 @@ def test_create_checkist(test_repo):
     assert disp_name.only_in_fallback is False
     assert disp_name.has_fallback_files is True
 
-    description = result.features[6]
+    description = result.features[7]
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is True
     assert description.found_in == test_repo.setup_cfg.long_description()
-    assert description.only_in_fallback is True
-    assert description.has_fallback_files is True
+    assert description.only_in_fallback is False
+    assert description.has_fallback_files is False
 
 
 # smoke test

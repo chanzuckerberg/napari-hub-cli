@@ -85,7 +85,7 @@ def build_options(python_version, platform, abis=None):
             "pre": None,
             "prefer_binary": False,
             "constraints": [],
-            "use_pep517": True,
+            "use_pep517": False,
             "config_settings": None,
             "editables": [],
             "requirements": [],

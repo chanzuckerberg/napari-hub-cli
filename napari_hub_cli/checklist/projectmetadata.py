@@ -14,33 +14,27 @@ PLUGIN_VERSION = MetaFeature("Plugin version", "version")
 DISPLAY_NAME = MetaFeature(
     "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
 )
-SUMMARY = MetaFeature(
-    "Summary Sentence", "has_summary", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-SOURCECODE = MetaFeature(
-    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-AUTHOR = MetaFeature(
-    "Author Name", "has_author", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
+SUMMARY = MetaFeature("Summary Sentence", "has_summary", "", True, ENTRIES_DOC_URL)
+SOURCECODE = MetaFeature("Source Code", "has_sourcecode", "", True, ENTRIES_DOC_URL)
+AUTHOR = MetaFeature("Author Name", "has_author", "", True, ENTRIES_DOC_URL)
 BUGTRACKER = MetaFeature(
     "Issue Submission Link",
     "has_bugtracker",
-    ".napari-hub/config.yml",
+    "",
     True,
     ENTRIES_DOC_URL,
 )
 USER_SUPPORT = MetaFeature(
     "Support Channel Link",
     "has_usersupport",
-    ".napari-hub/config.yml",
+    "",
     True,
     ENTRIES_DOC_URL,
 )
 VIDEO_SCREENSHOT = MetaFeature(
     "Screenshot/Video",
     "has_videos_or_screenshots",
-    ".napari-hub/DESCRIPTION.yml",
+    "",
     False,
     ENTRIES_DOC_URL,
     force_main_file_usage=False,
@@ -48,7 +42,7 @@ VIDEO_SCREENSHOT = MetaFeature(
 USAGE = MetaFeature(
     "Usage Overview",
     "has_usage",
-    ".napari-hub/DESCRIPTION.md",
+    "",
     False,
     ENTRIES_DOC_URL,
     force_main_file_usage=False,
@@ -56,7 +50,7 @@ USAGE = MetaFeature(
 INTRO = MetaFeature(
     "Intro Paragraph",
     "has_intro",
-    ".napari-hub/DESCRIPTION.md",
+    "",
     False,
     ENTRIES_DOC_URL,
     force_main_file_usage=False,
@@ -64,7 +58,7 @@ INTRO = MetaFeature(
 INSTALLATION = MetaFeature(
     "Installation",
     "has_installation",
-    ".napari-hub/DESCRIPTION.md",
+    "",
     False,
     ENTRIES_DOC_URL,
     force_main_file_usage=False,
@@ -108,8 +102,8 @@ def suite_generator(plugin_repo: NapariPlugin):
             ),
             Requirement(
                 features=[SUMMARY],
-                main_files=[napari_cfg],
-                fallbacks=[pyproject_toml, setup_cfg, setup_py],
+                main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[napari_cfg],
             ),
             Requirement(
                 features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
@@ -117,15 +111,14 @@ def suite_generator(plugin_repo: NapariPlugin):
                 fallbacks=[],
             ),
             Requirement(
-                features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
+                features=[INTRO, VIDEO_SCREENSHOT, USAGE, INSTALLATION],
                 main_files=[
-                    description,
-                ],
-                fallbacks=[
                     long_descr_setup_cfg,
                     long_descr_setup_py,
                     long_descr_pyproject_toml,
+                    description,
                 ],
+                fallbacks=[],
             ),
             Requirement(
                 features=[CITATION, CITATION_VALID],

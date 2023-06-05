@@ -1,4 +1,3 @@
-import contextlib
 import re
 from functools import lru_cache
 
@@ -58,9 +57,10 @@ class License(RepositoryFile):
         """
         GITHUB_PATTERN = r"https://github.com/.+/.+"
         url = self.url or ""
+        if url.endswith(".git"):
+            url = url[:-4]
         if re.match(GITHUB_PATTERN, url):
-            repo_url = self.url
-            api_url = repo_url.replace(
+            api_url = url.replace(
                 "https://github.com/", "https://api.github.com/repos/"
             )
             try:
