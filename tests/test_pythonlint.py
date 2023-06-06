@@ -48,6 +48,7 @@ def test_pythonfile_pyqt5_detection(resources):
 def test_pythonsrcdir_init(resources):
     srcdir = PythonSrcDir(resources)
 
+    assert [s.path.name for s in srcdir.files] == ["f1.py", "f2.py", "f1.py"]
     assert srcdir.number_py_files == 3
 
 
