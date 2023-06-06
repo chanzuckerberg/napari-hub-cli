@@ -137,9 +137,7 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
         ("PyQt5", srcdir.files[0].path, 3),
         ("PyQt5", srcdir.files[0].path, 18),
         ("PyQt5", srcdir.files[0].path, 19),
-    ] or
-
-    )
+    ])
     assert srcdir.has_no_forbidden_imports is False
     assert srcdir.number_py_files == 3
 
