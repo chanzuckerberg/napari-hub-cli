@@ -24,25 +24,25 @@ def test_pythonfile_init(resources):
 def test_pythonfile_pyside2_detection(resources):
     srcfile = PythonFile(resources / "f1.py")
 
-    res = srcfile.check_pyside2
+    res = srcfile.check_pyside
     assert res == [
         ("PySide2", srcfile.path, 3),
         ("PySide2", srcfile.path, 25),
         ("PySide2", srcfile.path, 26),
     ]
-    assert srcfile.check_pyqt5 == []
+    assert srcfile.check_pyqt == []
 
 
 def test_pythonfile_pyqt5_detection(resources):
     srcfile = PythonFile(resources / "f2.py")
 
-    res = srcfile.check_pyqt5
+    res = srcfile.check_pyqt
     assert res == [
         ("PyQt5", srcfile.path, 3),
         ("PyQt5", srcfile.path, 18),
         ("PyQt5", srcfile.path, 19),
     ]
-    assert srcfile.check_pyside2 == []
+    assert srcfile.check_pyside == []
 
 
 def test_pythonfile_npe1_hook_check1(resources):
@@ -99,6 +99,7 @@ def test_pythonfile_npe1_hook_check3(resources):
 def test_pythonsrcdir_init(resources):
     srcdir = PythonSrcDir(resources)
 
+    assert [s.path.name for s in srcdir.files] == ["f1.py", "f2.py", "f1.py"]
     assert srcdir.number_py_files == 3
 
 
