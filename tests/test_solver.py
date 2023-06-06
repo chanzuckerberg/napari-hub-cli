@@ -123,20 +123,23 @@ def test_requirements_build_notallwheels():
 
 @pytest.mark.online
 def test_requirements_integration():
-    reqs = InstallationRequirements(
-        path=None, requirements=["numpy"], platforms=["win", "linux", "macos"]
-    )
-    assert reqs.installable_linux is True
-    assert reqs.installable_windows is True
-    assert reqs.installable_macos is True
+    try:
+        reqs = InstallationRequirements(
+            path=None, requirements=["numpy"], platforms=["win", "linux", "macos"]
+        )
+        assert reqs.installable_linux is True
+        assert reqs.installable_windows is True
+        assert reqs.installable_macos is True
 
-    assert reqs.has_no_C_ext_windows is True
-    assert reqs.has_no_C_ext_linux is True
-    assert reqs.has_no_C_ext_macos is True
+        assert reqs.has_no_C_ext_windows is True
+        assert reqs.has_no_C_ext_linux is True
+        assert reqs.has_no_C_ext_macos is True
 
-    assert reqs.allwheel_linux is True
-    assert reqs.allwheel_macos is True
-    assert reqs.allwheel_windows is True
+        assert reqs.allwheel_linux is True
+        assert reqs.allwheel_macos is True
+        assert reqs.allwheel_windows is True
+    except Exception:
+        pytest.fail("Fails when executed on some windows version")
 
 
 @pytest.mark.online

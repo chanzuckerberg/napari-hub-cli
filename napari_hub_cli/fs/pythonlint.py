@@ -1,5 +1,4 @@
 import ast
-import time
 from functools import wraps
 from pathlib import Path
 
@@ -144,7 +143,7 @@ class PythonSrcDir(RepositoryFile):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
-            if "/site-packages/" in str(python_file):
+            if "site-packages" in str(python_file):
                 # exclude virtualenv files
                 continue
             files.append(PythonFile(python_file))
@@ -154,8 +153,8 @@ class PythonSrcDir(RepositoryFile):
     def forbidden_imports_list(self):
         imports = []
         for file in self.files:
-            imports.extend(file.check_pyside2)
-            imports.extend(file.check_pyqt5)
+            imports.extend(file.check_pyside)
+            imports.extend(file.check_pyqt)
         return imports
 
     @property

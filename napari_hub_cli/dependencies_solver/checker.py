@@ -35,8 +35,12 @@ accepted_C_packages = {
 }
 
 forbidden_deps = {
+    "pyside",
     "pyside2",
+    "pyside6",
+    "pyqt",
     "pyqt5",
+    "pyqt6",
 }
 
 INSTALLABLE = 0
