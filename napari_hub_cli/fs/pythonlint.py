@@ -36,12 +36,12 @@ class PythonFile(object):
         return []
 
     @property
-    def check_pyside2(self):
-        return self._check_import("PySide2")
+    def check_pyside(self):
+        return self._check_import("PySide2") + self._check_import("PySide6")
 
     @property
-    def check_pyqt5(self):
-        return self._check_import("PyQt5")
+    def check_pyqt(self):
+        return self._check_import("PyQt5") + self._check_import("PyQt6")
 
 
 class PythonSrcDir(RepositoryFile):
@@ -59,8 +59,8 @@ class PythonSrcDir(RepositoryFile):
     def forbidden_imports_list(self):
         imports = []
         for file in self.files:
-            imports.extend(file.check_pyside2)
-            imports.extend(file.check_pyqt5)
+            imports.extend(file.check_pyside)
+            imports.extend(file.check_pyqt)
         return imports
 
     @property
