@@ -47,7 +47,7 @@ def test_pythonfile_pyqt5_detection(resources):
 
 
 @pytest.mark.skipif(
-    sys.version_info <= (3, 7),
+    sys.version.startswith("3.7"),
     reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
 )
 def test_pythonfile_npe1_hook_check1(resources):
@@ -74,7 +74,7 @@ def test_pythonfile_npe1_hook_check1(resources):
 
 
 @pytest.mark.skipif(
-    sys.version_info <= (3, 7),
+    sys.version.startswith("3.7"),
     reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
 )
 def test_pythonfile_npe1_hook_check2(resources):
@@ -92,7 +92,7 @@ def test_pythonfile_npe1_hook_check2(resources):
 
 
 @pytest.mark.skipif(
-    sys.version_info <= (3, 7),
+    sys.version.startswith("3.7"),
     reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
 )
 def test_pythonfile_npe1_hook_check3(resources):
@@ -145,7 +145,7 @@ def test_pythonsrcdir_forbidden_imports_detection2(resources):
 
 
 @pytest.mark.skipif(
-    sys.version_info <= (3, 7),
+    sys.version.startswith("3.7"),
     reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
 )
 def test_pythonsrcdir_npe1_hook_list(resources):
