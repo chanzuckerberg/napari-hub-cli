@@ -201,14 +201,14 @@ def parse_args(args):
         "--all",
         default=False,
         action="store_true",
-        help="Passing on all plugins registed in Napari-HUB platform",
+        help="Passing on all plugins registed in napari hub platform",
     )
     subcommand.set_defaults(func=remote_code_quality_checklist)
 
     ## all-plugin-report
     subcommand = subparsers.add_parser(
         "all-plugins-report",
-        help="Generates a CSV report with consistency analysis of all plugins in the Napari-HUB platform",
+        help="Generates a CSV report with consistency analysis of all plugins in the napari hub platform",
     )
     subcommand.add_argument("output_csv", help="Output file name (e.g: 'output.csv')")
     subcommand.set_defaults(func=generate_report_all_plugins)
@@ -241,7 +241,7 @@ def parse_args(args):
         "--all",
         default=False,
         action="store_true",
-        help="Passing on all plugins registed in Napari-HUB platform",
+        help="Passing on all plugins registed in napari hub platform",
     )
     subcommand.add_argument(
         "--push-on-github",
