@@ -27,8 +27,8 @@ def test_pythonfile_pyside2_detection(resources):
     res = srcfile.check_pyside
     assert res == [
         ("PySide2", srcfile.path, 3),
-        ("PySide2", srcfile.path, 24),
         ("PySide2", srcfile.path, 25),
+        ("PySide2", srcfile.path, 26),
     ]
     assert srcfile.check_pyqt == []
 
@@ -39,8 +39,8 @@ def test_pythonfile_pyqt5_detection(resources):
     res = srcfile.check_pyqt
     assert res == [
         ("PyQt5", srcfile.path, 3),
-        ("PyQt5", srcfile.path, 16),
-        ("PyQt5", srcfile.path, 17),
+        ("PyQt5", srcfile.path, 18),
+        ("PyQt5", srcfile.path, 19),
     ]
     assert srcfile.check_pyside == []
 
@@ -111,11 +111,11 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
     assert len(res) == 6
     assert res == [
         ("PySide2", srcdir.files[0].path, 3),
-        ("PySide2", srcdir.files[0].path, 24),
         ("PySide2", srcdir.files[0].path, 25),
+        ("PySide2", srcdir.files[0].path, 26),
         ("PyQt5", srcdir.files[1].path, 3),
-        ("PyQt5", srcdir.files[1].path, 16),
-        ("PyQt5", srcdir.files[1].path, 17),
+        ("PyQt5", srcdir.files[1].path, 18),
+        ("PyQt5", srcdir.files[1].path, 19),
     ]
     assert srcdir.has_no_forbidden_imports is False
     assert srcdir.number_py_files == 3
