@@ -130,12 +130,12 @@ class PythonFile(object):
         )
 
     @property
-    def check_pyside2(self):
-        return self._check_import("PySide2")
+    def check_pyside(self):
+        return self._check_import("PySide2") + self._check_import("PySide6")
 
     @property
-    def check_pyqt5(self):
-        return self._check_import("PyQt5")
+    def check_pyqt(self):
+        return self._check_import("PyQt5") + self._check_import("PyQt6")
 
 
 class PythonSrcDir(RepositoryFile):
