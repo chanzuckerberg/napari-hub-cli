@@ -49,7 +49,7 @@ class PythonSrcDir(RepositoryFile):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
-            if "/site-packages/" in str(python_file):
+            if "site-packages" in str(python_file):
                 # exclude virtualenv files
                 continue
             files.append(PythonFile(python_file))
