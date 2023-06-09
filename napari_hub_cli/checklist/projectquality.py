@@ -105,8 +105,8 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[CODECOV_RESULT],
                 main_files=main_gh_workfolder,  # type: ignore
-                fallbacks=[]
-            )
+                fallbacks=[],
+            ),
         ],
         requirements=[
             Requirement(
