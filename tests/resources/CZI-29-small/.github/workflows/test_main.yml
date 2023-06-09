@@ -1,50 +1,87 @@
-name: tests
+name: napari repo
 
 on:
-  push:
-    branches:
-      - master
-      - main
-      - develop
-    tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
-  pull_request:
-    branches:
-      - master
-      - main
-      - develop
+  schedule:
+    - cron: '0 10 * * 1,3,5'  # every 24 hours
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }}
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.7, 3.8, 3.9, "3.10"]
-
+  download_data:
+    name: Download test data
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - run: git config --global user.email "me@me.gov"
-      - run: git config --global user.name "Me Tester"
+      - shell: bash
+        run: bash build_utils/download_data.sh
+      - name: Upload test data
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_data
+          path: test_data
+          retention-days: 5
 
-      - name: Set up Python ${{ matrix.python-version }}
+  test_napari:
+    name: ${{ matrix.napari_version }} py${{ matrix.python }}
+    runs-on: ${{ matrix.platform }}
+    needs: download_data
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ ubuntu-22.04 ]
+        python: ['3.7', '3.8', '3.9' , '3.10']
+        napari_version: [repo]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python }}
+
+      - name: Install Windows OpenGL
+        if: runner.os == 'Windows'
+        run: |
+          git clone --depth 1 git://github.com/pyvista/gl-ci-helpers.git
+          powershell gl-ci-helpers/appveyor/install_opengl.ps1
+          if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
+
+      - uses: tlambert03/setup-qt-libs@v1
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install setuptools tox tox-gh-actions
 
+      - name: Download test data
+        uses: actions/download-artifact@v3
+        with:
+          name: test_data
+          path: test_data
+
       - name: Test with tox
-        run: tox -r -e py
+        # run tests using pip install --pre
+        uses: aganders3/headless-gui@v1
+        timeout-minutes: 60
+        with:
+          run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
+          NAPARI: ${{ matrix.napari_version }}
+          PYVISTA_OFF_SCREEN: True  # required for opengl on windows
+
+      - name: Report Failures
+        if: ${{ failure() }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLATFORM: ${{ matrix.platform }}
+          PYTHON: ${{ matrix.python }}
+          RUN_ID: ${{ github.run_id }}
+          TITLE: '[test-bot] napari repos test fail'
+        with:
+          filename: .github/TEST_FAIL_TEMPLATE.md
+          update_existing: true
 
       - name: Coverage
         uses: codecov/codecov-action@v1
-
