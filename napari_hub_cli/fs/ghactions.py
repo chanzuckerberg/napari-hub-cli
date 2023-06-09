@@ -1,7 +1,5 @@
 import re
 from functools import lru_cache
-from hashlib import new
-from pathlib import Path
 
 import requests
 from iguala import as_matcher as m
@@ -86,7 +84,7 @@ class GhActionWorkflow(ConfigFile):
 class GhActionWorkflowFolder(RepositoryFile):
     GITHUB_PATTERN = r"https://github.com/(?P<owner>[^/]+)/(?P<repo>.+)"
     CODECOV_API = "https://api.codecov.io/graphql/gh"
-    CODECOV_QUERY = """
+    CODECOV_QUERY_OLD = """
 query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
     owner(username:$name){
         repository(name:$repo){
@@ -103,6 +101,25 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         }
     }
 }
+"""
+    CODECOV_QUERY = """
+query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
+      owner(username:$name){
+        repository: repositoryDeprecated(name:$repo){
+          branch(name:$branch) {
+            name
+            head {
+              yamlState
+              totals {
+                percentCovered
+                lineCount
+                hitsCount
+              }
+            }
+          }
+        }
+      }
+    }
 """
 
     def __init__(self, path, url):
