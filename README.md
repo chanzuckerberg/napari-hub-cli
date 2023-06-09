@@ -59,33 +59,10 @@ while the command used to create the **Documentation Checklist for a remote Plug
  $ napari-hub-cli check-plugin /tmp/example-plugin
 ```
 
-The intent of this utility is to check your plugin for specific metadata in the Napari-Hub recommended file locations.
+The intent of this utility is to check your plugin for specific metadata in the [napari-Hub recommended file locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing).
 With this, it creates a Documentation Checklist identifying if a plugin has the following metadata:
 
-- Display Name
-- Summary Sentence
-- Intro Paragraph
-- Intro Video
-- Intro Scrennshot
-- Usage Section
-- Installation section
-- Source Code Link
-- User Support Link
-- Bug Tracker Link
-- Author
-- Citation
-
-Additionally, the recommended file locations for each metadata are suggested in different cases:
-
-- when the metadata is not found in either the Napari recommended file location and a fallback file location
-- when the metadata is not found at the Napari recommended file location
-
-
-
-Below you can find a table with the Napari recommended file locations and fallback files where the metadata is checked:
-
-
-| Metadata / Files    | Recommended File             | Fallback File(s)                |
+| Metadata / Files    | Primary source               | Secondary source                |
 | ------------------- | ---------------------------- | ------------------------------- |
 | Display Name        | ```npe2 - napari.manifest``` | ```PyPI```                      |
 | Summary Sentence    | ```PyPI```                   | ```napari-hub/config.yml```     |
@@ -102,10 +79,9 @@ Below you can find a table with the Napari recommended file locations and fallba
 
 
 
-Example output (with all possible scenarios):
+Example output:
 
-<img width="556" alt="Metadata check from command line using the napari-hub-cli tool" src="https://user-images.githubusercontent.com/99416933/201911155-71871012-8afb-4161-bd84-1794b3cd4735.png">
-
+![Metadata check from command line using the napari-hub-cli tool](https://github.com/chanzuckerberg/napari-hub-cli/assets/21295664/a59f9726-fb38-45df-9b01-dba0eba2ac45)
 
 ## Citation
 
