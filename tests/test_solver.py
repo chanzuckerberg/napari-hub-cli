@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.dependencies_solver.checker import InstallationRequirements
+from napari_hub_cli.dependencies_solver.checker import InstallationRequirements, NO_DEPENDENCIES
 from napari_hub_cli.fs import NapariPlugin
 
 
@@ -185,3 +185,19 @@ def test_requirements_installability():
     assert reqs.installable_linux is True
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
+
+
+@pytest.mark.online
+def test_nodeps_message():
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=[
+            "numpy>=2.0",
+            "panda<=1.0"
+        ],
+        platforms=["linux"],
+    )
+
+    assert reqs.installable_linux is False
+    assert reqs.number_of_dependencies == NO_DEPENDENCIES
