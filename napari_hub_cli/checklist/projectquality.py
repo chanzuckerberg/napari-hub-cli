@@ -70,6 +70,9 @@ HAS_NO_PYQT_PYSIDE_DEP = MetaFeature(
 HAS_NO_PYQT_PYSIDE_CODE = MetaFeature(
     "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports"
 )
+HAS_NO_NPE1_HOOKS = MetaFeature(
+    "Has no NPE1 hook", "as_no_npe1_hook_list"
+)
 
 
 def suite_generator(plugin_repo: NapariPlugin):
@@ -178,6 +181,7 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[
                     HAS_NO_PYQT_PYSIDE_CODE,
+                    HAS_NO_NPE1_HOOKS,
                 ],
                 main_files=[linter],
                 fallbacks=[],
