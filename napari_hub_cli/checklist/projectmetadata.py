@@ -9,6 +9,7 @@ TITLE = "Documentation"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+ENGINE_VERSION = MetaFeature("Plugin engine version", "version")
 
 # Checklist
 DISPLAY_NAME = MetaFeature(
@@ -91,6 +92,11 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[HAS_VERSION, PLUGIN_VERSION],
                 main_files=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[ENGINE_VERSION],
+                main_files=[npe2_yaml],
                 fallbacks=[],
             ),
         ],

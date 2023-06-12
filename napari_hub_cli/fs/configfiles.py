@@ -425,6 +425,14 @@ class Npe2Yaml(Metadata, ConfigFile):
         self.file = location
         super().save()
 
+    @property
+    def version(self):
+        return "npe2" if self.file and self.file.exists() else "npe1"
+
+    @property
+    def is_npe2(self):
+        return self.version == "npe2"
+
 
 class CitationFile(ConfigFile):
     message_no_preferred = "If you use this plugin, please cite it using these metadata"
