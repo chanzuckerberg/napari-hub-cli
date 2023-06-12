@@ -139,7 +139,7 @@ class PythonFile(object):
 
 
 class PythonSrcDir(RepositoryFile):
-    def __init__(self, path):
+    def __init__(self, path, engine_version=None):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
@@ -148,6 +148,7 @@ class PythonSrcDir(RepositoryFile):
                 continue
             files.append(PythonFile(python_file))
         self.files = files
+        self.engine_version = engine_version
 
     @property
     def forbidden_imports_list(self):
@@ -178,3 +179,7 @@ class PythonSrcDir(RepositoryFile):
     @property
     def as_no_npe1_hook_list(self):
         return len(self.npe1_hook_list) == 0
+
+    @property
+    def is_not_hybrid(self):
+        return not self.as_no_npe1_hook_list and self.engine_version == 2
