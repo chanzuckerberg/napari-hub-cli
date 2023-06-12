@@ -59,11 +59,12 @@ def documentation_checklist(plugin_path):
     return 0
 
 
-def code_quality_checklist(plugin_path):
+def code_quality_checklist(plugin_path, disable_pip_based_analysis):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(plugin_path, project_quality_suite)
+    check_list = analyse_local_plugin(plugin_path, project_quality_suite,
+                                      disable_pip_based_requirements=disable_pip_based_analysis)
     display_checklist(check_list)
     return 0
 
@@ -84,6 +85,12 @@ def parse_args(args):
         "check-quality", help="Checks the code quality of a local plugin"
     )
     subcommand.add_argument("plugin_path", help="Local path to your plugin")
+    subcommand.add_argument(
+        "--disable-pip-based-analysis",
+        default=False,
+        action="store_true",
+        help="Disable the pip based analysis (installability, number of dependencies, ...)",
+    )
     subcommand.set_defaults(func=code_quality_checklist)
 
     ## create-cff-citation
