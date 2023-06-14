@@ -27,7 +27,7 @@ def test_check_napari_config(test_repo):
 
     assert napari_config_yaml.has_summary is False
     assert napari_config_yaml.has_projectsite is False
-    assert napari_config_yaml.has_author is False
+    assert napari_config_yaml.has_author is True
     assert napari_config_yaml.has_bugtracker is False
     assert napari_config_yaml.has_usersupport is False
 
