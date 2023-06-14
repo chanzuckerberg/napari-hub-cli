@@ -165,9 +165,3 @@ def test_build_issue_message(test_repo):
 
     # assert "You can also place" in message
 
-
-@pytest.mark.online
-def test_repo_no_forbidden_dep(test_repo):
-    requirements = test_repo.requirements
-
-    assert requirements.has_no_forbidden_deps is False

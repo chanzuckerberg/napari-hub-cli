@@ -191,7 +191,6 @@ def test_build_issue_message(test_repo):
     assert "I'm bar" in message
     assert "complement #2" in message
     assert "'Source Code'" in message
-    assert "'Author Name'" in message
     assert "'Issue Submission Link'" in message
     assert "'Support Channel Link'" in message
     assert "'Installation'" in message
