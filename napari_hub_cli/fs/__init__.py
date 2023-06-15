@@ -206,7 +206,7 @@ class NapariPlugin(object):
         self.gh_workflow_folder = GhActionWorkflowFolder(
             path / ".github" / "workflows", plugin_url
         )
-        self.linter = PythonSrcDir(self.path)
+        self.linter = PythonSrcDir(self.path, self.gen)
 
     @property
     def summary(self):
