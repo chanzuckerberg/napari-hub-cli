@@ -2,6 +2,7 @@ import csv
 from pathlib import Path
 from argparse import ArgumentParser
 from datetime import datetime
+import queue
 import time
 import requests
 import traceback
@@ -17,8 +18,8 @@ from napari_hub_cli.checklist.projectquality import project_quality_suite
 
 
 def batch_wrapper(plugin_name, temp_dir, no_pip, result_queue):
+    print(f"Analyzing {plugin_name}")
     try:
-        print(f"Analysing plugin {plugin_name}")
         result = analyse_remote_plugin(
             plugin_name=plugin_name,
             display_info=False,
@@ -26,10 +27,11 @@ def batch_wrapper(plugin_name, temp_dir, no_pip, result_queue):
             requirements_suite=project_quality_suite,
             disable_pip_based_requirements=no_pip,
         )
-        result_queue.put(result)
+        print(f"Finished analyzing {plugin_name}")
+        csv_rows = build_csv_dict({plugin_name: result})
+        result_queue.put(csv_rows[0])
     except Exception as e:
         result_queue.put(e)
-    return result
 
 
 def batch_plugin_names(all_plugins, batch_size=10):
@@ -49,6 +51,16 @@ def find_aleady_analysed_plugins(output_dir):
                 analysed_plugins.add(row[0])
     return analysed_plugins
 
+class FakeName:
+    def __init__(self, name):
+        self.name = name
+class FakeResponse:
+    def __init__(self):
+        self.status = FakeName("Time exceeded")
+        self.url = "unknown"
+        self.additionals = []
+        self.features = []
+
 
 def perform_batched_analysis(
     batched_names,
@@ -64,8 +76,9 @@ def perform_batched_analysis(
     date = datetime.now().strftime("%Y-%m-%d_%H-%M")
     errors_filepath = Path(output_dir) / f"errors_{date}.txt"
     analysed = find_aleady_analysed_plugins(output_dir)
+    result_queue = multiprocessing.Queue()
     for i, plugin_names in enumerate(batched_names):
-        results_dict = {}
+        rows = []
         for plugin_name in plugin_names:
             if plugin_name in analysed and not overwrite:
                 print(
@@ -75,17 +88,19 @@ def perform_batched_analysis(
             while not ensure_github_api_rate_limit():
                 print("Github api rate limit exceeded, waiting 20 minutes")
                 time.sleep(20 * 60)
-            result_queue = multiprocessing.Queue()
             process = multiprocessing.Process(
                 target=batch_wrapper,
                 args=(plugin_name, temp_dir, no_pip, result_queue),
             )
             process.start()
-            process.join(timeout)
-            if process.is_alive():
-                process.terminate()
-                process.join()
-            result = result_queue.get()
+            try:
+                result = result_queue.get(block=True, timeout=timeout)
+            except queue.Empty:
+                with open(errors_filepath, "a") as f:
+                    print(f"Plugin {plugin_name} timed out after {timeout} seconds")
+                    f.write(f"Plugin {plugin_name} timed out after {timeout} seconds")
+                    f.write("\n------------------\n")
+                result = FakeResponse()
             if isinstance(result, Exception):
                 with open(errors_filepath, "a") as f:
                     print(f"Plugin {plugin_name} failed with error {result}")
@@ -94,10 +109,8 @@ def perform_batched_analysis(
                     f.write("\n------------------\n")
                 continue
                     
-            results_dict[plugin_name] = result
-
-            rows = build_csv_dict(results_dict)
-            write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
+            rows.append(result)
+        write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
 
 
 def merge_csvs(directory_with_files):
@@ -157,7 +170,7 @@ def main():
     )
     parser.add_argument(
         "--temp-dir",
-        "-t",
+        "-d",
         type=str,
         default="temp_dir",
         help="Directory to store the temporary cloned repositories",
@@ -170,7 +183,7 @@ def main():
     )
     parser.add_argument(
         "--timeout",
-        "-to",
+        "-t",
         type=int,
         default=180,
         help="Timeout in seconds for each plugin analysis",
