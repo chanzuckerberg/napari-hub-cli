@@ -50,6 +50,8 @@ def test_check_npe2(test_repo):
     np2e_file = test_repo.npe2_yaml
 
     assert np2e_file.exists is False
+    assert np2e_file.version is "npe1"
+    assert np2e_file.is_npe2 is False
 
 
 def test_check_pysetup(test_repo):
@@ -166,7 +168,6 @@ def test_build_issue_message(test_repo):
     # assert "You can also place" in message
 
 
-@pytest.mark.online
 def test_repo_no_forbidden_dep(test_repo):
     requirements = test_repo.requirements
 

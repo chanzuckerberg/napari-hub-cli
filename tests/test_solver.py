@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from napari_hub_cli.dependencies_solver.checker import InstallationRequirements
+from napari_hub_cli.dependencies_solver.checker import InstallationRequirements, NO_DEPENDENCIES
 from napari_hub_cli.fs import NapariPlugin
 
 
@@ -123,20 +123,23 @@ def test_requirements_build_notallwheels():
 
 @pytest.mark.online
 def test_requirements_integration():
-    reqs = InstallationRequirements(
-        path=None, requirements=["numpy"], platforms=["win", "linux", "macos"]
-    )
-    assert reqs.installable_linux is True
-    assert reqs.installable_windows is True
-    assert reqs.installable_macos is True
+    try:
+        reqs = InstallationRequirements(
+            path=None, requirements=["numpy"], platforms=["win", "linux", "macos"]
+        )
+        assert reqs.installable_linux is True
+        assert reqs.installable_windows is True
+        assert reqs.installable_macos is True
 
-    assert reqs.has_no_C_ext_windows is True
-    assert reqs.has_no_C_ext_linux is True
-    assert reqs.has_no_C_ext_macos is True
+        assert reqs.has_no_C_ext_windows is True
+        assert reqs.has_no_C_ext_linux is True
+        assert reqs.has_no_C_ext_macos is True
 
-    assert reqs.allwheel_linux is True
-    assert reqs.allwheel_macos is True
-    assert reqs.allwheel_windows is True
+        assert reqs.allwheel_linux is True
+        assert reqs.allwheel_macos is True
+        assert reqs.allwheel_windows is True
+    except Exception:
+        pytest.fail("Fails when executed on some windows version")
 
 
 @pytest.mark.online
@@ -185,3 +188,19 @@ def test_requirements_installability():
     assert reqs.installable_linux is True
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
+
+
+@pytest.mark.online
+def test_nodeps_message():
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=[
+            "numpy>=2.0",
+            "panda<=1.0"
+        ],
+        platforms=["linux"],
+    )
+
+    assert reqs.installable_linux is False
+    assert reqs.number_of_dependencies == NO_DEPENDENCIES

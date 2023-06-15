@@ -13,9 +13,12 @@ class GhActionWorkflow(ConfigFile):
     def _extract_test_infos(self):
         pattern = m(
             {
-                "jobs>*": {
-                    "strategy>matrix": {
+                "jobs>*": m({
+                    "strategy>matrix": m({
                         "python": m([..., "@_", ...])
+                        @ "python_versions"
+                    }) | {
+                        "python-version": m([..., "@_", ...])
                         @ "python_versions"
                     },
                     "steps>*": m(
@@ -24,11 +27,11 @@ class GhActionWorkflow(ConfigFile):
                             | regex("python -m tox")
                             | regex("python -m pytest")
                             | regex("pytest")
-                            | regex("unittest")
+                            | regex(".*unittest.*")
                         }
                     )
                     | {"uses": regex(".*test.*")},
-                }
+                })
             }
         )
 
@@ -40,6 +43,37 @@ class GhActionWorkflow(ConfigFile):
                 for version in py_versions
             ]
             return py_versions
+
+        pattern = m(
+            {
+                "jobs>*": {
+                    "steps>*": {
+                            "run": regex("tox")
+                            | regex("python -m tox")
+                            | regex("python -m pytest")
+                            | regex("pytest")
+                            | regex(".*unittest.*")
+                        },
+                     "steps>*>python-version": m([..., "@_", ...]) @ "python_versions"
+                        | "@python_versions"
+                }
+            }
+        )
+
+        result = pattern.match(self.data)
+        if result.is_match:
+            for binding in result.bindings:
+                py_versions = binding.get("python_versions")
+                if str(py_versions).startswith("$"):
+                    continue
+                if not isinstance(py_versions, list):
+                    py_versions = [py_versions]
+                py_versions = [
+                    tuple(int(x) for x in str(version).split(".") if x)
+                    for version in py_versions
+                ]
+                return py_versions
+
         return None
 
     @property
