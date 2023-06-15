@@ -2,6 +2,8 @@ import csv
 from pathlib import Path
 from argparse import ArgumentParser
 from datetime import datetime
+import time
+import requests
 
 from napari_hub_cli.utils import get_all_napari_plugin_names
 from napari_hub_cli.checklist.analysis import (
@@ -30,6 +32,9 @@ def perform_batched_analysis(
         for i, plugin_names in enumerate(batched_names):
             results_dict = {}
             for plugin_name in plugin_names:
+                while not ensure_github_api_rate_limit():
+                    print("Github api rate limit exceeded, waiting 20 minutes")
+                    time.sleep(20 * 60)
                 try:
                     result = analyse_remote_plugin(
                         plugin_name=plugin_name,
@@ -57,6 +62,20 @@ def merge_csvs(directory_with_files):
                 reader = csv.reader(csvfile)
                 for row in reader:
                     writer.writerow(row)
+
+def get_github_api_status():
+    """Get the status of the github api"""
+    url = "https://api.github.com/rate_limit"
+    response = requests.get(url)
+    return response.json()
+
+def ensure_github_api_rate_limit():
+    """Ensure that the github api rate limit is not exceeded"""
+    status = get_github_api_status()
+    remaining = status["resources"]["core"]["remaining"]
+    if remaining < 1:
+        return False
+    return True
 
 
 def main():
