@@ -107,12 +107,12 @@ def suite_generator(plugin_repo: NapariPlugin):
                 fallbacks=[pyproject_toml, setup_cfg, setup_py],
             ),
             Requirement(
-                features=[SUMMARY],
+                features=[SUMMARY, AUTHOR],
                 main_files=[pyproject_toml, setup_cfg, setup_py],
                 fallbacks=[napari_cfg],
             ),
             Requirement(
-                features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
+                features=[SOURCECODE, BUGTRACKER, USER_SUPPORT],
                 main_files=[pyproject_toml, setup_cfg, setup_py],
                 fallbacks=[],
             ),

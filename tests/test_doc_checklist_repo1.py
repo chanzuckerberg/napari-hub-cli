@@ -27,7 +27,7 @@ def test_check_napari_config(test_repo):
 
     assert napari_config_yaml.has_summary is False
     assert napari_config_yaml.has_projectsite is False
-    assert napari_config_yaml.has_author is False
+    assert napari_config_yaml.has_author is True
     assert napari_config_yaml.has_bugtracker is False
     assert napari_config_yaml.has_usersupport is False
 
@@ -193,7 +193,6 @@ def test_build_issue_message(test_repo):
     assert "I'm bar" in message
     assert "complement #2" in message
     assert "'Source Code'" in message
-    assert "'Author Name'" in message
     assert "'Issue Submission Link'" in message
     assert "'Support Channel Link'" in message
     assert "'Installation'" in message

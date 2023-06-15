@@ -2,3 +2,20 @@
 project_urls:
   Documentation: https://jhnnsrs.github.io/doks/
   Twitter: https://twitter.com/jhnnsrs
+
+authors:
+  - name: Shannon Axelrod
+  - name: Matthew Cai
+    orcid: 0000-0003-4998-6328
+  - name: Ambrose J. Carr
+    orcid: 0000-0002-8457-2836
+  - name: Jeremy Freeman
+    orcid: 0000-0001-7077-7972
+  - name: Deep Ganguli
+  - name: Justin T. Kiggins
+    orcid: 0000-0002-4638-7015
+  - name: Brian Long
+    orcid: 0000-0002-7793-5969
+  - name: Tony Tung
+  - name: Kevin A. Yamauchi
+    orcid: 0000-0002-7818-1388
