@@ -191,7 +191,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                 features=[
                     HAS_NO_PYQT_PYSIDE_DEP,
                 ],
-                main_files=[requirements],  # type: ignore
+                main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
             Requirement(
