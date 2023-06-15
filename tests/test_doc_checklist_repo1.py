@@ -49,6 +49,8 @@ def test_check_npe2(test_repo):
 
     assert np2e_file.exists is True
     assert np2e_file.has_name is True
+    assert np2e_file.version is "npe2"
+    assert np2e_file.is_npe2 is True
 
 
 def test_check_pysetup(test_repo):

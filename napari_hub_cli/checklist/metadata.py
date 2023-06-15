@@ -118,42 +118,42 @@ def check_feature(meta, main_files, fallbacks):
     key = f"{meta.attribute}"
     for main_file in main_files:
         result = getattr(main_file, key)
-        if getattr(main_file, key):
+        if result:
             return Feature(
-                meta,
-                result,
-                True,
-                main_file,
-                False,
-                has_fallback,
-                scanned_files,
-                main_files,
-                fallbacks,
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=main_file,
+                only_in_fallback=False,
+                has_fallback_files=has_fallback,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     for fallback in fallbacks:
         result = getattr(fallback, key)
-        if getattr(fallback, key):
+        if result:
             return Feature(
-                meta,
-                result,
-                True,
-                fallback,
-                True,
-                True,
-                scanned_files,
-                main_files,
-                fallbacks,
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=fallback,
+                only_in_fallback=True,
+                has_fallback_files=True,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     return Feature(
-        meta,
-        None,
-        False,
-        None,
-        False,
-        has_fallback,
-        scanned_files,
-        main_files,
-        fallbacks,
+        meta=meta,
+        result=None,
+        found=False,
+        found_in=None,
+        only_in_fallback=False,
+        has_fallback_files=has_fallback,
+        scanned_files=scanned_files,
+        main_files=main_files,
+        fallbacks=fallbacks,
     )
 
 
@@ -162,6 +162,8 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     requirements = suite.requirements
     for requirement in requirements:
         for feature in requirement.features:
+            if not requirement.main_files:
+                continue
             reqs_result.append(
                 check_feature(
                     feature,
@@ -172,6 +174,8 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     additional_results = []
     for additional in suite.additionals:
         for feature in additional.features:
+            if not additional.main_files:
+                continue
             additional_results.append(
                 gather_base_feature(
                     feature,
@@ -188,7 +192,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     )
 
 
-def analyse_local_plugin(repo_path, requirement_suite):
+def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -207,7 +211,7 @@ def analyse_local_plugin(repo_path, requirement_suite):
     if isinstance(requirement_suite, tuple):
         _, requirement_suite = requirement_suite
 
-    requirements = requirement_suite(plugin_repo)
+    requirements = requirement_suite(plugin_repo, **kwargs)
 
     return analyse_requirements(plugin_repo, requirements)
 

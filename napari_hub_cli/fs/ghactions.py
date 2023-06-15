@@ -1,7 +1,5 @@
 import re
 from functools import lru_cache
-from hashlib import new
-from pathlib import Path
 
 import requests
 from iguala import as_matcher as m
@@ -15,56 +13,67 @@ class GhActionWorkflow(ConfigFile):
     def _extract_test_infos(self):
         pattern = m(
             {
-                "jobs>test": {
-                    "strategy>matrix": {
-                        # 'platform': m([..., '@_', ...]) @ 'platforms',
+                "jobs>*": m({
+                    "strategy>matrix": m({
+                        "python": m([..., "@_", ...])
+                        @ "python_versions"
+                    }) | {
                         "python-version": m([..., "@_", ...])
                         @ "python_versions"
                     },
-                    "steps": m(
+                    "steps>*": m(
                         {
-                            "run": regex("^tox.*")
-                            | regex("^python -m tox.*")
-                            | regex("^python -m pytest.*")
-                            | regex("^pytest.*")
+                            "run": regex("tox")
+                            | regex("python -m tox")
+                            | regex("python -m pytest")
+                            | regex("pytest")
+                            | regex(".*unittest.*")
                         }
                     )
                     | {"uses": regex(".*test.*")},
+                })
+            }
+        )
+
+        result = pattern.match(self.data)
+        if result.is_match:
+            py_versions = result.bindings[0].get("python_versions")
+            py_versions = [
+                tuple(int(x) for x in str(version).split(".") if x)
+                for version in py_versions
+            ]
+            return py_versions
+
+        pattern = m(
+            {
+                "jobs>*": {
+                    "steps>*": {
+                            "run": regex("tox")
+                            | regex("python -m tox")
+                            | regex("python -m pytest")
+                            | regex("pytest")
+                            | regex(".*unittest.*")
+                        },
+                     "steps>*>python-version": m([..., "@_", ...]) @ "python_versions"
+                        | "@python_versions"
                 }
             }
         )
 
         result = pattern.match(self.data)
         if result.is_match:
-            # platforms = result.bindings[0].get('platforms')
-            py_versions = result.bindings[0].get("python_versions")
-            py_versions = [
-                tuple(int(x) for x in str(version).split(".") if x)
-                for version in py_versions
-            ]
-            return py_versions
-        pattern = m(
-            {
-                "jobs>unittest": {
-                    "*": {
-                        "python-version": m([..., "@_", ...]) @ "python_versions"
-                        | "@python_versions"
-                    },
-                    "steps": {"run": regex("^python -m unittest.*")},
-                }
-            }
-        )
-        result = pattern.match(self.data)
-        if result.is_match:
-            py_versions = result.bindings[0].get("python_versions")
-            py_versions = (
-                py_versions if isinstance(py_versions, list) else [py_versions]
-            )
-            py_versions = [
-                tuple(int(x) for x in str(version).split(".") if x)
-                for version in py_versions
-            ]
-            return py_versions
+            for binding in result.bindings:
+                py_versions = binding.get("python_versions")
+                if str(py_versions).startswith("$"):
+                    continue
+                if not isinstance(py_versions, list):
+                    py_versions = [py_versions]
+                py_versions = [
+                    tuple(int(x) for x in str(version).split(".") if x)
+                    for version in py_versions
+                ]
+                return py_versions
+
         return None
 
     @property
@@ -86,7 +95,7 @@ class GhActionWorkflow(ConfigFile):
 class GhActionWorkflowFolder(RepositoryFile):
     GITHUB_PATTERN = r"https://github.com/(?P<owner>[^/]+)/(?P<repo>.+)"
     CODECOV_API = "https://api.codecov.io/graphql/gh"
-    CODECOV_QUERY = """
+    CODECOV_QUERY_OLD = """
 query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
     owner(username:$name){
         repository(name:$repo){
@@ -103,6 +112,25 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!){
         }
     }
 }
+"""
+    CODECOV_QUERY = """
+query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
+      owner(username:$name){
+        repository: repositoryDeprecated(name:$repo){
+          branch(name:$branch) {
+            name
+            head {
+              yamlState
+              totals {
+                percentCovered
+                lineCount
+                hitsCount
+              }
+            }
+          }
+        }
+      }
+    }
 """
 
     def __init__(self, path, url):
