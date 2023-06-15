@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 import time
 import requests
+import traceback
 
 from napari_hub_cli.utils import get_all_napari_plugin_names
 from napari_hub_cli.checklist.analysis import (
@@ -36,15 +37,20 @@ def perform_batched_analysis(
                     print("Github api rate limit exceeded, waiting 20 minutes")
                     time.sleep(20 * 60)
                 try:
+                    print(f"Analysing plugin {plugin_name}")
                     result = analyse_remote_plugin(
                         plugin_name=plugin_name,
-                        display_info=True,
+                        display_info=False,
                         directory=temp_dir,
                         requirements_suite=project_quality_suite,
                         disable_pip_based_requirements=no_pip,
                     )
                 except Exception as e:
+                    print(f"Error in batch {i}, plugin {plugin_name}: {e}")
                     f.write(f"Error in batch {i}, plugin {plugin_name}: {e}\n")
+                    traceback.print_exc(file=f)
+                    f.write("\n"
+                            "------------------------------------------------------------------\n")
                     continue
                 results_dict[plugin_name] = result
 
@@ -63,11 +69,13 @@ def merge_csvs(directory_with_files):
                 for row in reader:
                     writer.writerow(row)
 
+
 def get_github_api_status():
     """Get the status of the github api"""
     url = "https://api.github.com/rate_limit"
     response = requests.get(url)
     return response.json()
+
 
 def ensure_github_api_rate_limit():
     """Ensure that the github api rate limit is not exceeded"""
