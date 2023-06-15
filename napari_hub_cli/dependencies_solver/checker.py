@@ -34,6 +34,15 @@ accepted_C_packages = {
     "pandas",
 }
 
+forbidden_deps = {
+    "pyside",
+    "pyside2",
+    "pyside6",
+    "pyqt",
+    "pyqt5",
+    "pyqt6",
+}
+
 INSTALLABLE = 0
 ALL_WHEELS = 1
 PROBABLE_C_DEPS = 2
@@ -249,3 +258,8 @@ class InstallationRequirements(ConfigFile):
     @property
     def had_no_unknown_error(self):
         return len(self.errors) == 0
+
+    @property
+    def has_no_forbidden_deps(self):
+        _, _, _, deps = self.analysis_package(self.options_list[0])
+        return all(name.lower() not in forbidden_deps for name, _ in deps)
