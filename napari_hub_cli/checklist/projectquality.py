@@ -64,8 +64,15 @@ HAD_UNKNOWN_ERROR = MetaFeature(
     "Had no unexpected error during dependency analysis", "had_no_unknown_error"
 )
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
-HAS_NO_PYQT_PYSIDE_DEP = MetaFeature("Has no dependencies to PySide2 or PyQt5", "has_no_forbidden_deps")
-HAS_NO_PYQT_PYSIDE_CODE = MetaFeature("Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports")
+HAS_NO_PYQT_PYSIDE_DEP = MetaFeature(
+    "Has no dependencies to PySide2 or PyQt5", "has_no_forbidden_deps"
+)
+HAS_NO_PYQT_PYSIDE_CODE = MetaFeature(
+    "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports"
+)
+HAS_NO_NPE1_HOOKS = MetaFeature(
+    "Has no NPE1 hook", "as_no_npe1_hook_list"
+)
 
 
 def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
@@ -118,7 +125,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                 features=[NUM_ANALYZED_PYFILES],
                 main_files=[linter],
                 fallbacks=[],
-            )
+            ),
         ],
         requirements=[
             Requirement(
@@ -177,6 +184,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
             Requirement(
                 features=[
                     HAS_NO_PYQT_PYSIDE_CODE,
+                    HAS_NO_NPE1_HOOKS,
                 ],
                 main_files=[linter],
                 fallbacks=[],
