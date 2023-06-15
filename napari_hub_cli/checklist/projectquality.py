@@ -77,11 +77,17 @@ IS_NPE2 = MetaFeature(
 IS_NOT_HYBRID = MetaFeature(
     "Is not hybrid (is NPE1 or NPE2, not both)", "is_not_hybrid"
 )
+HAS_NO_NPE1_HOOKS = MetaFeature(
+    "Has no NPE1 hook", "as_no_npe1_hook_list"
+)
 
 
-def suite_generator(plugin_repo: NapariPlugin):
+def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
+    if disable_pip_based_requirements:
+        requirements = []
+    else:
+        requirements = [plugin_repo.requirements]
     npe2_yaml = plugin_repo.npe2_yaml
-    requirements = plugin_repo.requirements
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
     pyproject_toml = plugin_repo.pyproject_toml
@@ -120,7 +126,7 @@ def suite_generator(plugin_repo: NapariPlugin):
             ),
             Requirement(
                 features=[NUMBER_DEPENDENCIES],
-                main_files=[requirements],
+                main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
             Requirement(
@@ -156,7 +162,7 @@ def suite_generator(plugin_repo: NapariPlugin):
                     HAS_C_EXT_WIN,
                     HAD_UNKNOWN_ERROR,
                 ],
-                main_files=[requirements],
+                main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
             Requirement(
@@ -205,6 +211,7 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[
                     IS_NOT_HYBRID
+                    HAS_NO_NPE1_HOOKS,
                 ],
                 main_files=[linter],
                 fallbacks=[],
