@@ -101,6 +101,7 @@ def perform_batched_analysis(
                     f.write(f"Plugin {plugin_name} timed out after {timeout} seconds")
                     f.write("\n------------------\n")
                 result = FakeResponse()
+                result = build_csv_dict({plugin_name: result})[0]
             if isinstance(result, Exception):
                 with open(errors_filepath, "a") as f:
                     print(f"Plugin {plugin_name} failed with error {result}")
