@@ -68,8 +68,11 @@ HAS_NO_PYQT_PYSIDE_DEP = MetaFeature("Has no dependencies to PySide2 or PyQt5", 
 HAS_NO_PYQT_PYSIDE_CODE = MetaFeature("Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports")
 
 
-def suite_generator(plugin_repo: NapariPlugin):
-    requirements = plugin_repo.requirements
+def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
+    if disable_pip_based_requirements:
+        requirements = []
+    else:
+        requirements = [plugin_repo.requirements]
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
     pyproject_toml = plugin_repo.pyproject_toml
@@ -103,7 +106,7 @@ def suite_generator(plugin_repo: NapariPlugin):
             ),
             Requirement(
                 features=[NUMBER_DEPENDENCIES],
-                main_files=[requirements],
+                main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
             Requirement(
@@ -139,7 +142,7 @@ def suite_generator(plugin_repo: NapariPlugin):
                     HAS_C_EXT_WIN,
                     HAD_UNKNOWN_ERROR,
                 ],
-                main_files=[requirements],
+                main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
             Requirement(

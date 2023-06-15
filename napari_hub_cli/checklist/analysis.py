@@ -49,6 +49,7 @@ def analyse_remote_plugin(
     display_info=False,
     cleanup=True,
     directory=None,
+    **kwargs,
 ):
     """Launch the analysis of a remote plugin using the plugin name.
     The analyser automatically clones the plugin repository and performs the analysis.
@@ -94,6 +95,7 @@ def analyse_remote_plugin(
             display_info=display_info,
             cleanup=cleanup,
             directory=directory,
+            **kwargs,
         )
     except NonExistingNapariPluginError as e:
         print(e.message)
@@ -109,6 +111,7 @@ def analyse_remote_plugin_url(
     display_info=False,
     cleanup=True,
     directory=None,
+    **kwargs,
 ):
     directory = (
         LocalDirectory(Path(directory), cleanup)
@@ -142,17 +145,17 @@ def analyse_remote_plugin_url(
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url, title=title
                 )
-        result = analyse_local_plugin(test_repo, suite_gen)
+        result = analyse_local_plugin(test_repo, suite_gen, **kwargs)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result
 
 
 def display_remote_analysis(
-    plugin_name, requirements_suite=DEFAULT_SUITE, api_url=NAPARI_HUB_API_URL
+    plugin_name, requirements_suite=DEFAULT_SUITE, api_url=NAPARI_HUB_API_URL, **kwargs
 ):
     result = analyse_remote_plugin(
-        plugin_name, requirements_suite, api_url=api_url, display_info=True
+        plugin_name, requirements_suite, api_url=api_url, display_info=True, **kwargs
     )
     display_checklist(result)
     _display_error_message(plugin_name, result)
@@ -166,6 +169,7 @@ def analyze_remote_plugins(
     api_url=NAPARI_HUB_API_URL,
     display_info=False,
     directory=None,
+    **kwargs,
 ):
     all_results = {}
     if all_plugins:
@@ -174,12 +178,12 @@ def analyze_remote_plugins(
         plugins_name = plugins_name or []
     total = len(plugins_name)
     print(f"Selected plugins: {'all' if all_plugins else plugins_name}")
-    description = "Analysing plugins in Napari-HUB repository..."
+    description = "Analysing plugins in napari hub repository..."
     with Progress() as p:
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
             result = analyse_remote_plugin(
-                name, requirements_suite, display_info=False, directory=directory
+                name, requirements_suite, display_info=False, directory=directory, **kwargs
             )
             all_results[name] = result
             p.update(
@@ -202,7 +206,7 @@ def _display_error_message(plugin_name, result):
         )
     elif result.status is AnalysisStatus.MISSING_URL:
         print(
-            f"\N{BALLOT X} Plugin {plugin_name!r} does not have repository URL on the Naparay-HUB platform"
+            f"\N{BALLOT X} Plugin {plugin_name!r} does not have a repository URL on the napari hub platform"
         )
     elif result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY:
         print(

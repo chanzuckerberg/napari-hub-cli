@@ -45,7 +45,7 @@ class Feature(BaseFeature):
 class AnalysisStatus(Enum):
     SUCCESS = "Success"
     MISSING_URL = "Missing repository URL"
-    NON_EXISTING_PLUGIN = "Plugin is not existing in the Napari-HUB platform"
+    NON_EXISTING_PLUGIN = "Plugin is not existing in the napari hub platform"
     UNACCESSIBLE_REPOSITORY = "Repository URL is not accessible"
     BAD_URL = "Repository URL does not have right format"
 
@@ -162,6 +162,8 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     requirements = suite.requirements
     for requirement in requirements:
         for feature in requirement.features:
+            if not requirement.main_files:
+                continue
             reqs_result.append(
                 check_feature(
                     feature,
@@ -172,6 +174,8 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     additional_results = []
     for additional in suite.additionals:
         for feature in additional.features:
+            if not additional.main_files:
+                continue
             additional_results.append(
                 gather_base_feature(
                     feature,
@@ -188,7 +192,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     )
 
 
-def analyse_local_plugin(repo_path, requirement_suite):
+def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -207,7 +211,7 @@ def analyse_local_plugin(repo_path, requirement_suite):
     if isinstance(requirement_suite, tuple):
         _, requirement_suite = requirement_suite
 
-    requirements = requirement_suite(plugin_repo)
+    requirements = requirement_suite(plugin_repo, **kwargs)
 
     return analyse_requirements(plugin_repo, requirements)
 
