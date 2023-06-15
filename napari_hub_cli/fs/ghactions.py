@@ -13,18 +13,18 @@ class GhActionWorkflow(ConfigFile):
     def _extract_test_infos(self):
         pattern = m(
             {
-                "jobs>test": {
+                "jobs>*": {
                     "strategy>matrix": {
-                        # 'platform': m([..., '@_', ...]) @ 'platforms',
-                        "python-version": m([..., "@_", ...])
+                        "python": m([..., "@_", ...])
                         @ "python_versions"
                     },
-                    "steps": m(
+                    "steps>*": m(
                         {
-                            "run": regex("^tox.*")
-                            | regex("^python -m tox.*")
-                            | regex("^python -m pytest.*")
-                            | regex("^pytest.*")
+                            "run": regex("tox")
+                            | regex("python -m tox")
+                            | regex("python -m pytest")
+                            | regex("pytest")
+                            | regex("unittest")
                         }
                     )
                     | {"uses": regex(".*test.*")},
@@ -34,30 +34,7 @@ class GhActionWorkflow(ConfigFile):
 
         result = pattern.match(self.data)
         if result.is_match:
-            # platforms = result.bindings[0].get('platforms')
             py_versions = result.bindings[0].get("python_versions")
-            py_versions = [
-                tuple(int(x) for x in str(version).split(".") if x)
-                for version in py_versions
-            ]
-            return py_versions
-        pattern = m(
-            {
-                "jobs>unittest": {
-                    "*": {
-                        "python-version": m([..., "@_", ...]) @ "python_versions"
-                        | "@python_versions"
-                    },
-                    "steps": {"run": regex("^python -m unittest.*")},
-                }
-            }
-        )
-        result = pattern.match(self.data)
-        if result.is_match:
-            py_versions = result.bindings[0].get("python_versions")
-            py_versions = (
-                py_versions if isinstance(py_versions, list) else [py_versions]
-            )
             py_versions = [
                 tuple(int(x) for x in str(version).split(".") if x)
                 for version in py_versions

@@ -161,7 +161,7 @@ Some more information regarding `.CFF` can be found [here](https://docs.github.c
 
 ## Plugins Metadata Report
 
- Generates a CSV report with consistency analysis of all plugins in the Napari-HUB platform.
+ Generates a CSV report with consistency analysis of all plugins in the napari hub platform.
 
  To create the CSV report run
 
@@ -178,7 +178,7 @@ You can find an example below:
 
 Note that some of the repositories are not accessible, being identified with 
 - ```BAD_URL```, where the repository URL provided has the wrong format
-- ```MISSING_URL```, where no source code information was provided in the Napari-HUB platform
+- ```MISSING_URL```, where no source code information was provided in the napari hub platform
 - ```UNACCESSIBLE_REPOSITORY```, where the source code page could not be found or is a private repository
 
 
@@ -199,7 +199,7 @@ options:
   -p PLUGINS [PLUGINS ...], --plugins PLUGINS [PLUGINS ...]
                         List of plugins name to automatically audit/fix
   -d DIR, --dir DIR     Working directory in which plugins will be cloned (by default the tmp directory of your OS)
-  -a, --all             Passing on all plugins registed in Napari-HUB plateform
+  -a, --all             Passing on all plugins registed in napari hub plateform
   --push-on-github      Perform the analysis/commit and creates pull request/issue on Github
 ```
 
