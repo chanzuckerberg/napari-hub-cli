@@ -41,10 +41,9 @@ def perform_batched_analysis(
                 except Exception as e:
                     f.write(f"Error in batch {i}, plugin {plugin_name}: {e}\n")
                     continue
-                else:
-                    results_dict[plugin_name] = result
+                results_dict[plugin_name] = result
 
-            rows = build_csv_dict(result)
+            rows = build_csv_dict(results_dict)
             write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
 
 
