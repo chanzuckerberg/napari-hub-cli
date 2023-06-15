@@ -48,6 +48,8 @@ ALL_WHEELS = 1
 PROBABLE_C_DEPS = 2
 DEPENDENCIES = 3
 
+NO_DEPENDENCIES = "Failed to resolve dependencies"
+
 
 def dirty_threadpool(f):
     def inner(self):
@@ -178,7 +180,8 @@ class InstallationRequirements(ConfigFile):
     @property
     @dirty_threadpool
     def number_of_dependencies(self):
-        return max(self.num_installed_packages(o) for o in self.options_list)
+        result = max(self.num_installed_packages(o) for o in self.options_list)
+        return NO_DEPENDENCIES if not result else result
 
     @property
     @dirty_threadpool
