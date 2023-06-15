@@ -34,10 +34,21 @@ accepted_C_packages = {
     "pandas",
 }
 
+forbidden_deps = {
+    "pyside",
+    "pyside2",
+    "pyside6",
+    "pyqt",
+    "pyqt5",
+    "pyqt6",
+}
+
 INSTALLABLE = 0
 ALL_WHEELS = 1
 PROBABLE_C_DEPS = 2
 DEPENDENCIES = 3
+
+NO_DEPENDENCIES = "Failed to resolve dependencies"
 
 
 def dirty_threadpool(f):
@@ -169,7 +180,8 @@ class InstallationRequirements(ConfigFile):
     @property
     @dirty_threadpool
     def number_of_dependencies(self):
-        return max(self.num_installed_packages(o) for o in self.options_list)
+        result = max(self.num_installed_packages(o) for o in self.options_list)
+        return NO_DEPENDENCIES if not result else result
 
     @property
     @dirty_threadpool
@@ -249,3 +261,8 @@ class InstallationRequirements(ConfigFile):
     @property
     def had_no_unknown_error(self):
         return len(self.errors) == 0
+
+    @property
+    def has_no_forbidden_deps(self):
+        _, _, _, deps = self.analysis_package(self.options_list[0])
+        return all(name.lower() not in forbidden_deps for name, _ in deps)

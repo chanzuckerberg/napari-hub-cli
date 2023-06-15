@@ -6,6 +6,7 @@ TITLE = "Code Quality"
 # Additional data
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version")
 PLUGIN_VERSION = MetaFeature("Plugin version", "version")
+ENGINE_VERSION = MetaFeature("Plugin engine version", "version")
 TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version")
 TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp")
 SUPPORTED_PYTHON_VERSIONS = MetaFeature(
@@ -16,6 +17,7 @@ NUMBER_DEPENDENCIES = MetaFeature(
     "Number of Installed Depenencies", "number_of_dependencies"
 )
 CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result")
+NUM_ANALYZED_PYFILES = MetaFeature("Number of analyzed Python files", "number_py_files")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -63,6 +65,21 @@ HAD_UNKNOWN_ERROR = MetaFeature(
     "Had no unexpected error during dependency analysis", "had_no_unknown_error"
 )
 HAS_LICENSE = MetaFeature("Has LICENSE file", "exists")
+HAS_NO_PYQT_PYSIDE_DEP = MetaFeature(
+    "Has no dependencies to PySide2 or PyQt5", "has_no_forbidden_deps"
+)
+HAS_NO_PYQT_PYSIDE_CODE = MetaFeature(
+    "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports"
+)
+IS_NPE2 = MetaFeature(
+    "Is NPE2 plugin", "is_npe2"
+)
+IS_NOT_HYBRID = MetaFeature(
+    "Is not hybrid (is NPE1 or NPE2, not both)", "is_not_hybrid"
+)
+HAS_NO_NPE1_HOOKS = MetaFeature(
+    "Has no NPE1 hook", "as_no_npe1_hook_list"
+)
 
 
 def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
@@ -70,6 +87,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
         requirements = []
     else:
         requirements = [plugin_repo.requirements]
+    npe2_yaml = plugin_repo.npe2_yaml
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
     pyproject_toml = plugin_repo.pyproject_toml
@@ -77,11 +95,12 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
     setup_py = plugin_repo.setup_py
     additional_info = plugin_repo.additional_info
     gh_workflow_folder = plugin_repo.gh_workflow_folder
+    linter = plugin_repo.linter
     if gh_workflow_folder.url is None:
         # if there is no url, we cannot query github
         main_gh_workfolder = []
     else:
-        main_gh_workfolder = [gh_workflow_folder]
+        main_gh_workfolder = [gh_workflow_folder]  # pragma: no cover
     return RequirementSuite(
         title=TITLE,
         additionals=[
@@ -93,6 +112,11 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
             Requirement(
                 features=[TOOL_VERSION, TIMESTAMP],
                 main_files=[additional_info],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[ENGINE_VERSION],
+                main_files=[npe2_yaml],
                 fallbacks=[],
             ),
             Requirement(
@@ -108,6 +132,11 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
             Requirement(
                 features=[CODECOV_RESULT],
                 main_files=main_gh_workfolder,  # type: ignore
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[NUM_ANALYZED_PYFILES],
+                main_files=[linter],
                 fallbacks=[],
             ),
         ],
@@ -156,6 +185,35 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                     HAS_CODE_COV_80,
                 ],
                 main_files=main_gh_workfolder,  # type: ignore
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_NO_PYQT_PYSIDE_DEP,
+                ],
+                main_files=requirements,  # type: ignore
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    HAS_NO_PYQT_PYSIDE_CODE
+                ],
+                main_files=[linter],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    IS_NPE2
+                ],
+                main_files=[npe2_yaml],
+                fallbacks=[],
+            ),
+            Requirement(
+                features=[
+                    IS_NOT_HYBRID,
+                    HAS_NO_NPE1_HOOKS,
+                ],
+                main_files=[linter],
                 fallbacks=[],
             ),
         ],
