@@ -118,42 +118,42 @@ def check_feature(meta, main_files, fallbacks):
     key = f"{meta.attribute}"
     for main_file in main_files:
         result = getattr(main_file, key)
-        if getattr(main_file, key):
+        if result:
             return Feature(
-                meta,
-                result,
-                True,
-                main_file,
-                False,
-                has_fallback,
-                scanned_files,
-                main_files,
-                fallbacks,
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=main_file,
+                only_in_fallback=False,
+                has_fallback_files=has_fallback,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     for fallback in fallbacks:
         result = getattr(fallback, key)
-        if getattr(fallback, key):
+        if result:
             return Feature(
-                meta,
-                result,
-                True,
-                fallback,
-                True,
-                True,
-                scanned_files,
-                main_files,
-                fallbacks,
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=fallback,
+                only_in_fallback=True,
+                has_fallback_files=True,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     return Feature(
-        meta,
-        None,
-        False,
-        None,
-        False,
-        has_fallback,
-        scanned_files,
-        main_files,
-        fallbacks,
+        meta=meta,
+        result=None,
+        found=False,
+        found_in=None,
+        only_in_fallback=False,
+        has_fallback_files=has_fallback,
+        scanned_files=scanned_files,
+        main_files=main_files,
+        fallbacks=fallbacks,
     )
 
 
