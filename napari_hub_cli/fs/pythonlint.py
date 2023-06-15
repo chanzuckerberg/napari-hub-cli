@@ -182,4 +182,4 @@ class PythonSrcDir(RepositoryFile):
 
     @property
     def is_not_hybrid(self):
-        return not self.as_no_npe1_hook_list and self.engine_version == 2
+        return (not self.as_no_npe1_hook_list) ^ (self.engine_version == 2)
