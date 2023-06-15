@@ -92,7 +92,7 @@ def perform_batched_analysis(
                     f.write(f"Plugin {plugin_name} failed with error {result}\n")
                     f.write(traceback.format_exc())
                     f.write("\n------------------\n")
-            continue
+                continue
                     
             results_dict[plugin_name] = result
 
