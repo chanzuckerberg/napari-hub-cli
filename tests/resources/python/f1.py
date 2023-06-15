@@ -1,6 +1,7 @@
 import sys
 
 from PySide2.QtWidgets import QApplication, QDialog, QLineEdit, QPushButton
+
 from napari_plugin_engine import napari_hook_implementation
 
 

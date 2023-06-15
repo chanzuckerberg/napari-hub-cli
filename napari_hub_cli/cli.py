@@ -76,7 +76,7 @@ def code_quality_checklist(plugin_path, disable_pip_based_analysis):
     return 0
 
 
-def remote_code_quality_checklist(plugins, csv, dir, all):
+def remote_code_quality_checklist(plugins, csv, dir, all, disable_pip_based_analysis):
     """Analysis the code quality of a remote plugin or a list of remote plugins
     Parameters
     ----------
@@ -99,6 +99,7 @@ def remote_code_quality_checklist(plugins, csv, dir, all):
         display_info=True,
         directory=dir,
         requirements_suite=project_quality_suite,
+        disable_pip_based_requirements=disable_pip_based_analysis
     )
     if csv:
         rows = build_csv_dict(results)
@@ -124,14 +125,14 @@ def remote_documentation_checklist(plugin_name):
     return 0 if success else 3
 
 
-def generate_report_all_plugins(output_csv):
+def generate_report_all_plugins(output_csv, disable_pip_based_analysis):
     """Creates a CSV with missing artifacts for all plugins of the Napari HUB platform.
     Returns
     -------
     int
         the status of the result, 0 = OK
     """
-    results = analyze_remote_plugins(display_info=True)
+    results = analyze_remote_plugins(display_info=True, disable_pip_based_requirements=disable_pip_based_analysis)
     rows = build_csv_dict(results)
     write_csv(rows, output_csv)
     return 0
@@ -210,6 +211,12 @@ def parse_args(args):
         action="store_true",
         help="Passing on all plugins registed in napari hub platform",
     )
+    subcommand.add_argument(
+        "--disable-pip-based-analysis",
+        default=False,
+        action="store_true",
+        help="Disable the pip based analysis (installability, number of dependencies, ...)",
+    )
     subcommand.set_defaults(func=remote_code_quality_checklist)
 
     ## all-plugin-report
@@ -218,6 +225,12 @@ def parse_args(args):
         help="Generates a CSV report with consistency analysis of all plugins in the napari hub platform",
     )
     subcommand.add_argument("output_csv", help="Output file name (e.g: 'output.csv')")
+    subcommand.add_argument(
+        "--disable-pip-based-analysis",
+        default=False,
+        action="store_true",
+        help="Disable the pip based analysis (installability, number of dependencies, ...)",
+    )
     subcommand.set_defaults(func=generate_report_all_plugins)
 
     ## create-cff-citation
