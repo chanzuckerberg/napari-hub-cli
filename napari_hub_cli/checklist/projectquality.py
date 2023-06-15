@@ -142,7 +142,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
         ],
         requirements=[
             Requirement(
-                features=[HAS_OSI_LICENSE],
+                features=[HAS_LICENSE, HAS_OSI_LICENSE],
                 main_files=[license],
                 fallbacks=[],
             ),
