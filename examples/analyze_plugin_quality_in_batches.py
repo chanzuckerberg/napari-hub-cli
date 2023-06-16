@@ -67,6 +67,19 @@ class FakeResponse:
         self.features = []
 
 
+def ensure_rows_match_headers(rows):
+    """Ensure that all rows have the same headers"""
+    headers = []
+    for row in rows:
+        headers.extend(row.keys())
+    headers = set(headers)
+    for row in rows:
+        for header in headers:
+            if header not in row:
+                row[header] = "unknown"
+    return rows
+
+
 def perform_batched_analysis(
     batched_names,
     output_dir,
@@ -118,6 +131,7 @@ def perform_batched_analysis(
             rows.append(result[0])
         if len(rows) > 0:
             try:
+                rows = ensure_rows_match_headers(rows)
                 write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
             except Exception as e:
                 print(f"Failed to write csv file with error {e}")
