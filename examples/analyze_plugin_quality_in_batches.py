@@ -112,7 +112,7 @@ def perform_batched_analysis(
                     f.write(f"Plugin {plugin_name} failed with error {result}\n")
                     f.write(result[1])
                     f.write("\n------------------\n")
-                result = FakeResponse(str(result[0]))
+                result = FakeResponse("Error")
                 result = (build_csv_dict({plugin_name: result})[0], None)
 
             rows.append(result[0])
