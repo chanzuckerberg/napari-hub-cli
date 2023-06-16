@@ -57,6 +57,7 @@ while the command used to create the **Documentation checklist for a remote plug
 ```
 
 The intent of this utility is to check plugins for a set of code quality metrics, and create a Code Quality Checklist identifying if a plugin has the metrics listed in [the wiki page](https://github.com/chanzuckerberg/napari-hub-cli/wiki/Plugin-quality-checklist-sources).
+Additionally, the `check-plugin-quality` command will create a `.csv` file with the code quality information for all the plugins in the napari hub platform that were specified in the command line.
 
 The options to the `check-plugin-quality` command are:
 
@@ -73,6 +74,10 @@ options:
   --disable-pip-based-analysis
                         Disable the pip based analysis (installability, number of dependencies, ...)
 ```
+
+Example output:
+
+![Code quality check from command line using the napari-hub-cli tool](./docs/images/code-quality-example.png)
 
 ### Documentation checklist
 
@@ -108,7 +113,7 @@ With this, it creates a Documentation Checklist identifying if a plugin has the 
 
 Example output:
 
-![Metadata check from command line using the napari-hub-cli tool](https://github.com/chanzuckerberg/napari-hub-cli/assets/21295664/a59f9726-fb38-45df-9b01-dba0eba2ac45)
+![Metadata check from command line using the napari-hub-cli tool](./docs/images/code-metadata-example.png)
 
 ### Citation
 
