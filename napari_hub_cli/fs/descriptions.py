@@ -25,7 +25,7 @@ class MarkdownDescription(RepositoryFile):
     @classmethod
     def from_file(cls, file):
         try:
-            with file.open(encoding="utf-8"):
+            with file.open(encoding="utf-8", errors="surrogateescape"):
                 content = file.read_text()
             return cls(content, file)
         except FileNotFoundError:
