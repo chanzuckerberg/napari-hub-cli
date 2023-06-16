@@ -27,4 +27,4 @@ def main(plugins, temp_dir="temp", no_pip=False):
 
 
 if __name__ == "__main__":
-    main(PLUGINS)
+    main(PLUGINS, no_pip=True)
