@@ -144,13 +144,17 @@ def perform_batched_analysis(
 def merge_csvs(directory_with_files):
     """Merge the csv files in a directory into one csv file"""
     csv_files = Path(directory_with_files).glob("*.csv")
+    rows = []
+    for csv_file in csv_files:
+        with open(csv_file, newline="") as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                rows.append(row)
+    rows = ensure_rows_match_headers(rows)
     with open("merged.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        for csv_file in csv_files:
-            with open(csv_file, newline="") as csvfile:
-                reader = csv.reader(csvfile)
-                for row in reader:
-                    writer.writerow(row)
+        for row in rows:
+            writer.writerow(row)
 
 
 def write_plugin_names_to_file(batched_names, output_dir):
