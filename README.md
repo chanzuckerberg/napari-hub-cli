@@ -57,7 +57,7 @@ The checklist comes in two parts, first, a freeform metadata section, and second
 
 Example output:
 
-![Code quality check from command line using the napari-hub-cli tool](./docs/images/code-quality.png)
+![Code quality check from command line using the napari-hub-cli tool](./docs/images/code-quality-example.png)
 
 ### Documentation checklist
 
@@ -87,7 +87,7 @@ With this, it creates a Documentation checklist identifying if a plugin has the 
 
 Example output:
 
-![Metadata check from command line using the napari-hub-cli tool](./docs/images/code-metadata.png)
+![Metadata check from command line using the napari-hub-cli tool](./docs/images/code-metadata-example.png)
 
 ### Citation
 
