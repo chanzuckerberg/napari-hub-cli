@@ -29,10 +29,10 @@ def batch_wrapper(plugin_name, temp_dir, no_pip, result_queue):
         )
         print(f"Finished analyzing {plugin_name}")
         csv_rows = build_csv_dict({plugin_name: result})
-        result_queue.put(csv_rows[0], None)
+        result_queue.put((csv_rows[0], None))
     except Exception as e:
         trace = traceback.format_exc()
-        result_queue.put(e, trace)
+        result_queue.put((e, trace))
 
 
 def batch_plugin_names(all_plugins, batch_size=10):
@@ -88,7 +88,6 @@ def perform_batched_analysis(
         for plugin_name in plugin_names:
             if plugin_name in analysed and not overwrite:
                 print(f"Skipping plugin {plugin_name} as it has already been analysed")
-                continue
             while not ensure_github_api_rate_limit():
                 print("Github api rate limit exceeded, waiting 20 minutes")
                 time.sleep(20 * 60)
@@ -105,7 +104,8 @@ def perform_batched_analysis(
                     f.write(f"Plugin {plugin_name} timed out after {timeout} seconds")
                     f.write("\n------------------\n")
                 result = FakeResponse()
-                result = build_csv_dict({plugin_name: result})[0]
+                result = (build_csv_dict({plugin_name: result})[0], None)
+                process.terminate()
             if isinstance(result[0], Exception):
                 with open(errors_filepath, "a") as f:
                     print(f"Plugin {plugin_name} failed with error {result}")
@@ -113,12 +113,18 @@ def perform_batched_analysis(
                     f.write(result[1])
                     f.write("\n------------------\n")
                 result = FakeResponse(str(result[0]))
-                result = build_csv_dict({plugin_name: result})[0]
-            else:
-                result = result[0]
+                result = (build_csv_dict({plugin_name: result})[0], None)
 
-            rows.append(result)
-        write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
+            rows.append(result[0])
+        if len(rows) > 0:
+            try:
+                write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
+            except Exception as e:
+                print(f"Failed to write csv file with error {e}")
+                with open(errors_filepath, "a") as f:
+                    f.write(f"Failed to write csv file with error {e}\n")
+                    for row in rows:
+                        f.write(f"{row}\n")
 
 
 def merge_csvs(directory_with_files):
