@@ -29,15 +29,17 @@ def batch_wrapper(plugin_name, temp_dir, no_pip, result_queue):
         )
         print(f"Finished analyzing {plugin_name}")
         csv_rows = build_csv_dict({plugin_name: result})
-        result_queue.put(csv_rows[0])
+        result_queue.put(csv_rows[0], None)
     except Exception as e:
-        result_queue.put(e)
+        trace = traceback.format_exc()
+        result_queue.put(e, trace)
 
 
 def batch_plugin_names(all_plugins, batch_size=10):
     """Yield successive batch-size chunks from all_plugins."""
-    for i in range(0, len(all_plugins), batch_size):
-        yield all_plugins[i : i + batch_size]
+    return [
+        all_plugins[i : i + batch_size] for i in range(0, len(all_plugins), batch_size)
+    ]
 
 
 def find_aleady_analysed_plugins(output_dir):
@@ -51,12 +53,15 @@ def find_aleady_analysed_plugins(output_dir):
                 analysed_plugins.add(row[0])
     return analysed_plugins
 
+
 class FakeName:
     def __init__(self, name):
         self.name = name
+
+
 class FakeResponse:
-    def __init__(self):
-        self.status = FakeName("Time exceeded")
+    def __init__(self, reason="Time exceeded"):
+        self.status = FakeName(reason)
         self.url = "unknown"
         self.additionals = []
         self.features = []
@@ -73,6 +78,7 @@ def perform_batched_analysis(
     """Perform the analysis on the batched plugins"""
     if not Path(output_dir).exists():
         Path(output_dir).mkdir(parents=True, exist_ok=True)
+    write_plugin_names_to_file(batched_names, output_dir)
     date = datetime.now().strftime("%Y-%m-%d_%H-%M")
     errors_filepath = Path(output_dir) / f"errors_{date}.txt"
     analysed = find_aleady_analysed_plugins(output_dir)
@@ -81,9 +87,7 @@ def perform_batched_analysis(
         rows = []
         for plugin_name in plugin_names:
             if plugin_name in analysed and not overwrite:
-                print(
-                    f"Skipping plugin {plugin_name} as it has already been analysed"
-                )
+                print(f"Skipping plugin {plugin_name} as it has already been analysed")
                 continue
             while not ensure_github_api_rate_limit():
                 print("Github api rate limit exceeded, waiting 20 minutes")
@@ -102,14 +106,17 @@ def perform_batched_analysis(
                     f.write("\n------------------\n")
                 result = FakeResponse()
                 result = build_csv_dict({plugin_name: result})[0]
-            if isinstance(result, Exception):
+            if isinstance(result[0], Exception):
                 with open(errors_filepath, "a") as f:
                     print(f"Plugin {plugin_name} failed with error {result}")
                     f.write(f"Plugin {plugin_name} failed with error {result}\n")
-                    f.write(traceback.format_exc())
+                    f.write(result[1])
                     f.write("\n------------------\n")
-                continue
-                    
+                result = FakeResponse(str(result[0]))
+                result = build_csv_dict({plugin_name: result})[0]
+            else:
+                result = result[0]
+
             rows.append(result)
         write_csv(rows, Path(output_dir) / f"batched_analysis_{i}.csv")
 
@@ -124,6 +131,15 @@ def merge_csvs(directory_with_files):
                 reader = csv.reader(csvfile)
                 for row in reader:
                     writer.writerow(row)
+
+
+def write_plugin_names_to_file(batched_names, output_dir):
+    """Write the plugin names to a file"""
+    with open(Path(output_dir) / "plugin_names.txt", "w") as f:
+        for i, plugin_names in enumerate(batched_names):
+            f.write(f"-------------- Batch {i} -------------\n")
+            for plugin_name in plugin_names:
+                f.write(f"{plugin_name}\n")
 
 
 def get_github_api_status():
