@@ -167,9 +167,9 @@ def parse_args(args):
 
     ## check-plugin
     subcommand = subparsers.add_parser(
-        "check-plugin", help="Checks consistency of a remote plugin"
+        "check-plugin", help="Checks consistency of a remote napari hub plugin"
     )
-    subcommand.add_argument("plugin_name", help="Name of the plugin in Napari HUB")
+    subcommand.add_argument("plugin_name", help="Name of the plugin on the napari hub")
     subcommand.set_defaults(func=remote_documentation_checklist)
 
     ## code quality check
@@ -187,7 +187,7 @@ def parse_args(args):
 
     ## code quality check remote
     subcommand = subparsers.add_parser(
-        "check-plugin-quality", help="Checks the code quality of plugins in Napari HUB"
+        "check-plugin-quality", help="Checks the code quality of remote napari hub plugins"
     )
     subcommand.add_argument(
         "-p",
@@ -243,7 +243,7 @@ def parse_args(args):
     ## autofix
     subcommand = subparsers.add_parser(
         "autofix",
-        help="Automatically analyse and fixes plugin repositories creating pull requests and issues on Github",
+        help="Automatically analyses and fixes plugin repositories creating pull requests and issues on Github",
     )
     subcommand.add_argument(
         "-p",
