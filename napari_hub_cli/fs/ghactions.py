@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 from functools import lru_cache
 
@@ -174,7 +175,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
                 x
                 for x in response_json["workflow_runs"]
                 if config
-                and x.get("path", "__nothing__") in str(config.file)
+                and str(Path(x.get("path", "__nothing__"))) in str(config.file)
                 and x.get("head_branch") in ("main", "master")
                 and x.get("status") == "completed"
             )
