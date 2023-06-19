@@ -3,8 +3,8 @@ from napari_hub_cli.checklist.projectquality import project_quality_suite
 from napari_hub_cli.checklist.analysis import build_csv_dict
 import traceback
 
-PLUGINS = ["napari-LF", "napari-cookiecut", "elastix-napari", "disease-classifier"]
-
+PLUGINS = ["napari-calibration", "napari-ehooke", "napari-brainbow-diagnose"]
+# Codecov error, Syntax error, Indentation error
 
 def main(plugins, temp_dir="temp", no_pip=False):
     for plugin in plugins:

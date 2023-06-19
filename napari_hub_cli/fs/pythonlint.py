@@ -17,6 +17,8 @@ class PythonFile(object):
                 self.ast = ast.parse(self.path.read_text("utf-8"))
             except SyntaxError:
                 self.ast = None
+            except IndentationError:
+                self.ast = None
         else:
             self.ast = None
 
