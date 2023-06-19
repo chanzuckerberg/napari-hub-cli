@@ -13,7 +13,10 @@ class PythonFile(object):
         self.path = path
         self.strpath = str(path)
         if self.path.exists():
-            self.ast = ast.parse(self.path.read_text("utf-8"))
+            try:
+                self.ast = ast.parse(self.path.read_text("utf-8"))
+            except SyntaxError:
+                self.ast = None
         else:
             self.ast = None
 
