@@ -1,13 +1,10 @@
 # napari-hub-cli
 
-
-
 Command line utilities for inspecting and validating plugins for the napari hub.
 
 **NOTE:** the project is still under developement and this version is not yet deployed in Pypi.
 
-
-# Installation
+## Installation
 
 First the repository needs to be cloned
 
@@ -27,37 +24,51 @@ source .venv/bin/activate  # activating the virtual env
 
 Once you activated the virtual env, you can install all the required dependencies and the tool this way using `pip`:
 
-```
-$ pip install napari-hub-cli
+```sh
+python -m pip install napari-hub-cli
 ```
 
 Alternatively, you can also install the napari hub CLI directly from the cloned repository:
 
-
 ```sh
 # inside the "napari-hub-cli" folder, where you cloned the repository
 # and with virtual env activated
-pip install -e .
+python -m pip install -e .
 ```
 
 To check that the installation went well, this command prints the help menu
+
 ```sh
 napari-hub-cli --help
 ```
 
-# Usage
+## Usage
 
+### Code quality checklist
 
-## Documentation Checklist
-
-The command used to create the Documentation Checklist is
+The command used to create the Code quality checklist is
 
 ```bash
- $ napari-hub-cli check-metadata /tmp/example-plugin
+ napari-hub-cli check-quality /tmp/example-plugin
+```
+
+The intent of this utility is to check your plugin for code quality metrics listed described [in the wiki](https://github.com/chanzuckerberg/napari-hub-cli/wiki/Plugin-quality-checklist-sources).
+The checklist comes in two parts, first, a freeform metadata section, and second, a list of metrics that are checked as True/False.
+
+Example output:
+
+![Code quality check from command line using the napari-hub-cli tool](./docs/images/code-quality-example.png)
+
+### Documentation checklist
+
+The command used to create the Documentation checklist is
+
+```bash
+ napari-hub-cli check-metadata /tmp/example-plugin
 ```
 
 The intent of this utility is to check your plugin for specific metadata in the [napari-Hub recommended file locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing).
-With this, it creates a Documentation Checklist identifying if a plugin has the following metadata:
+With this, it creates a Documentation checklist identifying if a plugin has the following metadata:
 
 | Metadata / Files    | Primary source               | Secondary source                |
 | ------------------- | ---------------------------- | ------------------------------- |
@@ -71,21 +82,19 @@ With this, it creates a Documentation Checklist identifying if a plugin has the 
 | Source Code Link    | ```PyPI```                   | ```n/a```                       |
 | User Support Link   | ```PyPI```                   | ```n/a```                       |
 | Bug Tracker Link    | ```PyPI```                   | ```n/a```                       |
-| Author              | ```PyPI```                   | ```n/a```                       |
+| Author              | ```PyPI```                   | ```napari-hub/config.yml```     |
 | Citation            | ```CITATION.cff```           | ```n/a```                       |
-
-
 
 Example output:
 
-![Metadata check from command line using the napari-hub-cli tool](https://github.com/chanzuckerberg/napari-hub-cli/assets/21295664/a59f9726-fb38-45df-9b01-dba0eba2ac45)
+![Metadata check from command line using the napari-hub-cli tool](./docs/images/code-metadata-example.png)
 
-## Citation
+### Citation
 
 To create a citation file (`CITATION.CFF`) for your plugin run
 
 ```bash
- $ napari-hub-cli create-citation /tmp/example-plugin
+ napari-hub-cli create-citation /tmp/example-plugin
 ```
 
 This utility works by looking into:
@@ -99,21 +108,18 @@ For citations to be parsed from the `README.md` these need to have either the **
 
 The `CITATION.CFF` file naming needs to be as it is, otherwise GitHub won't recognize it as a citation file.
 
-
-
 The format for the CITATION.CFF is the following:
 
 - The first citation that appears references the software
 - The preffered citation, the one used in GitHub, references an article/publisher, preferring an article citation when both exist
 - when both article and publisher information exist, publisher information is written as a sub-reference
 
-
-### Citation references
-
+#### Citation references
 
 Below you can find some examples of how to use the `CITATION.CFF`.
 
 Referencing other work:
+
 ```yaml
 cff-version: 1.2.0
 authors:
@@ -154,22 +160,10 @@ title: "My Research Software"
 
 Some more information regarding `.CFF` can be found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files).
 
-
 ## Previewing your plugin's napari hub page
 
 To view a preview of your plugin listing for the napari hub, we recommend using the [napari hub preview page service](https://github.com/chanzuckerberg/napari-hub/blob/main/docs/setting-up-preview.md).
 
-<!--
-
-However, legacy commands `preview-metadata` and `check-missing` are available to preview your hub page.
-To use these commands, run:
-
-```
-napari-hub-cli preview-metadata /tmp/example-plugin
-napari-hub-cli check-missing /tmp/example-plugin
-```
-0
--->
 ## Code of Conduct
 
 This project adheres to the Contributor Covenant [code of conduct](https://github.com/chanzuckerberg/.github/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [opensource@chanzuckerberg.com](mailto:opensource@chanzuckerberg.com).
