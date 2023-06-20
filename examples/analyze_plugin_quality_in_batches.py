@@ -101,6 +101,7 @@ def perform_batched_analysis(
         for plugin_name in plugin_names:
             if plugin_name in analysed and not overwrite:
                 print(f"Skipping plugin {plugin_name} as it has already been analysed")
+                continue
             while not ensure_github_api_rate_limit():
                 print("Github api rate limit exceeded, waiting 20 minutes")
                 time.sleep(20 * 60)
