@@ -14,7 +14,7 @@ class PythonFile(object):
         self.strpath = str(path)
         if self.path.exists():
             try:
-                self.ast = ast.parse(self.path.read_text("utf-8"))
+                self.ast = ast.parse(self.path.read_text("utf-8"), filename=str(self.path))
             except SyntaxError:
                 self.ast = None
         else:
