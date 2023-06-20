@@ -170,7 +170,7 @@ def test_pythonsrcdir_npe1_hook_list(resources):
         (srcdir.files[2].path, 14, "npe")
     ] or res == [
         (srcdir.files[0].path, 23, "nhi"),
-        (srcdir.files[1].path, 30, "napari_hook_implementation"),
         (srcdir.files[1].path, 38, "napari_plugin_engine"),
+        (srcdir.files[1].path, 30, "napari_hook_implementation"),
         (srcdir.files[2].path, 14, "npe")
     ])
