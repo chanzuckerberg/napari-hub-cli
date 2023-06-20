@@ -1,5 +1,4 @@
 import ast
-from functools import wraps
 from pathlib import Path
 from iguala import as_matcher, match
 
@@ -14,10 +13,10 @@ class PythonFile(object):
         self.strpath = str(path)
         if self.path.exists():
             try:
-                self.ast = ast.parse(self.path.read_text("utf-8"))
-            except SyntaxError:
-                self.ast = None
+                self.ast = ast.parse(self.path.read_text("utf-8"), filename=str(self.path))
             except IndentationError:
+                self.ast = None
+            except SyntaxError:
                 self.ast = None
         else:
             self.ast = None
