@@ -235,7 +235,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
                 json_r = response.json()
                 if json_r["data"]["owner"]["repository"]["branch"] is None:
                     return None
-        except KeyError:
+        except Exception:
             return None
         return json_r["data"]["owner"]["repository"]["branch"]["head"]["totals"][
             "percentCovered"
