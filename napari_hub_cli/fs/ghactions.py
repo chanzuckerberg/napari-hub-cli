@@ -228,15 +228,15 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
         }
         response = requests.post(self.CODECOV_API, json=json_payload)
         json_r = response.json()
-
-        if json_r["data"]["owner"]["repository"] is None:  # The owner is not known by codecov
-            return None
-        if json_r["data"]["owner"]["repository"]["branch"] is None:
-            json_payload["variables"]["branch"] = "master"
-            response = requests.post(self.CODECOV_API, json=json_payload)
-            json_r = response.json()
+        try:
             if json_r["data"]["owner"]["repository"]["branch"] is None:
-                return None
+                json_payload["variables"]["branch"] = "master"
+                response = requests.post(self.CODECOV_API, json=json_payload)
+                json_r = response.json()
+                if json_r["data"]["owner"]["repository"]["branch"] is None:
+                    return None
+        except Exception:
+            return None
         return json_r["data"]["owner"]["repository"]["branch"]["head"]["totals"][
             "percentCovered"
         ]
