@@ -150,6 +150,18 @@ def scrap_git_infos(local_repo):
         return {"title": "", "url": ""}
 
 
+def read_gh_token():
+    # token access use var env
+    return os.environ.get("GITHUB_TOKEN", None)
+
+
+def build_gh_header():
+    token = read_gh_token()
+    if token:
+        return {'Authorization': f'Bearer {token}'}
+    return {}
+
+
 # TODO Improve me by mocking failing imports
 # In the meantime, if setup.py includes other imports that perform computation
 # over the parameters that are passed to "setup(...)", this function
