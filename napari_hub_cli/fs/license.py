@@ -64,14 +64,16 @@ class License(RepositoryFile):
                 "https://github.com/", "https://api.github.com/repos/"
             )
             response = requests.get(f"{api_url}/license")
+            if response.status_code == 403:  # rate limit exceed
+                print(f"{response.status_code} Client Error: {response.reason} for url: {response.url}")
+                exit(-127)
             if response.status_code != requests.codes.ok:
-                return None
+                response.raise_for_status()
             response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
                 if spdx_id != "NOASSERTION":
                     return spdx_id
-
 
     @property
     def is_osi_approved(self):

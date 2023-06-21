@@ -4,7 +4,7 @@ from functools import partial
 from pip._internal.cli.cmdoptions import make_target_python
 from pip._internal.commands.install import InstallCommand
 from pip._internal.index.package_finder import PackageFinder
-from pip._internal.operations.build.build_tracker import get_build_tracker, BuildTracker
+from pip._internal.operations.build.build_tracker import BuildTracker, get_build_tracker
 from pip._internal.operations.prepare import RequirementPreparer
 from pip._internal.req.constructors import install_req_from_req_string
 from pip._internal.req.req_set import RequirementSet
@@ -95,7 +95,7 @@ class DependencySolver(InstallCommand):
         )
 
     def resolve(self, packages, options):
-        self.tempdir_registry = self.enter_context(tempdir_registry()) ## Useful?
+        self.tempdir_registry = self.enter_context(tempdir_registry())  ## Useful?
         self.enter_context(global_tempdir_manager())
         # from pip._internal.utils.logging import setup_logging
         # level_number = setup_logging(
