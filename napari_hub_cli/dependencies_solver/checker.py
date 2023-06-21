@@ -93,10 +93,14 @@ class InstallationRequirements(ConfigFile):
         try:
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound as e:
+            # print("Distribution not found", e, options.python_version, options.platforms)
             return None
         except InstallationSubprocessError as e:
+            # print("SubProcessError", e, options.python_version, options.platforms)
             return None  # pragma: no cover
         except Exception as e:
+            print(e.__class__)
+            # print("General Exception", e, options.python_version, options.platforms)
             self.errors[options] = e
             return None
 
@@ -169,6 +173,7 @@ class InstallationRequirements(ConfigFile):
         return self._isfor_platform("linux", DEPENDENCIES)
 
     @property
+    @dirty_threadpool
     def can_resolve_dependencies_windows(self):
         return self._isfor_platform("win", DEPENDENCIES)
 

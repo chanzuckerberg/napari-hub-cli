@@ -4,7 +4,7 @@ from functools import partial
 from pip._internal.cli.cmdoptions import make_target_python
 from pip._internal.commands.install import InstallCommand
 from pip._internal.index.package_finder import PackageFinder
-from pip._internal.operations.build.build_tracker import get_build_tracker
+from pip._internal.operations.build.build_tracker import get_build_tracker, BuildTracker
 from pip._internal.operations.prepare import RequirementPreparer
 from pip._internal.req.constructors import install_req_from_req_string
 from pip._internal.req.req_set import RequirementSet
@@ -95,7 +95,7 @@ class DependencySolver(InstallCommand):
         )
 
     def resolve(self, packages, options):
-        self.tempdir_registry = self.enter_context(tempdir_registry())
+        self.tempdir_registry = self.enter_context(tempdir_registry()) ## Useful?
         self.enter_context(global_tempdir_manager())
         # from pip._internal.utils.logging import setup_logging
         # level_number = setup_logging(
@@ -115,12 +115,14 @@ class DependencySolver(InstallCommand):
             ignore_requires_python=options.ignore_requires_python,
         )
 
-        build_tracker = self.enter_context(get_build_tracker())
+        # build_tracker = self.enter_context(get_build_tracker())
+        build_tracker_tmp_dir = TempDirectory(kind="build-tracker")
+        build_tracker = BuildTracker(build_tracker_tmp_dir.path)
 
         directory = TempDirectory(
             delete=not options.no_clean,
             kind="install",
-            globally_managed=True,
+            globally_managed=False,
         )
 
         reqs = self.get_requirements(packages, options, finder, session)
@@ -146,6 +148,8 @@ class DependencySolver(InstallCommand):
         )
 
         _, res = resolver.resolve(reqs, check_supported_wheels=not options.target_dir)
+        build_tracker_tmp_dir.cleanup()
+        directory.cleanup()
         return res
 
     def solve_dependencies(self, *args, **kwargs):
