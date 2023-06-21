@@ -183,7 +183,11 @@ def analyze_remote_plugins(
         task = p.add_task(description, visible=display_info)
         for name in plugins_name:
             result = analyse_remote_plugin(
-                name, requirements_suite, display_info=False, directory=directory, **kwargs
+                name,
+                requirements_suite,
+                display_info=False,
+                directory=directory,
+                **kwargs,
             )
             all_results[name] = result
             p.update(

@@ -72,7 +72,6 @@ class License(RepositoryFile):
                 if spdx_id != "NOASSERTION":
                     return spdx_id
 
-
     @property
     def is_osi_approved(self):
         """
