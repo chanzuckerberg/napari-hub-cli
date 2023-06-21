@@ -65,7 +65,7 @@ class License(RepositoryFile):
             )
             response = requests.get(f"{api_url}/license")
             if response.status_code != requests.codes.ok:
-                return None
+                response.raise_for_status()
             response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
