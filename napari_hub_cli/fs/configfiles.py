@@ -367,10 +367,10 @@ class PyProjectToml(Metadata, ConfigFile):
     def find_npe2(self):
         try:
             manifest_entry = self.project_data["entry-points"]["napari.manifest"]
+            project_name = self.project_data.get("name", "")
+            manifest = manifest_entry[project_name]
         except KeyError:
             return None
-        project_name = self.project_data.get("name", "")
-        manifest = manifest_entry[project_name]
         modules = self._find_src_location()
         pattern = re.compile(r"(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
         result = pattern.match(manifest)
