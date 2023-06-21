@@ -134,8 +134,9 @@ def test_get_real_github_licenses(test_real_repo):
         assert license_id is not None
         assert len(license_id) > 0
         assert license_id in "MIT"
-    except HTTPError as e:
-        pytest.skip(f"HTTP Error, probably github limit rate {e}")
+        return
+    except SystemExit as e:
+        assert e.code == -127
 
 
 @pytest.mark.online
@@ -148,8 +149,9 @@ def test_check_real_github_osi_license(test_real_repo):
         assert license_id is not None
         assert license_id in approved_licenses
         assert false_license_id not in approved_licenses
-    except HTTPError as e:
-        pytest.skip(f"HTTP Error, probably github limit rate {e}")
+        return
+    except SystemExit as e:
+        assert e.code == -127
 
 
 @pytest.fixture(scope="module")

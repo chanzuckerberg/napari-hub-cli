@@ -198,15 +198,7 @@ def fake_github_api(requests_mock):
     )
     requests_mock.post(
         f"https://failapi.codecov.io/graphql/gh",
-        json={
-            "data": {
-                "owner": {
-                    "repository": {
-                        "branch": None
-                    }
-                }
-            }
-        },
+        json={"data": {"owner": {"repository": {"branch": None}}}},
     )
     return requests_mock
 
@@ -338,7 +330,6 @@ def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
     assert coverage is None
     assert ghwd.has_codecove_more_80 is False
 
-
     # Test unexisting owner
     OLD_URL = GhActionWorkflowFolder.CODECOV_API
     NEW_URL = "https://failapi.codecov.io/graphql/gh"
@@ -362,6 +353,7 @@ def test_infos_GHWorkflowFolder_codecov(resources, fake_github_api):
     assert ghwd.has_codecove_more_80 is False
 
     GhActionWorkflowFolder.CODECOV_API = OLD_URL
+
 
 @pytest.mark.skipif(
     sys.platform.startswith("win"),

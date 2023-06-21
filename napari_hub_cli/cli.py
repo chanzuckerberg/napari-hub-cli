@@ -70,8 +70,11 @@ def code_quality_checklist(plugin_path, disable_pip_based_analysis):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(plugin_path, project_quality_suite,
-                                      disable_pip_based_requirements=disable_pip_based_analysis)
+    check_list = analyse_local_plugin(
+        plugin_path,
+        project_quality_suite,
+        disable_pip_based_requirements=disable_pip_based_analysis,
+    )
     display_checklist(check_list)
     return 0
 

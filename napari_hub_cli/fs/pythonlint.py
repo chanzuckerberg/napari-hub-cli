@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
-from iguala import as_matcher, match
 
+from iguala import as_matcher, match
 from iguala import regex as re
 
 from ..fs import RepositoryFile
@@ -13,7 +13,9 @@ class PythonFile(object):
         self.strpath = str(path)
         if self.path.exists():
             try:
-                self.ast = ast.parse(self.path.read_text("utf-8"), filename=str(self.path))
+                self.ast = ast.parse(
+                    self.path.read_text("utf-8"), filename=str(self.path)
+                )
             except IndentationError:
                 self.ast = None
             except SyntaxError:
