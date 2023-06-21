@@ -71,15 +71,11 @@ HAS_NO_PYQT_PYSIDE_DEP = MetaFeature(
 HAS_NO_PYQT_PYSIDE_CODE = MetaFeature(
     "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports"
 )
-IS_NPE2 = MetaFeature(
-    "Is NPE2 plugin", "is_npe2"
-)
+IS_NPE2 = MetaFeature("Is NPE2 plugin", "is_npe2")
 IS_NOT_HYBRID = MetaFeature(
     "Is not hybrid (is NPE1 or NPE2, not both)", "is_not_hybrid"
 )
-HAS_NO_NPE1_HOOKS = MetaFeature(
-    "Has no NPE1 hook", "as_no_npe1_hook_list"
-)
+HAS_NO_NPE1_HOOKS = MetaFeature("Has no NPE1 hook", "as_no_npe1_hook_list")
 
 
 def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
@@ -195,16 +191,12 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                 fallbacks=[],
             ),
             Requirement(
-                features=[
-                    HAS_NO_PYQT_PYSIDE_CODE
-                ],
+                features=[HAS_NO_PYQT_PYSIDE_CODE],
                 main_files=[linter],
                 fallbacks=[],
             ),
             Requirement(
-                features=[
-                    IS_NPE2
-                ],
+                features=[IS_NPE2],
                 main_files=[npe2_yaml],
                 fallbacks=[],
             ),

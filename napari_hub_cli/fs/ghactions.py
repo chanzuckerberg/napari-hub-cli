@@ -1,6 +1,6 @@
-from pathlib import Path
 import re
 from functools import lru_cache
+from pathlib import Path
 
 import requests
 from iguala import as_matcher as m
@@ -14,25 +14,24 @@ class GhActionWorkflow(ConfigFile):
     def _extract_test_infos(self):
         pattern = m(
             {
-                "jobs>*": m({
-                    "strategy>matrix": m({
-                        "python": m([..., "@_", ...])
-                        @ "python_versions"
-                    }) | {
-                        "python-version": m([..., "@_", ...])
-                        @ "python_versions"
-                    },
-                    "steps>*": m(
-                        {
-                            "run": regex("tox")
-                            | regex("python -m tox")
-                            | regex("python -m pytest")
-                            | regex("pytest")
-                            | regex(".*unittest.*")
-                        }
-                    )
-                    | {"uses": regex(".*test.*")},
-                })
+                "jobs>*": m(
+                    {
+                        "strategy>matrix": m(
+                            {"python": m([..., "@_", ...]) @ "python_versions"}
+                        )
+                        | {"python-version": m([..., "@_", ...]) @ "python_versions"},
+                        "steps>*": m(
+                            {
+                                "run": regex("tox")
+                                | regex("python -m tox")
+                                | regex("python -m pytest")
+                                | regex("pytest")
+                                | regex(".*unittest.*")
+                            }
+                        )
+                        | {"uses": regex(".*test.*")},
+                    }
+                )
             }
         )
 
@@ -49,14 +48,14 @@ class GhActionWorkflow(ConfigFile):
             {
                 "jobs>*": {
                     "steps>*": {
-                            "run": regex("tox")
-                            | regex("python -m tox")
-                            | regex("python -m pytest")
-                            | regex("pytest")
-                            | regex(".*unittest.*")
-                        },
-                     "steps>*>python-version": m([..., "@_", ...]) @ "python_versions"
-                        | "@python_versions"
+                        "run": regex("tox")
+                        | regex("python -m tox")
+                        | regex("python -m pytest")
+                        | regex("pytest")
+                        | regex(".*unittest.*")
+                    },
+                    "steps>*>python-version": m([..., "@_", ...]) @ "python_versions"
+                    | "@python_versions",
                 }
             }
         )
