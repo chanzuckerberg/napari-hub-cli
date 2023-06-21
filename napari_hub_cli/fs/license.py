@@ -64,6 +64,9 @@ class License(RepositoryFile):
                 "https://github.com/", "https://api.github.com/repos/"
             )
             response = requests.get(f"{api_url}/license")
+            if response.status_code == 403:  # rate limit exceed
+                print(f"{response.status_code} Client Error: {response.reason} for url: {response.url}")
+                exit(-127)
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()
             response_json = response.json()

@@ -128,19 +128,20 @@ def test_get_real_osi_licenses(test_real_repo):
 
 @pytest.mark.online
 def test_get_real_github_licenses(test_real_repo):
-    # try:
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
         license = test_real_repo.license
         license_id = license.get_github_license()
         assert license_id is not None
         assert len(license_id) > 0
         assert license_id in "MIT"
-    # except HTTPError as e:
-    #     pytest.skip(f"HTTP Error, probably github limit rate {e}")
+        return
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == -127
 
 
 @pytest.mark.online
 def test_check_real_github_osi_license(test_real_repo):
-    # try:
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
         license = test_real_repo.license
         approved_licenses = license.get_osi_approved_licenses()
         license_id = license.get_github_license()
@@ -148,8 +149,9 @@ def test_check_real_github_osi_license(test_real_repo):
         assert license_id is not None
         assert license_id in approved_licenses
         assert false_license_id not in approved_licenses
-    # except HTTPError as e:
-    #     pytest.skip(f"HTTP Error, probably github limit rate {e}")
+        return
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == -127
 
 
 @pytest.fixture(scope="module")
