@@ -18,6 +18,7 @@ NUMBER_DEPENDENCIES = MetaFeature(
 )
 CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result")
 NUM_ANALYZED_PYFILES = MetaFeature("Number of analyzed Python files", "number_py_files")
+INSTALLABILITY_INSIGHT = MetaFeature("Installability issues", "installation_issues")
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support")
@@ -121,7 +122,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                 fallbacks=[],
             ),
             Requirement(
-                features=[NUMBER_DEPENDENCIES],
+                features=[NUMBER_DEPENDENCIES, INSTALLABILITY_INSIGHT],
                 main_files=requirements,  # type: ignore
                 fallbacks=[],
             ),
