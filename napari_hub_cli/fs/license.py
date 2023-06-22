@@ -70,7 +70,7 @@ class License(RepositoryFile):
                 print(f"{response.status_code} Client Error: {response.reason} for url: {response.url}")
                 exit(-127)
             if response.status_code != requests.codes.ok:
-                response.raise_for_status()
+                return None
             response_json = response.json()
             if "license" in response_json and "spdx_id" in response_json["license"]:
                 spdx_id = response_json["license"]["spdx_id"]
