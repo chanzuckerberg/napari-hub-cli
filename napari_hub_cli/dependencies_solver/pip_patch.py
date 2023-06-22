@@ -16,8 +16,8 @@ def _prepare(self):
         # Provide HashError the underlying ireq that caused it. This
         # provides context for the resulting error message to show the
         # offending line to the user.
-        e.req = self._ireq
-        raise
+        e.req = self._ireq # pragma: no cover
+        raise  # pragma: no cover
 
     self._check_metadata_consistency(dist)
     return dist
