@@ -59,7 +59,7 @@ def build_options(python_version, platform, abis=None):
             "require_hashes": False,
             "features_enabled": ["fast-deps"],
             "use_user_site": False,
-            "force_reinstall": False,
+            "force_reinstall": True,
             "ignore_requires_python": False,
             "ignore_installed": False,
             "isolated_mode": True,

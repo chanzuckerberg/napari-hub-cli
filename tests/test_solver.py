@@ -6,6 +6,7 @@ from napari_hub_cli.dependencies_solver.checker import (
     NO_DEPENDENCIES,
     InstallationRequirements,
 )
+from napari_hub_cli.dependencies_solver.solver import DependencySolver
 from napari_hub_cli.fs import NapariPlugin
 
 
@@ -211,3 +212,73 @@ def test_nodeps_message():
     info = next(iter(reqs._installation_issues.values()))
     assert "No matching distribution found for numpy>=2.0" in info
 
+
+from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError, MetadataGenerationFailed, InstallationError
+
+class FakeRaiseException(DependencySolver):
+    def __init__(self, exception):
+        def inner(*args, **kwargs):
+            print("RAISE", exception)
+            raise exception
+        self.solve_dependencies = inner
+
+
+class FakeOption(object):
+    def __init__(self, version, platforms):
+        self.python_version = version
+        self.platforms = platforms
+
+
+def test_solver_messages():
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=["numpy>=2.0", "panda<=1.0"],
+        platforms=["linux"],
+    )
+
+    reqs.solver = FakeRaiseException(DistributionNotFound("_foo"))
+    reqs.solve_dependencies(FakeOption(((3, 7),),  ["linux"]))
+    assert "transitive dependency cannot be resolve" in reqs.installation_issues
+    assert "_foo" in reqs.installation_issues
+
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=["numpy>=2.0", "panda<=1.0"],
+        platforms=["linux"],
+    )
+    reqs.solver = FakeRaiseException(InstallationSubprocessError(command_description="d", exit_code=1, output_lines=None))
+    reqs.solve_dependencies(FakeOption(((3, 7),),  ["win"]))
+    assert "occured in a sub-process" in reqs.installation_issues
+
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=["numpy>=2.0", "panda<=1.0"],
+        platforms=["linux"],
+    )
+    reqs.solver = FakeRaiseException(MetadataGenerationFailed(package_details="_bar"))
+    reqs.solve_dependencies(FakeOption(((3, 7),),  ["linux"]))
+    assert "while building one of the dependencies" in reqs.installation_issues
+    assert "_bar" in reqs.installation_issues
+
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=["numpy>=2.0", "panda<=1.0"],
+        platforms=["linux"],
+    )
+    reqs.solver = FakeRaiseException(InstallationError)
+    reqs.solve_dependencies(FakeOption(tuple(),  ["macos"]))
+    assert "while installing this dependency" in reqs.installation_issues
+
+    reqs = InstallationRequirements(
+        path=None,
+        python_versions=((3, 10),),
+        requirements=["numpy>=2.0", "panda<=1.0"],
+        platforms=["linux"],
+    )
+    reqs.solver = FakeRaiseException(Exception)
+    reqs.solve_dependencies(FakeOption(tuple(),  ["linux"]))
+    assert reqs.installation_issues == "No information"

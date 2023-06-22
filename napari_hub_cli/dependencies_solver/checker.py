@@ -108,7 +108,7 @@ class InstallationRequirements(ConfigFile):
         except InstallationError as e:
             message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', '')}"
         except Exception as e:
-            print("General Exception", e, options.python_version, options.platforms)
+            # print("General Exception", e, options.python_version, options.platforms)
             self.errors[options] = e
             return None
 
