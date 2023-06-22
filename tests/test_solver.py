@@ -204,3 +204,10 @@ def test_nodeps_message():
 
     assert reqs.installable_linux is False
     assert reqs.number_of_dependencies == NO_DEPENDENCIES
+    assert reqs._installation_issues
+
+    assert len(reqs._installation_issues) == 1
+
+    info = next(iter(reqs._installation_issues.values()))
+    assert "No matching distribution found for numpy>=2.0" in info
+
