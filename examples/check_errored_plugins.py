@@ -11,10 +11,19 @@ OK_PLUGINS = [
     "Partial-Aligner",
     "napari-PICASSO",
     "napari-amdtrk",
+    "napari-bil-data-viewer",
+    "napari-brainbow-diagnose",
+    "napari-imsmicrolink",
+    "napari-lazy-openslide",
+    "napari-ndtiffs",
+    "napari-IDS"
+
 ]
 
 BROKEN_PLUGINS = [
     "napari-bacseg",
+    "napari-calibration",
+    "napari-yolov5"
 ]
 
 def load_plugins_with_errors(fpath):
@@ -35,6 +44,8 @@ def main(fpath, temp_dir="temp", no_pip=False):
         if plugin in OK_PLUGINS:
             print(f"Skipping plugin {plugin} as it is known to be OK")
             continue
+        if plugin in BROKEN_PLUGINS:
+            print(f"Plugin {plugin} was known to be broken")
         print(f"Anlaysing plugin {plugin}")
         result = analyse_remote_plugin(
             plugin,
