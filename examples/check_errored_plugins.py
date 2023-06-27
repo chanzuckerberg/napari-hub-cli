@@ -16,14 +16,13 @@ OK_PLUGINS = [
     "napari-imsmicrolink",
     "napari-lazy-openslide",
     "napari-ndtiffs",
-    "napari-IDS"
-
+    "napari-IDS",
+    "napari-yolov5",
+    "napari-calibration"
 ]
 
 BROKEN_PLUGINS = [
     "napari-bacseg",
-    "napari-calibration",
-    "napari-yolov5"
 ]
 
 def load_plugins_with_errors(fpath):
@@ -46,6 +45,7 @@ def main(fpath, temp_dir="temp", no_pip=False):
             continue
         if plugin in BROKEN_PLUGINS:
             print(f"Plugin {plugin} was known to be broken")
+            continue
         print(f"Anlaysing plugin {plugin}")
         result = analyse_remote_plugin(
             plugin,
