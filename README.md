@@ -94,22 +94,7 @@ while the command used to create the **Documentation checklist for a remote plug
 ```
 
 The intent of this utility is to check your plugin for specific metadata in the [napari-Hub recommended file locations](https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing).
-With this, it creates a Documentation Checklist identifying if a plugin has the following metadata:
-
-| Metadata / Files    | Primary source               | Secondary source                |
-| ------------------- | ---------------------------- | ------------------------------- |
-| Display Name        | ```npe2 - napari.manifest``` | ```PyPI```                      |
-| Summary Sentence    | ```PyPI```                   | ```napari-hub/config.yml```     |
-| Intro Paragraph     | ```PyPI```                   | ```napari-hub/description.md``` |
-| Intro Video         | ```PyPI```                   | ```napari-hub/description.md``` |
-| Intro Screenshot    | ```PyPI```                   | ```napari-hub/description.md``` |
-| Usage Section       | ```PyPI```                   | ```napari-hub/description.md``` |
-| Installation Section| ```PyPI```                   | ```napari-hub/description.md``` |
-| Source Code Link    | ```PyPI```                   | ```n/a```                       |
-| User Support Link   | ```PyPI```                   | ```n/a```                       |
-| Bug Tracker Link    | ```PyPI```                   | ```n/a```                       |
-| Author              | ```PyPI```                   | ```napari-hub/config.yml```     |
-| Citation            | ```CITATION.cff```           | ```n/a```                       |
+With this, it creates a Documentation checklist identifying if a plugin has the metadata listed [in the wiki](https://github.com/chanzuckerberg/napari-hub-cli/wiki/Plugin-metadata-checklist-sources).
 
 Example output:
 
