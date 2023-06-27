@@ -13,12 +13,13 @@ class PythonFile(object):
         self.strpath = str(path)
         if self.path.exists():
             try:
-                self.ast = ast.parse(
-                    self.path.read_text("utf-8"), filename=str(self.path)
-                )
+                txt = self.path.read_text("utf-8")
+                self.ast = ast.parse(txt, filename=str(self.path))
             except IndentationError:
                 self.ast = None
             except SyntaxError:
+                self.ast = None
+            except UnicodeDecodeError:
                 self.ast = None
         else:
             self.ast = None
@@ -149,8 +150,8 @@ class PythonSrcDir(RepositoryFile):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
-            if "site-packages" in str(python_file):
-                # exclude virtualenv files
+            if "site-packages" in str(python_file) or "tests" in str(python_file):
+                # exclude virtualenv files and tests
                 continue
             files.append(PythonFile(python_file))
         self.files = files
