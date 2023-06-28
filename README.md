@@ -248,12 +248,13 @@ Technically, the operations performed in Github will be:
 - creating an issue if necessary.
 
 As any operation that would require an access to the Github API, it's necessary to get a personal accesss token.
+This personal access token should be a classic GitHub token and only needs to have the `plubic_repo` scope. A token can be created following the instructions [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic).
 For security reasons this token is not stored by the tool, nor serialized in a file on your file system (it let you this responsibility).
 
-Now, considering that you have your token saved in this location `/tmp/gh_token.tok`, with your handle being `foo` here is how to call the autofix feature without creating config file:
+Now, considering that you have your token saved in this location `gh_token.tok`, with your GitHub handle being `foo` here is how to call the autofix feature without creating config file:
 
 ```bash
-GITHUB_TOKEN=$(cat gh-token.log) GITHUB_USER=foo napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg --push-on-github
+GITHUB_TOKEN=$(cat gh-token.tok) GITHUB_USER=foo napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg --push-on-github
 ```
 
 ## Code of Conduct
