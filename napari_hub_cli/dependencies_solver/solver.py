@@ -1,6 +1,8 @@
 import logging
 from functools import partial
 
+from .pip_patch import *  # need to be imported before any pip import
+
 from pip._internal.cli.cmdoptions import make_target_python
 from pip._internal.commands.install import InstallCommand
 from pip._internal.index.package_finder import PackageFinder
@@ -19,6 +21,8 @@ from pip._internal.utils.temp_dir import (
 from pip._vendor.resolvelib import ResolutionImpossible
 from pip._vendor.resolvelib import Resolver as RLResolver
 
+from pip._internal.utils.logging import subprocess_logger
+from pip._internal.resolution.resolvelib.factory import logger as factory_logger
 
 class MyResolver(Resolver):
     def resolve(self, root_reqs, check_supported_wheels):
@@ -104,6 +108,13 @@ class DependencySolver(InstallCommand):
         #     user_log_file=options.log,
         # )
         # logging.disable(logging.WARNING)
+        # logging.config.dictConfig(
+        # {
+        #     "disable_existing_loggers": True,
+        # })
+        subprocess_logger.propagate = False
+        subprocess_logger.disabled = True
+        factory_logger.disabled = True
 
         session = self.get_default_session(options)
 
