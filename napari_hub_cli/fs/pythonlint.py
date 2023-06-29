@@ -146,16 +146,18 @@ class PythonFile(object):
 
 
 class PythonSrcDir(RepositoryFile):
-    def __init__(self, path, engine_version=None):
+    def __init__(self, path, engine_version=None, exclude_test_folders=True):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
-            if "site-packages" in str(python_file) or "tests" in str(python_file):
+            if ("site-packages" in str(python_file)
+                or (exclude_test_folders and "tests" in str(python_file))):
                 # exclude virtualenv files and tests
                 continue
             files.append(PythonFile(python_file))
         self.files = files
         self.engine_version = engine_version
+        self.exclude_test_folders = exclude_test_folders
 
     @property
     def forbidden_imports_list(self):

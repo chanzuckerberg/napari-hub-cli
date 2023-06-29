@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
+import sys
 
 # This hack is here to remove a warning message that is yield by "_distutils_hack"
 with suppress(ImportError):
@@ -20,10 +21,13 @@ with suppress(ImportError):
 
     hack.clear_distutils = hack_clear_distutils
 
+
+from .pip_patch import *  # This import needs to be imported just after the distutils hack and before any "pip" related import
+
 from functools import lru_cache
 from itertools import product
 
-from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError
+from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError, MetadataGenerationFailed, InstallationError
 
 from ..fs import ConfigFile
 from .solver import DependencySolver
@@ -76,6 +80,7 @@ class InstallationRequirements(ConfigFile):
             self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
         self.errors = {}
+        self._installation_issues = {}
 
     def _build_options(self):
         # Read the classifiers to have python's versions and platforms
@@ -94,15 +99,35 @@ class InstallationRequirements(ConfigFile):
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound as e:
             # print("Distribution not found", e, options.python_version, options.platforms)
-            return None
+            message = f"A direct or transitive dependency cannot be resolve: {e.args[0]}"
+        except MetadataGenerationFailed as e:
+            message = f"An error occured while building one of the dependencies that doesn't have wheel: {e.context}"
         except InstallationSubprocessError as e:
+            message = f"An error occured in a sub-process: {e.args[0]}"
             # print("SubProcessError", e, options.python_version, options.platforms)
-            return None  # pragma: no cover
+        except InstallationError as e:
+            message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', '')}"
         except Exception as e:
-            print(e.__class__)
             # print("General Exception", e, options.python_version, options.platforms)
             self.errors[options] = e
             return None
+
+        # Build the information message
+        platform = options.platforms[0]
+        if "linux" in platform:
+            platform = "linux"
+        elif "macos" in platform:
+            platform = "macos"
+        else:
+            platform = "windows"
+
+        version = options.python_version
+        if version is None or len(version) == 0:
+            major, minor, *_ = sys.version_info
+            version = (major, minor)
+        version = ".".join(str(x) for x in version)
+        self._installation_issues[(version, platform)] = message
+        return None
 
     @lru_cache()
     def _get_platform_options(self, platform):
@@ -271,3 +296,10 @@ class InstallationRequirements(ConfigFile):
     def has_no_forbidden_deps(self):
         _, _, _, deps = self.analysis_package(self.options_list[0])
         return all(name.lower() not in forbidden_deps for name, _ in deps)
+
+    @property
+    def installation_issues(self):
+        information = ""
+        for (pyv, platform), reason in self._installation_issues.items():
+            information += f"\n   * {platform} - {pyv}: {reason}"
+        return information if information else "No information"

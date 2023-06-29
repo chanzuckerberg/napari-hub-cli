@@ -110,7 +110,7 @@ def test_pythonfile_npe1_hook_check3(resources):
 
 
 def test_pythonsrcdir_init(resources):
-    srcdir = PythonSrcDir(resources)
+    srcdir = PythonSrcDir(resources, exclude_test_folders=False)
 
     filenames = [s.path.name for s in srcdir.files]
     assert filenames == ["f1.py", "f2.py", "f1.py"] or filenames == ["f2.py", "f1.py", "f1.py"]
@@ -118,7 +118,7 @@ def test_pythonsrcdir_init(resources):
 
 
 def test_pythonsrcdir_forbidden_imports_detection(resources):
-    srcdir = PythonSrcDir(resources)
+    srcdir = PythonSrcDir(resources, exclude_test_folders=False)
 
     res = srcdir.forbidden_imports_list
 
@@ -143,7 +143,7 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
 
 
 def test_pythonsrcdir_forbidden_imports_detection2(resources):
-    srcdir = PythonSrcDir(resources / "subdir")
+    srcdir = PythonSrcDir(resources / "subdir", exclude_test_folders=False)
 
     res = srcdir.forbidden_imports_list
 
@@ -157,7 +157,7 @@ def test_pythonsrcdir_forbidden_imports_detection2(resources):
     reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
 )
 def test_pythonsrcdir_npe1_hook_list(resources):
-    srcdir = PythonSrcDir(resources)
+    srcdir = PythonSrcDir(resources, exclude_test_folders=False)
 
     res = srcdir.npe1_hook_list
 
