@@ -50,7 +50,7 @@ def test_check_npe2(test_repo):
     np2e_file = test_repo.npe2_yaml
 
     assert np2e_file.exists is False
-    assert np2e_file.version is "npe1"
+    assert np2e_file.version == "npe1"
     assert np2e_file.is_npe2 is False
 
 
