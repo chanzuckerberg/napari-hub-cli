@@ -156,6 +156,19 @@ def test_check_real_github_osi_license(test_real_repo):
         assert e.code == -127
 
 
+@pytest.mark.online
+def test_check_real_github_osi_license_bad_credentials(test_real_repo):
+    old_value = os.environ["GITHUB_TOKEN"]
+    os.environ["GITHUB_TOKEN"] = "MYTOK"
+
+    with pytest.raises(SystemExit) as exc_info:
+        license = test_real_repo.license
+        license.get_github_license()
+
+    assert exc_info.value.code == -126
+    os.environ["GITHUB_TOKEN"] = old_value
+
+
 @pytest.fixture(scope="module")
 def test_repo():
     current_path = Path(__file__).parent.absolute()

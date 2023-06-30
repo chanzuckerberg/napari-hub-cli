@@ -66,6 +66,9 @@ class License(RepositoryFile):
                 "https://github.com/", "https://api.github.com/repos/"
             )
             response = requests.get(f"{api_url}/license", headers=build_gh_header())
+            if response.status_code == 401:  # token revokation
+                print(f"{response.status_code} Client Error: {response.reason} for url: {response.url}")
+                exit(-126)
             if response.status_code == 403:  # rate limit exceed
                 print(f"{response.status_code} Client Error: {response.reason} for url: {response.url}")
                 exit(-127)
