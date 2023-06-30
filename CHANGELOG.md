@@ -18,7 +18,7 @@ This release introduce a new command to check the "quality" of a plugin or a set
 * Introduction of a new abstraction for checklist definition (currently, a checklist for metadata and one for plugin quality)
 * Introduction of a new abstraction for computing and displaying additional information in checklist
 * Switch some primary/secondary files in the metadata checklist
-*
+
 
 ## 0.1.0
 
