@@ -6,6 +6,8 @@ import requests
 from iguala import as_matcher as m
 from iguala import regex
 
+from ..utils import build_gh_header
+
 from ..fs import ConfigFile, RepositoryFile
 
 
@@ -166,7 +168,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
         if not api_url:
             return None
         try:
-            response = requests.get(f"{api_url}/actions/runs")
+            response = requests.get(f"{api_url}/actions/runs", headers=build_gh_header())
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()  # pragma: no cover
             response_json = response.json()
@@ -195,7 +197,7 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
             return None
         api_url = self._compute_call_url()
         try:
-            response = requests.get(f"{api_url}/commits/{coi['head_sha']}/status")
+            response = requests.get(f"{api_url}/commits/{coi['head_sha']}/status", headers=build_gh_header())
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()  # pragma: no cover
             response_json = response.json()

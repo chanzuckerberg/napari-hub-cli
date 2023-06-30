@@ -26,7 +26,7 @@ class PythonFile(object):
 
     def _check_import(self, import_name):
         m = match(self.__class__)[
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.Import)["names>name" : re(import_name)]
                 | match(ast.ImportFrom)["module" : re(import_name)]
             )
@@ -49,8 +49,8 @@ class PythonFile(object):
     def npe1_import_hook_check(self):
         import_ = match(self.__class__)[
             "path":"@file",
-            "ast>*" : (match(ast.Import)["names>name":"napari_plugin_engine"]),
-            "ast>*" : (
+            "ast>body+" : (match(ast.Import)["names>name":"napari_plugin_engine"]),
+            "ast>body+" : (
                 match(ast.FunctionDef)[
                     "decorator_list>*" : match(ast.Attribute)[
                         "value>id" : as_matcher("napari_plugin_engine")
@@ -70,7 +70,7 @@ class PythonFile(object):
     def npe1_from_import_hook_check(self):
         from_import_ = match(self.__class__)[
             "path":"@file",
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
                     "names" : match(ast.alias)[
@@ -80,7 +80,7 @@ class PythonFile(object):
                     ],
                 ]
             ),
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.FunctionDef)["decorator_list>*>id":"@decorator_id",] @ "func"
             ),
         ]
@@ -93,7 +93,7 @@ class PythonFile(object):
     def npe1_from_import_as_hook_check(self):
         from_import_as_ = match(self.__class__)[
             "path":"@file",
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
                     "names" : match(ast.alias)[
@@ -101,7 +101,7 @@ class PythonFile(object):
                     ],
                 ]
             ),
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.FunctionDef)["decorator_list>*>id":"@decorator_id",] @ "func"
             ),
         ]
@@ -114,14 +114,14 @@ class PythonFile(object):
     def npe1_from_as_hook_check(self):
         from_as_ = match(self.__class__)[
             "path":"@file",
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.Import)[
                     "names" : match(ast.alias)[
                         "name":"napari_plugin_engine", "asname":"@decorator_id"
                     ],
                 ]
             ),
-            "ast>*" : (
+            "ast>body+" : (
                 match(ast.FunctionDef)[
                     "decorator_list>*" : match(ast.Attribute)[
                         "value>id":"@decorator_id",
