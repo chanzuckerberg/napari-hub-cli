@@ -10,7 +10,13 @@ WIN32 = ["win32"]
 LINUX = [
     "manylinux2014_x86_64",
 ]
-MACOS = ["macosx_10_9_x86_64", "macosx_10_15_x86_64"]
+MACOS = [
+    "macosx_10_9_x86_64",
+    "macosx_10_12_x86_64",
+    "macosx_10_15_x86_64",
+    "macosx_10_6_x86_64",
+    "macosx_11_0_arm64"
+]
 
 _platform_specs = {
     "win": WIN64,
@@ -39,6 +45,7 @@ class Options(dict):
 
 
 def build_options(python_version, platform, abis=None):
+    # abis = ["none", "abi3"] if abis is None else abis
     platforms = _platform_specs.get(platform, platform) if platform else None
     return Options(
         {
@@ -52,7 +59,7 @@ def build_options(python_version, platform, abis=None):
             "require_hashes": False,
             "features_enabled": ["fast-deps"],
             "use_user_site": False,
-            "force_reinstall": False,
+            "force_reinstall": True,
             "ignore_requires_python": False,
             "ignore_installed": False,
             "isolated_mode": True,
