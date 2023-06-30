@@ -227,6 +227,8 @@ def display_checklist(analysis_result):
     repo = analysis_result.repository.path.parent if analysis_result.repository else ""
 
     # create the Console Documentation Checklist
+    if not analysis_result.features and not analysis_result.additionals:
+        return
     console = Console()
     console.print()
     console.print(
