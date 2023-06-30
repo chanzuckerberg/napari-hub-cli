@@ -1,7 +1,8 @@
 import os
 import shutil
-from contextlib import suppress
 import sys
+from contextlib import suppress
+from unittest.mock import DEFAULT
 
 import pytest
 import requests_mock as req
@@ -16,9 +17,12 @@ from napari_hub_cli.autofix import (
     read_user_token,
     validate_plugin_selection,
 )
-from napari_hub_cli.checklist.metadata import analyse_local_plugin
+from napari_hub_cli.checklist import analyse_local_plugin
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
 from napari_hub_cli.constants import NAPARI_HUB_API_URL
 from napari_hub_cli.fs import NapariPlugin
+
+_, DEFAULT_SUITE = DEFAULT_SUITE
 
 
 @pytest.fixture
@@ -237,7 +241,7 @@ def test_plugin_selection_missing(napari_hub):
 
 def test_create_commits_nothing(tmp_git_repo1):
     path, repo = tmp_git_repo1
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     nb_commits = len(list(repo.iter_commits()))
 
@@ -251,19 +255,19 @@ def test_create_commits_nothing(tmp_git_repo1):
 
 def test_create_commits(tmp_git_repo2):
     path, repo = tmp_git_repo2
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     nb_commits = len(list(repo.iter_commits()))
     commited = create_commits(result, display_info=True)
     new_nb_commits = len(list(repo.iter_commits()))
 
-    assert commited is True
-    assert nb_commits + 1 == new_nb_commits
+    assert commited is False
+    assert nb_commits == new_nb_commits
 
 
 def test_create_citation_not_required(tmp_git_repo2):
     path, repo = tmp_git_repo2
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     nb_commits = len(list(repo.iter_commits()))
     commited = create_commit_citation(result, display_info=True)
@@ -275,7 +279,7 @@ def test_create_citation_not_required(tmp_git_repo2):
 
 def test_create_citation(tmp_git_repo3):
     path, repo = tmp_git_repo3
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     nb_commits = len(list(repo.iter_commits()))
     commited = create_commit_citation(result, display_info=True)
@@ -296,8 +300,8 @@ def test_autofix_local_plugin(tmp_git_repo3):
     autofix_repository(path)
     new_nb_commits = len(list(repo.iter_commits()))
 
-    # one commit for "summary" and one commit for "citation"
-    assert nb_commits + 2 == new_nb_commits
+    # one commit for "citation"
+    assert nb_commits + 1 == new_nb_commits
 
     plugin = NapariPlugin(path)
 
@@ -336,7 +340,7 @@ def test_create_pr_issue(mocker, tmp_git_repo3, requests_mock):
     mocker.patch.object(github3.repos.repo, "Repository")
 
     path, repo = tmp_git_repo3
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     create_PR_from_analysis(
         result,
@@ -360,7 +364,7 @@ def test_create_pr_issue_dryrun(monkeypatch, tmp_git_repo3):
     monkeypatch.setattr("builtins.input", lambda _: "USER")
 
     path, _ = tmp_git_repo3
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     create_PR_from_analysis(
         result,
@@ -380,7 +384,7 @@ def test_create_pr_issue_dryrun_notgithub(monkeypatch, tmp_git_repo3):
     monkeypatch.setattr("builtins.input", lambda _: "USER")
 
     path, _ = tmp_git_repo3
-    result = analyse_local_plugin(path)
+    result = analyse_local_plugin(path, DEFAULT_SUITE)
 
     create_PR_from_analysis(
         result,

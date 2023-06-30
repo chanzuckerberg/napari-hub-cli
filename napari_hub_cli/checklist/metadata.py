@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional, Union
 
 from rich.console import Console
 
@@ -13,23 +13,25 @@ CHECKLIST_STYLE = {
 }
 
 
-ENTRIES_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/Customizing-your-plugin's-listing"
-LABELS_DOC_URL = "https://github.com/chanzuckerberg/napari-hub/wiki/A-plugin-developer%E2%80%99s-guide-to-categories-on-the-napari-hub"
-
-
 @dataclass
 class MetaFeature(object):
     name: str
     attribute: str
-    advise_location: str
-    automatically_fixable: bool
-    doc_url: str
+    advise_location: str = ""
+    automatically_fixable: bool = False
+    doc_url: str = ""
     force_main_file_usage: bool = True
+    optional: bool = False
 
 
 @dataclass
-class Feature(object):
+class BaseFeature(object):
     meta: MetaFeature
+    result: Any
+
+
+@dataclass
+class Feature(BaseFeature):
     found: bool
     found_in: Optional[RepositoryFile]
     only_in_fallback: bool
@@ -43,7 +45,7 @@ class Feature(object):
 class AnalysisStatus(Enum):
     SUCCESS = "Success"
     MISSING_URL = "Missing repository URL"
-    NON_EXISTING_PLUGIN = "Plugin is not existing in the Napari-HUB platform"
+    NON_EXISTING_PLUGIN = "Plugin is not existing in the napari hub platform"
     UNACCESSIBLE_REPOSITORY = "Repository URL is not accessible"
     BAD_URL = "Repository URL does not have right format"
 
@@ -54,10 +56,12 @@ class PluginAnalysisResult(object):
     status: AnalysisStatus
     repository: Optional[NapariPlugin]
     url: Optional[str]
+    title: str
+    additionals: List[BaseFeature]
 
     @classmethod
-    def with_status(cls, status, url=None):
-        return cls([], status, None, url)
+    def with_status(cls, status, title, url=None):
+        return cls([], status, None, url, title=title, additionals=[])
 
     def __getitem__(self, meta):
         return next((f for f in self.features if f.meta is meta))
@@ -72,76 +76,25 @@ class PluginAnalysisResult(object):
 @dataclass
 class Requirement(object):
     features: List[MetaFeature]
-    main_files: List[RepositoryFile]
+    main_files: List[Union[RepositoryFile, NapariPlugin]]
     fallbacks: List[RepositoryFile]
 
 
-DISPLAY_NAME = MetaFeature(
-    "Display Name", "has_name", "npe2 file: napari.yaml", True, ENTRIES_DOC_URL
-)
-SUMMARY = MetaFeature(
-    "Summary Sentence", "has_summary", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-SOURCECODE = MetaFeature(
-    "Source Code", "has_sourcecode", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-AUTHOR = MetaFeature(
-    "Author Name", "has_author", ".napari-hub/config.yml", True, ENTRIES_DOC_URL
-)
-BUGTRACKER = MetaFeature(
-    "Issue Submission Link",
-    "has_bugtracker",
-    ".napari-hub/config.yml",
-    True,
-    ENTRIES_DOC_URL,
-)
-USER_SUPPORT = MetaFeature(
-    "Support Channel Link",
-    "has_usersupport",
-    ".napari-hub/config.yml",
-    True,
-    ENTRIES_DOC_URL,
-)
-VIDEO_SCREENSHOT = MetaFeature(
-    "Screenshot/Video",
-    "has_videos_or_screenshots",
-    ".napari-hub/DESCRIPTION.yml",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-USAGE = MetaFeature(
-    "Usage Overview",
-    "has_usage",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-INTRO = MetaFeature(
-    "Intro Paragraph",
-    "has_intro",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-INSTALLATION = MetaFeature(
-    "Installation",
-    "has_installation",
-    ".napari-hub/DESCRIPTION.md",
-    False,
-    ENTRIES_DOC_URL,
-    force_main_file_usage=False,
-)
-CITATION = MetaFeature("Citation", "exists", "CITATION.CFF", True, ENTRIES_DOC_URL)
-CITATION_VALID = MetaFeature(
-    "Citation Format is Valid", "is_valid", "CITATION.CFF", False, ENTRIES_DOC_URL
-)
+@dataclass
+class RequirementSuite(object):
+    title: str
+    requirements: List[Requirement]
+    additionals: List[Requirement]
 
-LABELS = MetaFeature(
-    "Labels", "has_labels", ".napari-hub/config.yml", False, LABELS_DOC_URL
-)
+
+def gather_base_feature(meta, main_files):
+    key = f"{meta.attribute}"
+    res = None
+    for main_file in main_files:
+        res = getattr(main_file, key)
+        if res:
+            return BaseFeature(meta, res)
+    return BaseFeature(meta, res)
 
 
 def check_feature(meta, main_files, fallbacks):
@@ -164,101 +117,103 @@ def check_feature(meta, main_files, fallbacks):
     has_fallback = len(fallbacks) > 0
     key = f"{meta.attribute}"
     for main_file in main_files:
-        if getattr(main_file, key):
+        result = getattr(main_file, key)
+        if result:
             return Feature(
-                meta,
-                True,
-                main_file,
-                False,
-                has_fallback,
-                scanned_files,
-                main_files,
-                fallbacks,
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=main_file,
+                only_in_fallback=False,
+                has_fallback_files=has_fallback,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     for fallback in fallbacks:
-        if getattr(fallback, key):
+        result = getattr(fallback, key)
+        if result:
             return Feature(
-                meta, True, fallback, True, True, scanned_files, main_files, fallbacks
+                meta=meta,
+                result=result,
+                found=True,
+                found_in=fallback,
+                only_in_fallback=True,
+                has_fallback_files=True,
+                scanned_files=scanned_files,
+                main_files=main_files,
+                fallbacks=fallbacks,
             )
     return Feature(
-        meta, False, None, False, has_fallback, scanned_files, main_files, fallbacks
+        meta=meta,
+        result=None,
+        found=False,
+        found_in=None,
+        only_in_fallback=False,
+        has_fallback_files=has_fallback,
+        scanned_files=scanned_files,
+        main_files=main_files,
+        fallbacks=fallbacks,
     )
 
 
-def analyse_local_plugin(repopath):
-    """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
-    Parameters
-    ----------
-    repo : str
-        local path to the plugin
-
-    Returns
-    -------
-    PluginAnalysisResult:
-        the result of the analysis ran against the local repository
-    """
-    repo = Path(repopath)
-    plugin_repo = NapariPlugin(repo)
-
-    pyproject_toml, setup_cfg, setup_py = plugin_repo.pypi_files
-    napari_cfg = plugin_repo.config_yml
-    description = plugin_repo.description
-    npe2_yaml = plugin_repo.npe2_yaml
-
-    long_descr_setup_cfg = setup_cfg.long_description()
-    long_descr_setup_py = setup_py.long_description()
-    long_descr_pyproject_toml = pyproject_toml.long_description()
-
-    requirements = [
-        Requirement(
-            features=[DISPLAY_NAME],
-            main_files=[npe2_yaml],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SUMMARY],
-            main_files=[napari_cfg],
-            fallbacks=[pyproject_toml, setup_cfg, setup_py],
-        ),
-        Requirement(
-            features=[SOURCECODE, AUTHOR, BUGTRACKER, USER_SUPPORT],
-            main_files=[pyproject_toml, setup_cfg, setup_py],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[VIDEO_SCREENSHOT, USAGE, INTRO, INSTALLATION],
-            main_files=[
-                description,
-            ],
-            fallbacks=[
-                long_descr_setup_cfg,
-                long_descr_setup_py,
-                long_descr_pyproject_toml,
-            ],
-        ),
-        Requirement(
-            features=[CITATION, CITATION_VALID],
-            main_files=[plugin_repo.citation_file],
-            fallbacks=[],
-        ),
-        Requirement(
-            features=[LABELS],
-            main_files=[napari_cfg],
-            fallbacks=[],
-        ),
-    ]
-
-    result = []
+def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
+    reqs_result = []
+    requirements = suite.requirements
     for requirement in requirements:
         for feature in requirement.features:
-            result.append(
+            if not requirement.main_files:
+                continue
+            reqs_result.append(
                 check_feature(
                     feature,
                     main_files=requirement.main_files,
                     fallbacks=requirement.fallbacks,
                 )
             )
-    return PluginAnalysisResult(result, AnalysisStatus.SUCCESS, plugin_repo, None)
+    additional_results = []
+    for additional in suite.additionals:
+        for feature in additional.features:
+            if not additional.main_files:
+                continue
+            additional_results.append(
+                gather_base_feature(
+                    feature,
+                    main_files=additional.main_files,
+                )
+            )
+    return PluginAnalysisResult(
+        reqs_result,
+        AnalysisStatus.SUCCESS,
+        plugin_repo,
+        url=None,
+        title=suite.title,
+        additionals=additional_results,
+    )
+
+
+def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
+    """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
+    Parameters
+    ----------
+    repo_path : str
+        local path to the plugin
+    requirements_suite: Func[NapariPlugin] -> Requirement
+        function that takes a NapariPlugin as input and generates the suite to test the repo against
+
+    Returns
+    -------
+    PluginAnalysisResult:
+        the result of the analysis ran against the local repository
+    """
+    repo = Path(repo_path)
+    plugin_repo = NapariPlugin(repo)
+    if isinstance(requirement_suite, tuple):
+        _, requirement_suite = requirement_suite
+
+    requirements = requirement_suite(plugin_repo, **kwargs)
+
+    return analyse_requirements(plugin_repo, requirements)
 
 
 def display_checklist(analysis_result):
@@ -272,20 +227,29 @@ def display_checklist(analysis_result):
     repo = analysis_result.repository.path.parent if analysis_result.repository else ""
 
     # create the Console Documentation Checklist
+    if not analysis_result.features and not analysis_result.additionals:
+        return
     console = Console()
     console.print()
     console.print(
-        "Napari Plugin - Documentation Checklist", style="bold underline2 blue"
+        f"Napari Plugin - {analysis_result.title} Checklist",
+        style="bold underline2 blue",
     )
+
+    # Display additional informations
+    for feature in analysis_result.additionals:
+        console.print(f"  {feature.meta.name}: {feature.result}")
 
     # Display summary result
     for feature in analysis_result.features:
-        if feature.meta is CITATION:
+        if feature.meta.optional:
             console.print()
             console.print("OPTIONAL ", style="underline")
         mark, style = CHECKLIST_STYLE[feature.found]
         found_localisation = (
-            f" ({feature.found_in.file.relative_to(repo)})" if feature.found else ""
+            f" ({feature.found_in.file.relative_to(repo)})"
+            if feature.found and not feature.found_in.isVirtual
+            else ""
         )
         console.print(f"{mark} {feature.meta.name}{found_localisation}", style=style)
 
@@ -315,6 +279,8 @@ def display_checklist(analysis_result):
 
     # Display detailed information
     for feature in analysis_result.missing_features():
+        if not feature.meta.advise_location:
+            continue
         files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files]
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()

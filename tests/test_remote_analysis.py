@@ -4,8 +4,9 @@ import pytest
 import requests_mock
 
 from napari_hub_cli.checklist.analysis import (
+    DEFAULT_SUITE,
     analyse_remote_plugin,
-    analyze_all_remote_plugins,
+    analyze_remote_plugins,
     build_csv_dict,
     display_remote_analysis,
     write_csv,
@@ -22,6 +23,8 @@ from napari_hub_cli.utils import (
     get_repository_url,
 )
 
+_, DEFAULT_SUITE = DEFAULT_SUITE
+
 
 @pytest.fixture
 def napari_hub(requests_mock):
@@ -37,7 +40,6 @@ def napari_hub(requests_mock):
 
 
 def test_closest_plugin_name(napari_hub):
-
     assert closest_plugin_name("avidaq") == "avidaq"
     assert closest_plugin_name("avida") == "avidaq"
     assert closest_plugin_name("foo") is None
@@ -76,12 +78,15 @@ def test_get_plugin_url(napari_hub):
 
 
 def test_no_result_analysis():
-    result = PluginAnalysisResult.with_status(AnalysisStatus.UNACCESSIBLE_REPOSITORY)
+    result = PluginAnalysisResult.with_status(
+        AnalysisStatus.UNACCESSIBLE_REPOSITORY, title="my list"
+    )
 
     assert result.features == []
     assert result.status is AnalysisStatus.UNACCESSIBLE_REPOSITORY
     assert result.url is None
     assert result.repository is None
+    assert result.title == "my list"
 
 
 def test_analyse_remote_plugin_bad_url(napari_hub):
@@ -139,13 +144,21 @@ def test_analyze_all_remote_plugins(napari_hub):
         "http://my_repo_url",
         json={},
     )
-    results = analyze_all_remote_plugins()
+    results = analyze_remote_plugins(all_plugins=True)
 
     assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
 
-    results = analyze_all_remote_plugins(display_info=True)
+    results = analyze_remote_plugins(all_plugins=True, display_info=True)
 
     assert list(results.keys()) == ["avidaq", "mikro-napari", "napari-curtain"]
+
+    results = analyze_remote_plugins(plugins_name=["avidaq"], display_info=True)
+
+    assert list(results.keys()) == ["avidaq"]
+
+    results = analyze_remote_plugins(plugins_name=[], display_info=True)
+
+    assert list(results.keys()) == []
 
 
 def test_build_csv_empty():
@@ -155,7 +168,9 @@ def test_build_csv_empty():
 
 def test_build_csv():
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(
+        current_path / "resources/CZI-29-test", DEFAULT_SUITE
+    )
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     assert rows != []
@@ -172,7 +187,9 @@ def test_write_csv_empty(tmp_path):
 def test_write_csv(tmp_path):
     output = tmp_path / "output.csv"
     current_path = Path(__file__).parent.absolute()
-    checklist = analyse_local_plugin(current_path / "resources/CZI-29-test")
+    checklist = analyse_local_plugin(
+        current_path / "resources/CZI-29-test", DEFAULT_SUITE
+    )
     rows = build_csv_dict({"CZI-29-test": checklist})
 
     write_csv(rows, output)
@@ -202,7 +219,6 @@ def test_analysis_local_directory(napari_hub, tmp_path):
 
 @pytest.mark.online
 def test_closest_plugin_name__online():
-
     assert closest_plugin_name("avidaq") == "avidaq"
     assert closest_plugin_name("avida") == "avidaq"
     assert closest_plugin_name("foo") is None

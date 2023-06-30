@@ -3,16 +3,18 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message, build_PR_message
-from napari_hub_cli.checklist.metadata import (
+from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     LABELS,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
-    analyse_local_plugin,
-    display_checklist,
 )
 from napari_hub_cli.fs import NapariPlugin
+
+_, DEFAULT_SUITE = DEFAULT_SUITE
 
 
 @pytest.fixture(scope="module")
@@ -48,6 +50,8 @@ def test_check_npe2(test_repo):
 
     assert np2e_file.exists is True
     assert np2e_file.has_name is True
+    assert np2e_file.version == "npe2"
+    assert np2e_file.is_npe2 is True
 
 
 def test_check_pysetup(test_repo):
@@ -97,8 +101,8 @@ def test_check_citation(test_repo):
     assert citation.exists is False
 
 
-def test_create_checkist(test_repo):
-    result = analyse_local_plugin(test_repo.path)
+def test_create_checklist(test_repo):
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     assert len(result.features) == 13
 
@@ -109,12 +113,12 @@ def test_create_checkist(test_repo):
     assert disp_name.only_in_fallback is False
     assert disp_name.has_fallback_files is True
 
-    description = result.features[6]
+    description = result.features[7]
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is True
-    assert description.found_in == test_repo.description
+    assert description.found_in == test_repo.setup_cfg.long_description()
     assert description.only_in_fallback is False
-    assert description.has_fallback_files is True
+    assert description.has_fallback_files is False
 
     labels = result.features[-1]
     assert labels.meta is LABELS
@@ -125,7 +129,7 @@ def test_create_checkist(test_repo):
 
 
 def test_display_checklist(test_repo):
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
     display_checklist(result)
 
 
@@ -137,7 +141,7 @@ def test_build_PR_message():
 
 
 def test_build_issue_message(test_repo):
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
     features = result.features
 
     assert len(features) > 0

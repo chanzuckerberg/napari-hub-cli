@@ -20,9 +20,14 @@ class Metadata(object):  # pragma: no cover
     has_bugtracker = Exists("bugtracker")
     has_author = Exists("author")
     has_summary = Exists("summary")
+    has_version = Exists("version")
 
 
 class SetupPy(Metadata, ConfigFile):
+    @property
+    def version(self):
+        return self.data.get("version")
+
     @property
     def name(self):
         return self.data.get("display_name", self.data.get("name"))
@@ -96,6 +101,14 @@ class SetupPy(Metadata, ConfigFile):
     def create_npe2_entry(self):
         raise NotImplementedError("Modification of setup.py is not yet supported")
 
+    @property
+    def classifiers(self):
+        return self.data.get("classifiers", [])
+
+    @property
+    def requirements(self):
+        return [s.split("#")[0].strip() for s in self.data.get("install_requires", [])]
+
 
 class NapariConfig(Metadata, ConfigFile):
     has_labels = Exists("labels")
@@ -141,6 +154,10 @@ class SetupCfg(Metadata, ConfigFile):
     @property
     def project_urls(self):
         return self.metadata.get("project_urls", "")
+
+    @property
+    def version(self):
+        return self.metadata.get("version")
 
     @property
     def name(self):
@@ -250,6 +267,20 @@ class SetupCfg(Metadata, ConfigFile):
         modules = [self._find_src_location()]
         return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
 
+    @property
+    def classifiers(self):
+        return [s for s in self.metadata.get("classifiers", "").splitlines() if s]
+
+    @property
+    def requirements(self):
+        return [
+            s.split("#")[0].strip()
+            for s in self.data.get("options", {})
+            .get("install_requires", "")
+            .splitlines()
+            if s
+        ]
+
 
 class PyProjectToml(Metadata, ConfigFile):
     @property
@@ -259,6 +290,10 @@ class PyProjectToml(Metadata, ConfigFile):
     @property
     def project_urls(self):
         return self.project_data.get("urls", {})
+
+    @property
+    def version(self):
+        return self.project_data.get("version")
 
     @property
     def name(self):
@@ -332,10 +367,10 @@ class PyProjectToml(Metadata, ConfigFile):
     def find_npe2(self):
         try:
             manifest_entry = self.project_data["entry-points"]["napari.manifest"]
+            project_name = self.project_data.get("name", "")
+            manifest = manifest_entry[project_name]
         except KeyError:
             return None
-        project_name = self.project_data.get("name", "")
-        manifest = manifest_entry[project_name]
         modules = self._find_src_location()
         pattern = re.compile(r"(?P<modules>[^:]+\:)(?P<file>(.*?))\.yaml")
         result = pattern.match(manifest)
@@ -355,6 +390,14 @@ class PyProjectToml(Metadata, ConfigFile):
         manifest_entry[project_name] = f"{project_name}:napari.yaml"
         modules = self._find_src_location()
         return self.file.parent.joinpath(*modules) / project_name / "napari.yaml"
+
+    @property
+    def classifiers(self):
+        return self.project_data.get("classifiers", [])
+
+    @property
+    def requirements(self):
+        return self.project_data.get("dependencies", [])
 
 
 class Npe2Yaml(Metadata, ConfigFile):
@@ -381,6 +424,14 @@ class Npe2Yaml(Metadata, ConfigFile):
         location = config.create_npe2_entry()
         self.file = location
         super().save()
+
+    @property
+    def version(self):
+        return "npe2" if self.file and self.file.exists() else "npe1"
+
+    @property
+    def is_npe2(self):
+        return self.version == "npe2"
 
 
 class CitationFile(ConfigFile):

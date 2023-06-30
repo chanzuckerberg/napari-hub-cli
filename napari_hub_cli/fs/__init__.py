@@ -5,7 +5,7 @@ import tomli
 import tomli_w
 import yaml
 
-from ..utils import delete_file_tree, parse_setup
+from ..utils import delete_file_tree, parse_setup, scrap_git_infos
 
 format_parsers = {}
 format_unparsers = {}
@@ -67,6 +67,12 @@ def parse_yaml(yml_file):
     return {}
 
 
+@register_parser([".txt"])
+def parse_txt(file):
+    content = file.read_text(encoding="utf-8")
+    return {"content": content}
+
+
 @register_unparser([".yml", ".YML", ".yaml", ".YAML", ".cff", ".CFF"])
 def unparse_yaml(yml_file, data):
     with yml_file.open(mode="w", encoding="utf-8") as f:
@@ -96,7 +102,15 @@ def unparse_toml(toml_file, data):
     return content
 
 
+@register_unparser([".txt"])
+def unparse_txt(file, data):
+    file.write_text(data.get("content", ""), encoding="utf-8")
+    return True
+
+
 class RepositoryFile(object):
+    isVirtual = False
+
     def __init__(self, file):
         self.file = file
 
@@ -130,8 +144,18 @@ class ConfigFile(RepositoryFile):
         return format_unparsers[self.file.suffix](self.file, self.data)
 
 
+class VirtualJsonFile(RepositoryFile):
+    isVirtual = True
+
+    def __init__(self, virtualpath):
+        super().__init__(virtualpath)
+
+
 class NapariPlugin(object):
-    def __init__(self, path, forced_gen=0):
+    def __init__(self, path, url=None, forced_gen=0):
+        from ..dependencies_solver import InstallationRequirements
+        from .additional_info import AdditionalInfo
+        from .condainfo import CondaInfo
         from .configfiles import (
             CitationFile,
             NapariConfig,
@@ -140,8 +164,12 @@ class NapariPlugin(object):
             SetupPy,
         )
         from .descriptions import MarkdownDescription
+        from .ghactions import GhActionWorkflowFolder
+        from .license import License
+        from .pythonlint import PythonSrcDir
 
         self.path = path
+        self.url = url
         self.setup_py = SetupPy(path / "setup.py")
         self.setup_cfg = SetupCfg(path / "setup.cfg")
         if (path / ".napari").exists():
@@ -153,15 +181,52 @@ class NapariPlugin(object):
         self.pyproject_toml = PyProjectToml(path / "pyproject.toml")
         self.citation_file = CitationFile(path / "CITATION.cff")
         self.readme = MarkdownDescription.from_file(path / "README.md")
+
+        req_file, reqs = self.extractfrom_config("requirements")
+        req_file = req_file.file if req_file else path / "requirements.txt"
+        self.requirements = InstallationRequirements(
+            req_file,
+            reqs,
+            self.supported_python_version,
+            self.supported_platforms,
+        )
+        self.condainfo = CondaInfo(
+            path / "conda-infos.json",
+            self.name,
+            self.supported_python_version,
+            self.supported_platforms,
+        )
         self.forced_gen = forced_gen
+
+        pypi_config = self.first_pypi_config()
+        source_code = pypi_config.sourcecode if pypi_config else None
+        plugin_url = self.url or source_code or scrap_git_infos(self.path).get("url")
+        self.license = License(path / "LICENSE", plugin_url)
+        self.additional_info = AdditionalInfo(path)
+        self.gh_workflow_folder = GhActionWorkflowFolder(
+            path / ".github" / "workflows", plugin_url
+        )
+        self.linter = PythonSrcDir(self.path, self.gen)
 
     @property
     def summary(self):
+        return self.extractfrom_config("summary")[1]
+
+    @property
+    def classifiers(self):
+        return self.extractfrom_config("classifiers", default=())[1]
+
+    @property
+    def name(self):
+        return self.extractfrom_config("name")[1]
+
+    @lru_cache()
+    def extractfrom_config(self, attribute, default=None, failback=None):
         for f in self.pypi_files:
-            summary = f.summary
-            if summary:
-                return summary
-        return None
+            value = getattr(f, attribute)
+            if value:
+                return (f, value)
+        return (failback, default)
 
     def first_pypi_config(self):
         for f in self.pypi_files:
@@ -213,3 +278,42 @@ class NapariPlugin(object):
     def delete(self):
         """Deletes the path towards the repository on the File System"""
         delete_file_tree(f"{self.path.absolute()}")
+
+    @property
+    def supported_python_version(self):
+        classifiers = self.classifiers
+        if not classifiers:
+            return (None,)
+        versions = []
+        for entry in classifiers:
+            if "Programming Language :: Python ::" not in entry:
+                continue
+            try:
+                version = entry.split(" :: ")[2].split(".")
+                versions.append(tuple(int(n) for n in version))
+            except ValueError:
+                continue
+        if len(versions) == 1 and len(versions[0]):
+            # If only "python 3" without more information, we will consider the current version
+            return (None,)
+        return tuple(v for v in versions if len(v) > 1)
+
+    @property
+    def supported_platforms(self):
+        classifiers = self.classifiers
+        if not classifiers:
+            return [None]
+        platforms = set()
+        for entry in classifiers:
+            if "Operating System" not in entry:
+                continue
+            if "OS Independent" in entry:
+                return ("win", "linux", "macos")
+            platform = entry.lower()
+            if "windows" in platform:
+                platforms.add("win")
+            if "linux" in platform:
+                platforms.add("linux")
+            if "macos" in platform:
+                platforms.add("macos")
+        return platforms

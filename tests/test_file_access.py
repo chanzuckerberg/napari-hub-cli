@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from napari_hub_cli.dependencies_solver.utils import LINUX, MACOS, WIN32, WIN64
 from napari_hub_cli.fs import ConfigFile, NapariPlugin
 from napari_hub_cli.fs.configfiles import (
     NapariConfig,
@@ -43,7 +44,18 @@ def test_setup_py(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is True
+    assert file.version == "0.0.1"
+
     assert file.find_npe2() is None
+
+    assert file.classifiers
+    assert len(file.classifiers) == 11
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert len(file.requirements) == 2
+    assert "napari-plugin-engine>=0.1.4" in file.requirements
+    assert "numpy" in file.requirements
 
 
 def test_setup2_py(resources):
@@ -60,8 +72,14 @@ def test_setup2_py(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is False
+    assert file.version is None
+
     assert file.find_npe2() is not None
     assert file.find_npe2() == resources / "module_path" / "napari.yaml"
+
+    assert file.classifiers == []
+    assert file.requirements == []
 
 
 def test_setup3_py(resources):
@@ -78,7 +96,17 @@ def test_setup3_py(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is True
+    assert file.version == "1.0.1"
+
     assert file.find_npe2() is None
+
+    assert file.classifiers
+    assert len(file.classifiers) == 11
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert len(file.requirements) == 1
+    assert "numpy" in file.requirements
 
 
 def test_setup_cfg(resources):
@@ -95,11 +123,25 @@ def test_setup_cfg(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is True
+    assert file.version == "0.0.1"
+
     assert file.find_npe2() is None
 
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
+
+    assert file.classifiers
+    assert len(file.classifiers) == 11
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert len(file.requirements) == 2
+    assert "numpy" in file.requirements
+    assert "cython" in file.requirements
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_setup2_cfg(resources):
@@ -116,11 +158,17 @@ def test_setup2_cfg(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is True
 
+    assert file.has_version is False
+    assert file.version is None
+
     assert file.find_npe2() is None
 
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
+
+    assert file.classifiers == []
+    assert file.requirements == []
 
 
 def test_setup3_cfg(resources):
@@ -143,6 +191,13 @@ def test_setup3_cfg(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content == ""
 
+    assert file.classifiers
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
+
 
 def test_pyproject_toml(resources):
     content = resources / "pyproject.toml"
@@ -158,11 +213,26 @@ def test_pyproject_toml(resources):
     assert file.has_bugtracker is False
     assert file.has_summary is False
 
+    assert file.has_version is True
+    assert file.version == "0.0.1"
+
     assert file.find_npe2() is not None
 
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
+
+    assert file.classifiers
+    assert len(file.classifiers) == 11
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert len(file.requirements) == 2
+    assert "numpy" in file.requirements
+    assert "cython" in file.requirements
+
+    assert file.requirements != []
+    for x in file.requirements:
+        assert "#" not in x
 
 
 def test_pyproject2_toml(resources):
@@ -185,6 +255,9 @@ def test_pyproject2_toml(resources):
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
 
+    assert file.classifiers == []
+    assert file.requirements == []
+
 
 def test_pyproject3_toml(resources):
     content = resources / "pyproject3.toml"
@@ -205,6 +278,12 @@ def test_pyproject3_toml(resources):
     d = file.long_description()
     assert d is file.long_description()
     assert file.long_description().raw_content != ""
+
+    assert file.classifiers
+    assert len(file.classifiers) == 11
+    assert "Programming Language :: Python :: 3.9" in file.classifiers
+
+    assert file.requirements == []
 
 
 def test_markdown_non_existingfile(resources):
@@ -605,3 +684,104 @@ def test_markdown_title_extraction_notitle(resources):
     title = readme.title
 
     assert title is None
+
+
+def test_python_version(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 3
+    assert (3, 7) in plugin.supported_python_version
+    assert (3, 8) in plugin.supported_python_version
+    assert (3, 9) in plugin.supported_python_version
+    assert (3,) not in plugin.supported_python_version
+
+    plugin = NapariPlugin(resources / "CZI-29-test2")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 1
+    assert plugin.supported_python_version[0] is None
+
+    plugin = NapariPlugin(resources / "CZI-29-small")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 3
+    assert (3, 7) in plugin.supported_python_version
+    assert (3, 8) in plugin.supported_python_version
+    assert (3, 9) in plugin.supported_python_version
+    assert (3,) not in plugin.supported_python_version
+
+    plugin = NapariPlugin(resources / "CZI-29-faulty")
+    assert plugin.supported_python_version
+    assert len(plugin.supported_python_version) == 1
+    assert plugin.supported_python_version[0] is None
+
+
+def test_platforms(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 3
+    assert "win" in plugin.supported_platforms
+    assert "linux" in plugin.supported_platforms
+    assert "macos" in plugin.supported_platforms
+
+    plugin = NapariPlugin(resources / "CZI-29-test2")
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 2
+    assert "win" in plugin.supported_platforms
+    assert "linux" in plugin.supported_platforms
+    assert "macos" not in plugin.supported_platforms
+
+    plugin = NapariPlugin(resources / "CZI-29-small")
+    assert plugin.supported_platforms
+    assert len(plugin.supported_platforms) == 1
+    assert "macos" in plugin.supported_platforms
+
+    plugin = NapariPlugin(resources / "CZI-29-faulty")
+    assert plugin.supported_platforms == [None]
+
+
+def test_requirements(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test")
+
+    requirements = plugin.requirements
+    assert requirements.options_list
+
+    assert len(requirements.options_list) == 9
+    assert requirements.options_list[0].python_version == (3, 7)
+    assert requirements.options_list[0].platforms == WIN64
+    assert requirements.options_list[1].python_version == (3, 7)
+    assert requirements.options_list[1].platforms == LINUX
+    assert requirements.options_list[2].python_version == (3, 7)
+    assert requirements.options_list[2].platforms == MACOS
+
+    assert requirements.options_list[3].python_version == (3, 8)
+    assert requirements.options_list[3].platforms == WIN64
+    assert requirements.options_list[4].python_version == (3, 8)
+    assert requirements.options_list[4].platforms == LINUX
+    assert requirements.options_list[5].python_version == (3, 8)
+    assert requirements.options_list[5].platforms == MACOS
+
+    assert requirements.options_list[6].python_version == (3, 9)
+    assert requirements.options_list[6].platforms == WIN64
+    assert requirements.options_list[7].python_version == (3, 9)
+    assert requirements.options_list[7].platforms == LINUX
+    assert requirements.options_list[8].python_version == (3, 9)
+    assert requirements.options_list[8].platforms == MACOS
+
+    assert requirements.requirements
+    assert len(requirements.requirements) == 3
+    assert "JPype1>=1.2.1" in requirements.requirements
+    assert "matplotlib" in requirements.requirements
+    assert "imageio_ffmpeg" in requirements.requirements
+
+
+def test_requirements_list(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test2")
+
+    reqs = plugin.requirements
+
+    assert reqs.requirements
+    assert len(reqs.requirements) == 3
+    assert "numpy" in reqs.requirements
+    assert "cython" in reqs.requirements
+    assert "pyecore==0.13.1" in reqs.requirements

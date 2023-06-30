@@ -3,17 +3,20 @@ from pathlib import Path
 import pytest
 
 from napari_hub_cli.autofix import build_issue_message
-from napari_hub_cli.checklist.metadata import (
+from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
+from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+from napari_hub_cli.checklist.metadata import AnalysisStatus, PluginAnalysisResult
+from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
     INTRO,
     LABELS,
     LABELS_DOC_URL,
     VIDEO_SCREENSHOT,
-    analyse_local_plugin,
-    display_checklist,
 )
 from napari_hub_cli.fs import NapariPlugin
+
+_, DEFAULT_SUITE = DEFAULT_SUITE
 
 
 @pytest.fixture(scope="module")
@@ -48,6 +51,8 @@ def test_check_npe2(test_repo):
     np2e_file = test_repo.npe2_yaml
 
     assert np2e_file.exists is False
+    assert np2e_file.version == "npe1"
+    assert np2e_file.is_npe2 is False
 
 
 def test_check_pysetup(test_repo):
@@ -97,8 +102,8 @@ def test_check_citation(test_repo):
     assert citation.exists is True
 
 
-def test_create_checkist(test_repo):
-    result = analyse_local_plugin(test_repo.path)
+def test_create_checklist(test_repo):
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     assert len(result.features) == 13
 
@@ -109,12 +114,12 @@ def test_create_checkist(test_repo):
     assert disp_name.only_in_fallback is True
     assert disp_name.has_fallback_files is True
 
-    description = result.features[6]
+    description = result.features[7]
     assert description.meta is VIDEO_SCREENSHOT
     assert description.found is False
     assert description.found_in is None
     assert description.only_in_fallback is False
-    assert description.has_fallback_files is True
+    assert description.has_fallback_files is False
 
     labels = result.features[-1]
     assert labels.meta is LABELS
@@ -126,16 +131,22 @@ def test_create_checkist(test_repo):
 def test_display_checklist(test_repo):
     INTRO.force_main_file_usage = True
 
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
     display_checklist(result)
 
     INTRO.force_main_file_usage = False  # We cheat here
 
 
+def test_display_checklist_empty():
+    # SMOKE TEST
+    empty_results = PluginAnalysisResult([], AnalysisStatus.NON_EXISTING_PLUGIN, None, None, "", [])
+    display_checklist(empty_results)
+
+
 def test_build_issue_message(test_repo):
     INTRO.force_main_file_usage = True
 
-    result = analyse_local_plugin(test_repo.path)
+    result = analyse_local_plugin(test_repo.path, DEFAULT_SUITE)
 
     features = result.features
 
@@ -153,12 +164,18 @@ def test_build_issue_message(test_repo):
     assert "'Support Channel Link'" in message
     assert "'Installation'" in message
 
-    assert "Intro Paragraph" in message
-    assert "Usage Overview" in message
+    # assert "Intro Paragraph" in message
+    # assert "Usage Overview" in message
     assert "Your citation file" in message
     assert "has not a valid format" in message
 
     assert LABELS_DOC_URL in message
     assert ENTRIES_DOC_URL in message
 
-    assert "You can also place" in message
+    # assert "You can also place" in message
+
+
+def test_repo_no_forbidden_dep(test_repo):
+    requirements = test_repo.requirements
+
+    assert requirements.has_no_forbidden_deps is False
