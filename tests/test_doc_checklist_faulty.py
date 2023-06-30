@@ -5,6 +5,7 @@ import pytest
 from napari_hub_cli.autofix import build_issue_message
 from napari_hub_cli.checklist import analyse_local_plugin, display_checklist
 from napari_hub_cli.checklist.analysis import DEFAULT_SUITE
+from napari_hub_cli.checklist.metadata import AnalysisStatus, PluginAnalysisResult
 from napari_hub_cli.checklist.projectmetadata import (
     DISPLAY_NAME,
     ENTRIES_DOC_URL,
@@ -134,6 +135,12 @@ def test_display_checklist(test_repo):
     display_checklist(result)
 
     INTRO.force_main_file_usage = False  # We cheat here
+
+
+def test_display_checklist_empty():
+    # SMOKE TEST
+    empty_results = PluginAnalysisResult([], AnalysisStatus.NON_EXISTING_PLUGIN, None, None, "", [])
+    display_checklist(empty_results)
 
 
 def test_build_issue_message(test_repo):
