@@ -78,7 +78,7 @@ def scrap_users(local_repo):
         else:
             authors.append(
                 {
-                    "given-names": f"{name}  # We cannot split your name automatically bewteen 'given-names' and 'family-names', we apologize for that. Please do it manually",
+                    "given-names": f"{name}  # We cannot split your name automatically between 'given-names' and 'family-names', we apologize for that. Please do it manually",
                 }
             )
     return {"authors": authors}
