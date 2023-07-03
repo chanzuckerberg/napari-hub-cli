@@ -244,11 +244,10 @@ def display_checklist(analysis_result):
     # Display summary result
     previous_title = None
     for feature in analysis_result.features:
-        if feature.meta.section:
-            if feature.meta.section.title != previous_title:
-                console.print()
-                console.print(feature.meta.section.title, style="bold underline white")
-                previous_title = feature.meta.section.title
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            console.print()
+            console.print(feature.meta.section.title, style="bold underline white")
+            previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
             console.print("OPTIONAL ", style="underline")
@@ -299,10 +298,9 @@ def display_checklist(analysis_result):
     
     # Display additional informations
     for feature in analysis_result.additionals:
-        if feature.meta.section:
-            if feature.meta.section.title != previous_title:
-                console.print()
-                console.print(feature.meta.section.title, style="bold underline white")
-                previous_title = feature.meta.section.title
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            console.print()
+            console.print(feature.meta.section.title, style="bold underline white")
+            previous_title = feature.meta.section.title
         console.print(f"  {feature.meta.name}: {feature.result}")
     console.print()
