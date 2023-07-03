@@ -15,6 +15,10 @@ CHECKLIST_STYLE = {
     False: ("\N{BALLOT X}", "bold red"),
 }
 
+@dataclass
+class Section(object):
+    title: str
+
 
 @dataclass
 class MetaFeature(object):
@@ -25,6 +29,7 @@ class MetaFeature(object):
     doc_url: str = ""
     force_main_file_usage: bool = True
     optional: bool = False
+    section: Optional[Section] = None
 
 
 @dataclass
@@ -241,12 +246,13 @@ def display_checklist(analysis_result):
         style="bold underline2 blue",
     )
 
-    # Display additional informations
-    for feature in analysis_result.additionals:
-        console.print(f"  {feature.meta.name}: {feature.result}")
-
     # Display summary result
+    previous_title = None
     for feature in analysis_result.features:
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            console.print()
+            console.print(feature.meta.section.title, style="bold underline white")
+            previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
             console.print("OPTIONAL ", style="underline")
@@ -294,3 +300,12 @@ def display_checklist(analysis_result):
             style="red",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
+    
+    # Display additional informations
+    for feature in analysis_result.additionals:
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            console.print()
+            console.print(feature.meta.section.title, style="bold underline white")
+            previous_title = feature.meta.section.title
+        console.print(f"  {feature.meta.name}: {feature.result}")
+    console.print()
