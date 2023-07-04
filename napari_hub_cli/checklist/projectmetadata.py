@@ -104,7 +104,7 @@ def suite_generator(plugin_repo: NapariPlugin):
             Requirement(
                 features=[DISPLAY_NAME],
                 main_files=[npe2_yaml],
-                fallbacks=[pyproject_toml, setup_cfg, setup_py],
+                fallbacks=[],
             ),
             Requirement(
                 features=[SUMMARY, AUTHOR],

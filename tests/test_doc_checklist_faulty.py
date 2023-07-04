@@ -109,10 +109,10 @@ def test_create_checklist(test_repo):
 
     disp_name = result.features[0]
     assert disp_name.meta is DISPLAY_NAME
-    assert disp_name.found is True
-    assert disp_name.found_in == test_repo.setup_cfg
-    assert disp_name.only_in_fallback is True
-    assert disp_name.has_fallback_files is True
+    assert disp_name.found is False
+    assert disp_name.found_in is None
+    assert disp_name.only_in_fallback is False
+    assert disp_name.has_fallback_files is False
 
     description = result.features[7]
     assert description.meta is VIDEO_SCREENSHOT
@@ -175,6 +175,7 @@ def test_build_issue_message(test_repo):
     # assert "You can also place" in message
 
 
+@pytest.mark.online
 def test_repo_no_forbidden_dep(test_repo):
     requirements = test_repo.requirements
 
