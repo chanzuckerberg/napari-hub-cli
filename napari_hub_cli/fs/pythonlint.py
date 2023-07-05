@@ -1,8 +1,11 @@
-import ast
+from .patch_parso import *
+
+import parso
+from parso.python import tree as ast
+
 from pathlib import Path
 
-from iguala import as_matcher, match
-from iguala import regex as re
+from iguala import match, regex as re, is_not
 
 from ..fs import RepositoryFile
 
@@ -12,13 +15,9 @@ class PythonFile(object):
         self.path = path
         self.strpath = str(path)
         if self.path.exists():
+            txt = self.path.read_text("utf-8")
             try:
-                txt = self.path.read_text("utf-8")
-                self.ast = ast.parse(txt, filename=str(self.path))
-            except IndentationError:
-                self.ast = None
-            except SyntaxError:
-                self.ast = None
+                self.ast = parso.parse(txt, path=str(self.path), version="3.11")
             except UnicodeDecodeError:
                 self.ast = None
         else:
@@ -27,7 +26,7 @@ class PythonFile(object):
     def _check_import(self, import_name):
         m = match(self.__class__)[
             "ast>body+" : (
-                match(ast.Import)["names>name" : re(import_name)]
+                match(ast.ImportName)["names>value" : re(import_name)]
                 | match(ast.ImportFrom)["module" : re(import_name)]
             )
             @ "ast_node",
@@ -49,14 +48,10 @@ class PythonFile(object):
     def npe1_import_hook_check(self):
         import_ = match(self.__class__)[
             "path":"@file",
-            "ast>body+" : (match(ast.Import)["names>name":"napari_plugin_engine"]),
+            "ast>body+" : (match(ast.ImportName)["names>value":"napari_plugin_engine"]),
             "ast>body+" : (
-                match(ast.FunctionDef)[
-                    "decorator_list>*" : match(ast.Attribute)[
-                        "value>id" : as_matcher("napari_plugin_engine")
-                        @ "decorator_id",
-                        "attr":"napari_hook_implementation",
-                    ]
+                match(ast.Function)[
+                    "decorator_names": re(r"napari_plugin_engine\.napari_hook_implementation") @ "decorator_id"
                 ]
                 @ "func"
             ),
@@ -73,15 +68,14 @@ class PythonFile(object):
             "ast>body+" : (
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
-                    "names" : match(ast.alias)[
-                        "name" : as_matcher("napari_hook_implementation")
-                        @ "decorator_id",
-                        "asname":None,
-                    ],
+                    "alias": "napari_hook_implementation"
                 ]
             ),
             "ast>body+" : (
-                match(ast.FunctionDef)["decorator_list>*>id":"@decorator_id",] @ "func"
+                match(ast.Function)[
+                    "decorator_names": re("napari_hook_implementation") @ "decorator_id"
+                ]
+                @ "func"
             ),
         ]
         result = from_import_.match(self)
@@ -96,14 +90,17 @@ class PythonFile(object):
             "ast>body+" : (
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
-                    "names" : match(ast.alias)[
-                        "name":"napari_hook_implementation", "asname":"@decorator_id"
-                    ],
+                    "names>value" : re("napari_hook_implementation"),
+                    "alias": "@decorator_id",
+                    "alias": is_not("napari_hook_implementation"),
                 ]
             ),
             "ast>body+" : (
-                match(ast.FunctionDef)["decorator_list>*>id":"@decorator_id",] @ "func"
-            ),
+                match(ast.Function)[
+                    "decorators>body>value": "@decorator_id"
+                ]
+                @ "func"
+            )
         ]
         result = from_import_as_.match(self)
         return self._extract_if_match(
@@ -114,22 +111,19 @@ class PythonFile(object):
     def npe1_from_as_hook_check(self):
         from_as_ = match(self.__class__)[
             "path":"@file",
-            "ast>body+" : (
-                match(ast.Import)[
-                    "names" : match(ast.alias)[
-                        "name":"napari_plugin_engine", "asname":"@decorator_id"
-                    ],
+             "ast>body+" : (
+                match(ast.ImportName)[
+                    "names>value" : "napari_plugin_engine",
+                    "alias": "@decorator_id",
+                    "alias": is_not("napari_plugin_engine")
                 ]
             ),
             "ast>body+" : (
-                match(ast.FunctionDef)[
-                    "decorator_list>*" : match(ast.Attribute)[
-                        "value>id":"@decorator_id",
-                        "attr":"napari_hook_implementation",
-                    ],
+                match(ast.Function)[
+                    "decorators>body>value": "@decorator_id"
                 ]
                 @ "func"
-            ),
+            )
         ]
         result = from_as_.match(self)
         return self._extract_if_match(
