@@ -134,3 +134,9 @@ dmypy.json
 
 # version
 napari_hub_cli/_version.py
+
+# Github token
+.github_token
+gh_token.tok
+gh_token.log
+tmp/
