@@ -15,7 +15,8 @@ MACOS = [
     "macosx_10_12_x86_64",
     "macosx_10_15_x86_64",
     "macosx_10_6_x86_64",
-    "macosx_11_0_arm64"
+    "macosx_11_0_arm64",
+    "macosx_11_0_universal2",
 ]
 
 _platform_specs = {
