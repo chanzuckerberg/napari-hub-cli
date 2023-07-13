@@ -505,7 +505,7 @@ def test_git_scrapping():
     )
     assert infos["title"] == "napari-hub-cli"
 
-    assert len(authors["authors"]) == 6
+    assert len(authors["authors"]) == 7
 
     a1, _, *_, a2 = authors["authors"]
     assert a1["given-names"] in (
@@ -515,6 +515,7 @@ def test_git_scrapping():
         "Justin",
         "Sean",
         "Vincent",
+        "seankmartin"
     )
     assert "family-names" not in a1 or a1["family-names"] in (
         "Bolota",

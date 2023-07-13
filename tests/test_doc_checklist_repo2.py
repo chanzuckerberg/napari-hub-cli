@@ -111,7 +111,7 @@ def test_create_checklist(test_repo):
     assert disp_name.found is True
     assert disp_name.found_in == test_repo.npe2_yaml
     assert disp_name.only_in_fallback is False
-    assert disp_name.has_fallback_files is True
+    assert disp_name.has_fallback_files is False
 
     description = result.features[7]
     assert description.meta is VIDEO_SCREENSHOT

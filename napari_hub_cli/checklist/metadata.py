@@ -3,8 +3,11 @@ from enum import Enum, unique
 from pathlib import Path
 from typing import Any, List, Optional, Union
 
+from rich import print
 from rich.console import Console
 from collections import defaultdict
+
+from napari_hub_cli.utils import build_gh_header
 
 from ..fs import NapariPlugin, RepositoryFile
 
@@ -218,7 +221,9 @@ def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
         _, requirement_suite = requirement_suite
 
     requirements = requirement_suite(plugin_repo, **kwargs)
-
+    if len(build_gh_header()) == 0:  # If there is no token
+        print("[yellow]WARNING! You are running without a github token in the env var GITHUB_TOKEN. "
+              "You will be limited in the requests made to the Github API[/yellow]")
     return analyse_requirements(plugin_repo, requirements)
 
 
@@ -303,7 +308,7 @@ def display_checklist(analysis_result):
     for feature in analysis_result.missing_features():
         if not feature.meta.advise_location:
             continue
-        files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files]
+        files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files if f.file]
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()
         console.print(
