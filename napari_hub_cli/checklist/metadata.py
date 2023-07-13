@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, List, Optional, Union
 
 from rich.console import Console
+from collections import defaultdict
 
 from ..fs import NapariPlugin, RepositoryFile
 
@@ -243,10 +244,25 @@ def display_checklist(analysis_result):
 
     # Display summary result
     previous_title = None
+    section_statuses = defaultdict(bool)
+    section_check_mark = "PASS \N{CHECK MARK}"
+    section_x_mark = "FAIL \N{BALLOT X}"
+
+    for feature in analysis_result.features:
+        if feature.meta.section:
+            section_title = feature.meta.section.title
+            section_statuses[section_title] |= feature.found == False
+    
+    last_section_status = dict(section_statuses)
+
     for feature in analysis_result.features:
         if feature.meta.section and feature.meta.section.title != previous_title:
-            console.print()
-            console.print(feature.meta.section.title, style="bold underline white")
+            if  last_section_status[feature.meta.section.title] == False:
+                console.print()
+                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold green] {section_check_mark}" )
+            if  last_section_status[feature.meta.section.title] == True:
+                console.print()
+                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold red] {section_x_mark}" )
             previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
