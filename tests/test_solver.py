@@ -151,7 +151,7 @@ def test_requirements_integration2():
     reqs = InstallationRequirements(
         path=None,
         python_versions=((3, 10),),
-        requirements=["lxml"],
+        requirements=["lxml==4.9.2"],
         platforms=["win", "linux", "macos"],
     )
 
