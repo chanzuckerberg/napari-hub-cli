@@ -1,0 +1,10 @@
+# https://peps.python.org/pep-0517/
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "napari-plugin"
+
+[project.entry-points."napari.manifest"]
+myplugin = "napari_plugin:napari.yaml"
