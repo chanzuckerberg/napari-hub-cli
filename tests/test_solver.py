@@ -87,6 +87,7 @@ def test_requirements_resolution_installable(plugin):
     assert reqs.is_installable(options=reqs.options_list[1]) is True
 
 
+@pytest.mark.online
 def test_requirements_build():
     reqs = InstallationRequirements(
         path=None, requirements=["unexisfgs_nop", "pyecore"]
@@ -229,6 +230,7 @@ class FakeOption(object):
         self.platforms = platforms
 
 
+@pytest.mark.online
 def test_solver_messages():
     reqs = InstallationRequirements(
         path=None,
