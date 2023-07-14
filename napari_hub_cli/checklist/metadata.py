@@ -257,17 +257,17 @@ def display_checklist(analysis_result):
         if feature.meta.section:
             section_title = feature.meta.section.title
             section_statuses[section_title] |= feature.found == False
-
+    
     last_section_status = dict(section_statuses)
 
     for feature in analysis_result.features:
         if feature.meta.section and feature.meta.section.title != previous_title:
-            if  last_section_status[feature.meta.section.title] == False:
-                console.print()
-                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold green] {section_check_mark}" )
-            if  last_section_status[feature.meta.section.title] == True:
+            if  last_section_status[feature.meta.section.title]:
                 console.print()
                 console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold red] {section_x_mark}" )
+            else :
+                console.print()
+                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold green] {section_check_mark}" )
             previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
