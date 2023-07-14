@@ -273,3 +273,10 @@ class LocalDirectory(object):
         if not self.delete:
             return
         delete_file_tree(self.path.absolute())
+
+
+def extract_if_match(result, extract_fun):
+    if result.is_match:
+        nodes = [extract_fun(b) for b in result.bindings]
+        return nodes
+    return []
