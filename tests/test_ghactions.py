@@ -72,6 +72,7 @@ def fake_github_api(requests_mock):
                     "path": ".github/workflows/test_main.yml",
                     "status": "completed",
                     "conclusion": "failed",
+                    "jobs_url": f"{BRAINREG2}/joburl",
                 },
             ]
         },
@@ -83,6 +84,31 @@ def fake_github_api(requests_mock):
                 {
                     "description": "55.04%",
                     "context": "codecov/project",
+                }
+            ]
+        },
+    )
+    requests_mock.get(
+        f"{BRAINREG2}/joburl",
+        json={
+            "jobs": [
+                {
+                    "name": "Running tests",
+                    "conclusion": "cancelled",
+                    "status": "completed",
+                    "labels": ["ubuntu"],
+                    "steps":[
+                        {
+                            "name": "Test with tox",
+                            "conclusion": "cancelled",
+                            "status": "completed"
+                        },
+                        {
+                            "name": "Install dependencies",
+                            "conclusion": "success",
+                            "status": "completed"
+                        }
+                    ]
                 }
             ]
         },
@@ -160,6 +186,7 @@ def fake_github_api(requests_mock):
                     "path": ".github/workflows/test_main.yml",
                     "status": "completed",
                     "conclusion": "success",
+                    "jobs_url": f"{BRAINREG5}/joburl",
                 },
             ]
         },
@@ -171,6 +198,31 @@ def fake_github_api(requests_mock):
                 {
                     "description": "no value",
                     "context": "codecov/project",
+                }
+            ]
+        },
+    )
+    requests_mock.get(
+        f"{BRAINREG5}/joburl",
+        json={
+            "jobs": [
+                {
+                    "name": "Running tests",
+                    "conclusion": "success",
+                    "status": "completed",
+                    "labels": ["ubuntu"],
+                    "steps":[
+                        {
+                            "name": "Test with tox",
+                            "conclusion": "success",
+                            "status": "completed"
+                        },
+                        {
+                            "name": "Install dependencies",
+                            "conclusion": "success",
+                            "status": "completed"
+                        }
+                    ]
                 }
             ]
         },
@@ -433,3 +485,28 @@ def test_infos_GHWorkflowFolder_testresult_online(resources):
         assert ghwd.has_codecove_more_80 is False
     except requests.exceptions.HTTPError:
         pytest.skip("We probably exceed the github API limit")
+
+
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Issue with request mocks on POST for Windows",
+)
+def test_details_failing_tests(resources, fake_github_api):
+    ghwd = GhActionWorkflowFolder(
+            resources / "CZI-29-small" / ".github" / "workflows",
+            url="https://github.com/brainglobe/brainreg-napari2",
+        )
+
+    result = ghwd.details_failing_tests
+    assert "ubuntu" in result
+    assert "Running tests" in result
+    assert "Test with tox" in result
+
+
+    ghwd = GhActionWorkflowFolder(
+            resources / "CZI-29-small" / ".github" / "workflows",
+            url="https://github.com/brainglobe/brainreg-napari5",
+        )
+
+    result = ghwd.details_failing_tests
+    assert result == "None"
