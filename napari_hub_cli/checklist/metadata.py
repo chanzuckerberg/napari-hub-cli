@@ -257,7 +257,7 @@ def display_checklist(analysis_result):
         if feature.meta.section:
             section_title = feature.meta.section.title
             section_statuses[section_title] |= feature.found == False
-    
+
     last_section_status = dict(section_statuses)
 
     for feature in analysis_result.features:
