@@ -5,7 +5,7 @@ from pip._internal.exceptions import HashError
 from pip._internal.resolution.resolvelib.candidates import _InstallRequirementBackedCandidate
 from pip._internal.req import InstallRequirement
 from pip._internal.exceptions import InstallationError
-
+from pip._internal.utils.temp_dir import TempDirectory
 
 # This hack is here to get more information about a failing wheel building
 OLD_PREPARE = _InstallRequirementBackedCandidate._prepare
@@ -33,3 +33,12 @@ def load_pyproject_toml(self):
         setattr(e, "project", str(self))
         raise
 InstallRequirement.load_pyproject_toml = load_pyproject_toml
+
+
+global_tracker = []
+tempdir__init__ = TempDirectory.__init__
+def new__init__(self, *args, **kwargs):
+    tempdir__init__(self, *args, **kwargs)
+    global global_tracker
+    global_tracker.append(self)
+TempDirectory.__init__ = new__init__
