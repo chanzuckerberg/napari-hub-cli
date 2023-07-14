@@ -127,7 +127,7 @@ class DependencySolver(InstallCommand):
         )
 
         # build_tracker = self.enter_context(get_build_tracker())
-        build_tracker_tmp_dir = TempDirectory(kind="build-tracker")
+        build_tracker_tmp_dir = TempDirectory(kind="build-tracker", delete=not options.no_clean)
         build_tracker = BuildTracker(build_tracker_tmp_dir.path)
 
         directory = TempDirectory(
