@@ -4,6 +4,8 @@ from pathlib import Path
 from iguala import as_matcher, match
 from iguala import regex as re
 
+from ..utils import extract_if_match
+
 from ..fs import RepositoryFile
 
 
@@ -34,16 +36,9 @@ class PythonFile(object):
             "path":"@file",
         ]
         result = m.match(self)
-        return self._extract_if_match(
+        return extract_if_match(
             result, lambda b: (import_name, b["file"], b["ast_node"].lineno)
         )
-
-    @classmethod
-    def _extract_if_match(cls, result, extract_fun):
-        if result.is_match:
-            nodes = [extract_fun(b) for b in result.bindings]
-            return nodes
-        return []
 
     @property
     def npe1_import_hook_check(self):
@@ -62,7 +57,7 @@ class PythonFile(object):
             ),
         ]
         result = import_.match(self)
-        return self._extract_if_match(
+        return extract_if_match(
             result, lambda b: (b["file"], b["func"].lineno, b["decorator_id"])
         )
 
@@ -85,7 +80,7 @@ class PythonFile(object):
             ),
         ]
         result = from_import_.match(self)
-        return self._extract_if_match(
+        return extract_if_match(
             result, lambda b: (b["file"], b["func"].lineno, b["decorator_id"])
         )
 
@@ -106,7 +101,7 @@ class PythonFile(object):
             ),
         ]
         result = from_import_as_.match(self)
-        return self._extract_if_match(
+        return extract_if_match(
             result, lambda b: (b["file"], b["func"].lineno, b["decorator_id"])
         )
 
@@ -132,7 +127,7 @@ class PythonFile(object):
             ),
         ]
         result = from_as_.match(self)
-        return self._extract_if_match(
+        return extract_if_match(
             result, lambda b: (b["file"], b["func"].lineno, b["decorator_id"])
         )
 

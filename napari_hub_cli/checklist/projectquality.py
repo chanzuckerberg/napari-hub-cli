@@ -1,6 +1,8 @@
 from ..fs import NapariPlugin
 from .metadata import MetaFeature, Requirement, RequirementSuite, Section
 
+from rich import print
+
 TITLE = "Code Quality"
 
 #Sections
@@ -17,21 +19,22 @@ additional_info_section = Section(title="More Details")
 
 
 # Additional data
-HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version", section = additional_info_section)
-PLUGIN_VERSION = MetaFeature("Plugin version", "version", section = additional_info_section)
-ENGINE_VERSION = MetaFeature("Plugin engine version", "version", section = additional_info_section)
-TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version", section = additional_info_section)
-TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp", section = additional_info_section)
+HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version", section=additional_info_section)
+PLUGIN_VERSION = MetaFeature("Plugin version", "version", section=additional_info_section)
+ENGINE_VERSION = MetaFeature("Plugin engine version", "version", section=additional_info_section)
+TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version", section=additional_info_section)
+TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp", section=additional_info_section)
 SUPPORTED_PYTHON_VERSIONS = MetaFeature(
-    "Supported Python versions", "supported_python_version", section = additional_info_section
+    "Supported Python versions", "supported_python_version", section=additional_info_section
 )
-SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms", section = additional_info_section)
+SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms", section=additional_info_section)
 NUMBER_DEPENDENCIES = MetaFeature(
-    "Number of Installed Depenencies", "number_of_dependencies", section = additional_info_section
+    "Number of Installed Depenencies", "number_of_dependencies", section=additional_info_section
 )
-CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result", section = additional_info_section)
-NUM_ANALYZED_PYFILES = MetaFeature("Number of analyzed Python files", "number_py_files", section = additional_info_section)
-INSTALLABILITY_INSIGHT = MetaFeature("Installability issues", "installation_issues", section = additional_info_section)
+CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result", section=additional_info_section)
+FAILING_TEST_INSIGHT = MetaFeature("Failing test jobs", "details_failing_tests", section=additional_info_section)
+NUM_ANALYZED_PYFILES = MetaFeature("Number of analyzed Python files", "number_py_files", section=additional_info_section)
+INSTALLABILITY_INSIGHT = MetaFeature("Installability issues", "installation_issues", section=additional_info_section)
 
 # Checks
 HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_support", section=os_section)
@@ -72,9 +75,9 @@ HAS_CODE_COV_RESULTS = MetaFeature(
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved", section=license_section)
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors", section=error_section)
-CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section = conda_section)
-CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported", section = conda_section)
-CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported", section = conda_section)
+CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section)
+CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported", section=conda_section)
+CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported", section=conda_section)
 HAD_UNKNOWN_ERROR = MetaFeature(
     "Had no unexpected error during dependency analysis", "had_no_unknown_error", section=error_section
 )
@@ -83,7 +86,7 @@ HAS_NO_PYQT_PYSIDE_DEP = MetaFeature(
     "Has no dependencies to PySide2 or PyQt5", "has_no_forbidden_deps", section=dependencies_section
 )
 HAS_NO_PYQT_PYSIDE_CODE = MetaFeature(
-    "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports", section= dependencies_section
+    "Has no code reference to PySide2 or PyQt5", "has_no_forbidden_imports", section=dependencies_section
 )
 IS_NPE2 = MetaFeature("Is NPE2 plugin", "is_npe2", section=npe_section)
 IS_NOT_HYBRID = MetaFeature(
@@ -94,9 +97,11 @@ HAS_NO_NPE1_HOOKS = MetaFeature("Has no NPE1 hook", "as_no_npe1_hook_list", sect
 
 def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=False):
     if disable_pip_based_requirements:
+        print("[yellow]WARNING! Pip based analysis are disabled[/yellow]")
         requirements = []
     else:
         requirements = [plugin_repo.requirements]
+
     npe2_yaml = plugin_repo.npe2_yaml
     condainfo = plugin_repo.condainfo
     license = plugin_repo.license
@@ -106,8 +111,10 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
     additional_info = plugin_repo.additional_info
     gh_workflow_folder = plugin_repo.gh_workflow_folder
     linter = plugin_repo.linter
+
     if gh_workflow_folder.url is None:
         # if there is no url, we cannot query github
+        print("[yellow]WARNING! GitHub actions based analysis are disabled (cannot identify an URL for your plugin)[/yellow]")
         main_gh_workfolder = []
     else:
         main_gh_workfolder = [gh_workflow_folder]  # pragma: no cover
@@ -140,7 +147,7 @@ def suite_generator(plugin_repo: NapariPlugin, disable_pip_based_requirements=Fa
                 fallbacks=[],
             ),
             Requirement(
-                features=[CODECOV_RESULT],
+                features=[CODECOV_RESULT, FAILING_TEST_INSIGHT],
                 main_files=main_gh_workfolder,  # type: ignore
                 fallbacks=[],
             ),
