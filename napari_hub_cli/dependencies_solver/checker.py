@@ -195,6 +195,8 @@ class InstallationRequirements(ConfigFile):
     def _analyse_with_all_options(self):
         with ThreadPoolExecutor(max_workers=len(self.options_list)) as executor:
             executor.map(self.analysis_package, self.options_list)
+        for tmp_dir in global_tracker:
+            tmp_dir.cleanup()
 
     @property
     @dirty_threadpool
