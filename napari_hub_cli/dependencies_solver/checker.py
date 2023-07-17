@@ -100,13 +100,17 @@ class InstallationRequirements(ConfigFile):
         except DistributionNotFound as e:
             # print("Distribution not found", e, options.python_version, options.platforms)
             message = f"A direct or transitive dependency cannot be resolve: {e.args[0]}"
+            kind = "dependency distribution not found"
         except MetadataGenerationFailed as e:
             message = f"An error occured while building one of the dependencies that doesn't have wheel: {e.context}"
+            kind = "dependency has no wheel"
         except InstallationSubprocessError as e:
             message = f"An error occured in a sub-process: {e.args[0]}"
+            kind = "sub-process/package build error"
             # print("SubProcessError", e, options.python_version, options.platforms)
         except InstallationError as e:
             message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', '')}"
+            kind = "dependency need dev tools"
         except Exception as e:
             # print("General Exception", e, options.python_version, options.platforms)
             self.errors[options] = e
@@ -126,7 +130,7 @@ class InstallationRequirements(ConfigFile):
             major, minor, *_ = sys.version_info
             version = (major, minor)
         version = ".".join(str(x) for x in version)
-        self._installation_issues[(version, platform)] = message
+        self._installation_issues[(version, platform)] = (message, kind)
         return None
 
     @lru_cache()
@@ -302,6 +306,16 @@ class InstallationRequirements(ConfigFile):
     @property
     def installation_issues(self):
         information = ""
-        for (pyv, platform), reason in self._installation_issues.items():
+        for (pyv, platform), (reason, _) in self._installation_issues.items():
             information += f"\n   * {platform} - {pyv}: {reason}"
         return information if information else "No information"
+
+    @property
+    def installation_issues_summary(self):
+        information = ""
+        for (pyv, platform), (_, kind) in self._installation_issues.items():
+            information += f"\n   * {platform} - {pyv}: {kind}"
+        if information:
+            information += "\n\nSee details in next column cell"
+            return information
+        return "No issue"
