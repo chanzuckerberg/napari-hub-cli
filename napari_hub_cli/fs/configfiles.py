@@ -1,6 +1,8 @@
 import re
 from functools import lru_cache
 
+from pathlib import Path
+
 from ..fs import ConfigFile
 from .descriptions import MarkdownDescription
 
@@ -362,13 +364,19 @@ class PyProjectToml(Metadata, ConfigFile):
         try:
             return self.data["tool"]["setuptools"]["packages"]["find"]["where"]
         except KeyError:
+            # We look for "Hatch" configuration
+            # We only look for it in "pyproject.toml" file as Hatch only supports pyproject.toml
+            src_path = self.file.parent / 'src'
+            if "hatchling" in self.data.get("build-system", {}).get("requires", {}) and src_path.exists():
+                return ["src"]
             return []
 
     def find_npe2(self):
         try:
             manifest_entry = self.project_data["entry-points"]["napari.manifest"]
-            project_name = self.project_data.get("name", "")
-            manifest = manifest_entry[project_name]
+            # project_name = self.project_data.get("name", "")
+            # manifest = manifest_entry[project_name]
+            manifest = next(iter(manifest_entry.values()))
         except KeyError:
             return None
         modules = self._find_src_location()
