@@ -785,3 +785,37 @@ def test_requirements_list(resources):
     assert "numpy" in reqs.requirements
     assert "cython" in reqs.requirements
     assert "pyecore==0.13.1" in reqs.requirements
+
+
+def test_hatch_backend_support_src(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test3" / "subproj1-hatch-src")
+
+    pyproject_toml = plugin.pyproject_toml
+
+
+    npe2location = pyproject_toml.find_npe2()
+
+    assert npe2location
+    assert 'src' in str(npe2location)
+
+    npe2file = plugin.npe2_yaml
+
+    assert npe2file
+    assert npe2file.name == 'my-napari-plugin'
+
+
+def test_hatch_backend_support_nosrc(resources):
+    plugin = NapariPlugin(resources / "CZI-29-test3" / "subproj2-hatch-nosrc")
+
+    pyproject_toml = plugin.pyproject_toml
+
+
+    npe2location = pyproject_toml.find_npe2()
+
+    assert npe2location
+    assert '/src/napari_plugin' not in str(npe2location)
+
+    npe2file = plugin.npe2_yaml
+
+    assert npe2file
+    assert npe2file.name == 'my-napari-plugin'

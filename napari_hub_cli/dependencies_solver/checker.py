@@ -75,7 +75,7 @@ class InstallationRequirements(ConfigFile):
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
         self.python_versions = python_versions if python_versions else [None]
-        self.platforms = platforms if platforms else [None]
+        self.platforms = platforms if platforms else ("win", "linux", "macos")
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
         self.options_list = self._build_options()
