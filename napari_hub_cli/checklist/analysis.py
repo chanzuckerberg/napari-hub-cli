@@ -219,6 +219,12 @@ def _display_error_message(plugin_name, result):
         )
 
 
+# Shamefully copied from stackoverflow
+def n2a(n):
+    d, m = divmod(n, 26)  # 26 is the number of ASCII letters
+    return '' if n < 0 else n2a(d - 1) + chr(m + 65)  # chr(65) = 'A'
+
+
 def build_csv_dict(dict_results):
     if not dict_results:
         return []
@@ -232,9 +238,11 @@ def build_csv_dict(dict_results):
         }
 
         # Reorganize the information to put the "summaries" first
-        for feature in (f for f in analysis_result.additionals if f.linked_details):
-            idx_linked_feature = analysis_result.additionals.index(feature.linked_details)
-            result = feature.result + f"\n\nSee details from column {len(analysis_result.features) + idx_linked_feature}"
+        for feature in (f for f in analysis_result.additionals if f.meta.linked_details):
+            idx_linked_feature = [a.meta for a in analysis_result.additionals].index(feature.meta.linked_details)
+            num_added_row = 3  # the 3 added row from the line above
+            column = len(analysis_result.features) + idx_linked_feature + num_added_row
+            result = feature.result + f"\n\nSee details from column {n2a(column)}"
             row[feature.meta.name] = result
 
         for feature in analysis_result.features:
@@ -242,7 +250,7 @@ def build_csv_dict(dict_results):
             if feature.has_fallback_files:
                 row[f"{feature.meta.name} in fallback"] = feature.only_in_fallback
 
-        for feature in (f for f in analysis_result.additionals if not f.linked_details):
+        for feature in (f for f in analysis_result.additionals if not f.meta.linked_details):
             row[feature.meta.name] = feature.result
 
         rows.append(row)
