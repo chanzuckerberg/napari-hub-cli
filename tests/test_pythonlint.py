@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -15,7 +15,6 @@ def test_pythonfile_init(resources):
     srcfile = PythonFile(resources / "f1.py")
 
     assert srcfile.ast
-
 
     srcfile = PythonFile(resources / "f5.py")
 
@@ -46,24 +45,16 @@ def test_pythonfile_pyqt5_detection(resources):
     assert srcfile.check_pyside == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check1(resources):
     srcfile = PythonFile(resources / "f1.py")
 
     res = srcfile.npe1_import_hook_check
     assert res != []
-    assert res == [
-        (srcfile.path, 38, "napari_plugin_engine")
-    ]
+    assert res == [(srcfile.path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)")]
 
     res = srcfile.npe1_from_import_hook_check
     assert res != []
-    assert res == [
-        (srcfile.path, 30, "napari_hook_implementation")
-    ]
+    assert res == [(srcfile.path, 30, "napari_hook_implementation(firstresult=True)")]
 
     srcfile = PythonFile(resources / "f2.py")
     res = srcfile.npe1_import_hook_check
@@ -73,36 +64,24 @@ def test_pythonfile_npe1_hook_check1(resources):
     assert res == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check2(resources):
     srcfile = PythonFile(resources / "f2.py")
 
     res = srcfile.npe1_from_import_as_hook_check
     assert res != []
-    assert res == [
-        (srcfile.path, 23, "nhi")
-    ]
+    assert res == [(srcfile.path, 23, "nhi")]
 
     srcfile = PythonFile(resources / "f1.py")
     res = srcfile.npe1_from_import_as_hook_check
     assert res == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check3(resources):
     srcfile = PythonFile(resources / "subdir" / "f1.py")
 
     res = srcfile.npe1_from_as_hook_check
     assert res != []
-    assert res == [
-        (srcfile.path, 14, "npe")
-    ]
+    assert res == [(srcfile.path, 14, "npe")]
 
     srcfile = PythonFile(resources / "f1.py")
     res = srcfile.npe1_from_as_hook_check
@@ -113,7 +92,11 @@ def test_pythonsrcdir_init(resources):
     srcdir = PythonSrcDir(resources, exclude_test_folders=False)
 
     filenames = [s.path.name for s in srcdir.files]
-    assert filenames == ["f1.py", "f2.py", "f1.py"] or filenames == ["f2.py", "f1.py", "f1.py"]
+    assert filenames == ["f1.py", "f2.py", "f1.py"] or filenames == [
+        "f2.py",
+        "f1.py",
+        "f1.py",
+    ]
     assert srcdir.number_py_files == 3
 
 
@@ -123,7 +106,7 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
     res = srcdir.forbidden_imports_list
 
     assert len(res) == 6
-    assert (res == [
+    assert res == [
         ("PySide2", srcdir.files[0].path, 3),
         ("PySide2", srcdir.files[0].path, 25),
         ("PySide2", srcdir.files[0].path, 26),
@@ -137,7 +120,7 @@ def test_pythonsrcdir_forbidden_imports_detection(resources):
         ("PySide2", srcdir.files[1].path, 3),
         ("PySide2", srcdir.files[1].path, 25),
         ("PySide2", srcdir.files[1].path, 26),
-    ])
+    ]
     assert srcdir.has_no_forbidden_imports is False
     assert srcdir.number_py_files == 3
 
@@ -163,14 +146,14 @@ def test_pythonsrcdir_npe1_hook_list(resources):
 
     assert res != []
     assert srcdir.as_no_npe1_hook_list is False
-    assert (res == [
-        (srcdir.files[0].path, 38, "napari_plugin_engine"),
-        (srcdir.files[0].path, 30, "napari_hook_implementation"),
+    assert res == [
+        (srcdir.files[0].path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)"),
+        (srcdir.files[0].path, 30, "napari_hook_implementation(firstresult=True)"),
         (srcdir.files[1].path, 23, "nhi"),
-        (srcdir.files[2].path, 14, "npe")
+        (srcdir.files[2].path, 14, "npe"),
     ] or res == [
         (srcdir.files[0].path, 23, "nhi"),
-        (srcdir.files[1].path, 38, "napari_plugin_engine"),
-        (srcdir.files[1].path, 30, "napari_hook_implementation"),
-        (srcdir.files[2].path, 14, "npe")
-    ])
+        (srcdir.files[1].path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)"),
+        (srcdir.files[1].path, 30, "napari_hook_implementation(firstresult=True)"),
+        (srcdir.files[2].path, 14, "npe"),
+    ]

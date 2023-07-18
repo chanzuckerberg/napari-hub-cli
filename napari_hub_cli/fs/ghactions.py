@@ -1,3 +1,4 @@
+from operator import is_not
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -5,8 +6,9 @@ from pathlib import Path
 import requests
 from iguala import as_matcher as m
 from iguala import regex
+from iguala import is_not
 
-from ..utils import build_gh_header
+from ..utils import build_gh_header, extract_if_match
 
 from ..fs import ConfigFile, RepositoryFile
 
@@ -186,10 +188,53 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
         except Exception as e:  # pragma: no cover
             raise e
 
+    def _pull_jobs_details(self, eoi):
+        if not eoi:
+            return {}
+        response = requests.get(eoi["jobs_url"], headers=build_gh_header())
+        if response.status_code != requests.codes.ok:
+            return {}  # pragma: no cover
+        return response.json()
+
     @property
     def has_successful_tests(self):
         eoi = self._identify_EOI(self.gh_test_config)
         return eoi is not None and eoi["conclusion"] == "success"
+
+
+    @property
+    def details_failing_tests(self):
+        pattern = m(
+            {
+                "jobs": {
+                    "name": "@job_name",
+                    "conclusion": is_not("success"),   # type: ignore
+                    "labels": "@platform",
+                    "steps": {
+                        "name": "@step_name",
+                        "conclusion": "cancelled",
+                        "status": "completed"
+                    }
+                }
+            }
+        )
+
+        jobs = self._pull_jobs_details(self._identify_EOI(self.gh_test_config))
+        result = pattern.match(jobs)
+        if not result.is_match:
+            return "None"
+        infos = extract_if_match(
+            result, lambda b: (b["platform"], b["job_name"], b["step_name"])
+        )
+        infos_dict = {}
+        for platform, *r in infos:
+            infos_dict.setdefault(platform, []).append(r)
+        res_string = ""
+        for platform, step_infos in infos_dict.items():
+            res_string += f"\n[red]   {platform}[/red]"
+            for job_name, step_name in step_infos:
+                res_string += f"\n     - [ {job_name} ] {step_name}"
+        return res_string
 
     def query_codecov_result(self):
         coi = self._identify_EOI(self.gh_codecov_config)
