@@ -45,20 +45,16 @@ def test_pythonfile_pyqt5_detection(resources):
     assert srcfile.check_pyside == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check1(resources):
     srcfile = PythonFile(resources / "f1.py")
 
     res = srcfile.npe1_import_hook_check
     assert res != []
-    assert res == [(srcfile.path, 38, "napari_plugin_engine")]
+    assert res == [(srcfile.path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)")]
 
     res = srcfile.npe1_from_import_hook_check
     assert res != []
-    assert res == [(srcfile.path, 30, "napari_hook_implementation")]
+    assert res == [(srcfile.path, 30, "napari_hook_implementation(firstresult=True)")]
 
     srcfile = PythonFile(resources / "f2.py")
     res = srcfile.npe1_import_hook_check
@@ -68,10 +64,6 @@ def test_pythonfile_npe1_hook_check1(resources):
     assert res == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check2(resources):
     srcfile = PythonFile(resources / "f2.py")
 
@@ -84,10 +76,6 @@ def test_pythonfile_npe1_hook_check2(resources):
     assert res == []
 
 
-@pytest.mark.skipif(
-    sys.version.startswith("3.7"),
-    reason="Issue with number of line with Python 3.7 and it's not currently used, so all is fine",
-)
 def test_pythonfile_npe1_hook_check3(resources):
     srcfile = PythonFile(resources / "subdir" / "f1.py")
 
@@ -159,13 +147,13 @@ def test_pythonsrcdir_npe1_hook_list(resources):
     assert res != []
     assert srcdir.as_no_npe1_hook_list is False
     assert res == [
-        (srcdir.files[0].path, 38, "napari_plugin_engine"),
-        (srcdir.files[0].path, 30, "napari_hook_implementation"),
+        (srcdir.files[0].path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)"),
+        (srcdir.files[0].path, 30, "napari_hook_implementation(firstresult=True)"),
         (srcdir.files[1].path, 23, "nhi"),
         (srcdir.files[2].path, 14, "npe"),
     ] or res == [
         (srcdir.files[0].path, 23, "nhi"),
-        (srcdir.files[1].path, 38, "napari_plugin_engine"),
-        (srcdir.files[1].path, 30, "napari_hook_implementation"),
+        (srcdir.files[1].path, 38, "napari_plugin_engine.napari_hook_implementation(stuff=False)"),
+        (srcdir.files[1].path, 30, "napari_hook_implementation(firstresult=True)"),
         (srcdir.files[2].path, 14, "npe"),
     ]
