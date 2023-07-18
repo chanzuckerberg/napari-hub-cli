@@ -315,7 +315,4 @@ class InstallationRequirements(ConfigFile):
         information = ""
         for (pyv, platform), (_, kind) in self._installation_issues.items():
             information += f"\n   * {platform} - {pyv}: {kind}"
-        if information:
-            information += "\n\nSee details in next column cell"
-            return information
-        return "No issue"
+        return information if information else "No issue"
