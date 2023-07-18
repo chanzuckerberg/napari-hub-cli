@@ -2,6 +2,7 @@
 
 import csv
 import itertools
+from operator import index
 from pathlib import Path
 
 import requests
@@ -230,12 +231,18 @@ def build_csv_dict(dict_results):
             "Repository URL": analysis_result.url,
         }
 
+        # Reorganize the information to put the "summaries" first
+        for feature in (f for f in analysis_result.additionals if f.linked_details):
+            idx_linked_feature = analysis_result.additionals.index(feature.linked_details)
+            result = feature.result + f"\n\nSee details from column {len(analysis_result.features) + idx_linked_feature}"
+            row[feature.meta.name] = result
+
         for feature in analysis_result.features:
             row[feature.meta.name] = feature.found
             if feature.has_fallback_files:
                 row[f"{feature.meta.name} in fallback"] = feature.only_in_fallback
 
-        for feature in analysis_result.additionals:
+        for feature in (f for f in analysis_result.additionals if not f.linked_details):
             row[feature.meta.name] = feature.result
 
         rows.append(row)
