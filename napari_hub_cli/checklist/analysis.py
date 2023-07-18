@@ -3,6 +3,7 @@
 import csv
 import itertools
 from pathlib import Path
+from click import progressbar
 
 import requests
 from git import GitCommandError
@@ -41,6 +42,9 @@ class FakeProgress(object):
     def update(self, *args, **kwargs):
         ...
 
+    def start_task(self, *args, **kwargs):
+        ...
+
 
 def analyse_remote_plugin(
     plugin_name,
@@ -49,6 +53,7 @@ def analyse_remote_plugin(
     display_info=False,
     cleanup=True,
     directory=None,
+    progress_bar=None,
     **kwargs,
 ):
     """Launch the analysis of a remote plugin using the plugin name.
@@ -95,6 +100,7 @@ def analyse_remote_plugin(
             display_info=display_info,
             cleanup=cleanup,
             directory=directory,
+            progress_bar=progress_bar,
             **kwargs,
         )
     except NonExistingNapariPluginError as e:
@@ -111,6 +117,7 @@ def analyse_remote_plugin_url(
     display_info=False,
     cleanup=True,
     directory=None,
+    progress_bar=None,
     **kwargs,
 ):
     directory = (
@@ -123,29 +130,43 @@ def analyse_remote_plugin_url(
     with directory as tmpdirname:
         tmp_dir = Path(tmpdirname)
         test_repo = tmp_dir / plugin_name
-        p = Progress() if display_info else FakeProgress()
-        p.start()
-        task = p.add_task(
+        if progress_bar:
+            p = progress_bar
+            display_info = True
+        else:
+            p = Progress(transient=True) if display_info else FakeProgress()
+            p.start()
+        started = False
+        task = None
+        def update_task(_, step, total, *__):
+            nonlocal started, task
+            if not started:
+                started = True
+                task = p.add_task(
             f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]",
             visible=display_info,
+            total=total
         )
+                p.start_task(task)
+            p.update(
+                    task,  # type: ignore
+                    total=total,
+                    advance=step,
+            )
+
         try:
             Repo.clone_from(
                 plugin_url,
                 test_repo,
                 depth=1,
-                progress=lambda _, step, total, *args: p.update(
-                    task,
-                    total=total,
-                    advance=step,
-                ),
+                progress=update_task
             )
         except GitCommandError:
             if not test_repo.exists():
                 return PluginAnalysisResult.with_status(
                     AnalysisStatus.BAD_URL, url=plugin_url, title=title
                 )
-        result = analyse_local_plugin(test_repo, suite_gen, **kwargs)
+        result = analyse_local_plugin(test_repo, suite_gen, progress_task=p, **kwargs)
         result.url = plugin_url  # update the plugin url
         p.stop()
         return result
@@ -179,20 +200,20 @@ def analyze_remote_plugins(
     total = len(plugins_name)
     print(f"Selected plugins: {'all' if all_plugins else plugins_name}")
     description = "Analysing plugins in napari hub repository..."
-    with Progress() as p:
-        task = p.add_task(description, visible=display_info)
+    with Progress(transient=True) as p:
+        task = p.add_task(description, visible=display_info, total=total)
         for name in plugins_name:
             result = analyse_remote_plugin(
                 name,
                 requirements_suite,
                 display_info=False,
                 directory=directory,
+                progress_bar=p,
                 **kwargs,
             )
             all_results[name] = result
             p.update(
                 task,
-                total=total,
                 advance=1,
                 description=f"{description} (checking {name!r})",
             )
