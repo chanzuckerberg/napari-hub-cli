@@ -9,6 +9,7 @@ Exit code status are the following:
 """
 import argparse
 import os
+from rich.progress import Progress
 import sys
 
 from .autofix import analyse_plugins_then_create_PR
@@ -61,7 +62,8 @@ def documentation_checklist(plugin_path):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(plugin_path, DEFAULT_SUITE)
+    with Progress(transient=True) as p:
+        check_list = analyse_local_plugin(plugin_path, DEFAULT_SUITE, progress_task=p)
     display_checklist(check_list)
     return 0
 
@@ -70,11 +72,13 @@ def code_quality_checklist(plugin_path, disable_pip_based_analysis):
     if not os.path.exists(plugin_path):
         print(f"Nothing found at path: {plugin_path}")
         return 1
-    check_list = analyse_local_plugin(
-        plugin_path,
-        project_quality_suite,
-        disable_pip_based_requirements=disable_pip_based_analysis,
-    )
+    with Progress(transient=True) as p:
+        check_list = analyse_local_plugin(
+            plugin_path,
+            project_quality_suite,
+            disable_pip_based_requirements=disable_pip_based_analysis,
+            progress_task=p,
+        )
     display_checklist(check_list)
     return 0
 
