@@ -168,13 +168,21 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
+def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite, progress_task=None):
     reqs_result = []
     requirements = suite.requirements
+    nb_features = sum(len(c.features) for c in requirements) + sum(len(c.features) for c in suite.additionals)
+    task = progress_task.add_task(f"Analysing main features...", total=nb_features) if progress_task else None
     for requirement in requirements:
         for feature in requirement.features:
             if not requirement.main_files:
                 continue
+            if progress_task:
+                progress_task.update(
+                    task,
+                    advance=1,
+                    description=f"Checking {feature.name}",
+                )
             reqs_result.append(
                 check_feature(
                     feature,
@@ -187,6 +195,12 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
         for feature in additional.features:
             if not additional.main_files:
                 continue
+            if progress_task:
+                progress_task.update(
+                    task,
+                    advance=1,
+                    description=f"Checking {feature.name}",
+                )
             additional_results.append(
                 gather_base_feature(
                     feature,
@@ -203,7 +217,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     )
 
 
-def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
+def analyse_local_plugin(repo_path, requirement_suite, *, progress_task=None, **kwargs):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -226,7 +240,7 @@ def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
     if len(build_gh_header()) == 0:  # If there is no token
         print("[yellow]WARNING! You are running without a github token in the env var GITHUB_TOKEN. "
               "You will be limited in the requests made to the Github API[/yellow]")
-    return analyse_requirements(plugin_repo, requirements)
+    return analyse_requirements(plugin_repo, requirements, progress_task=progress_task)
 
 
 def display_checklist(analysis_result):
