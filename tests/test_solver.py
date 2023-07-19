@@ -211,7 +211,7 @@ def test_nodeps_message():
     assert len(reqs._installation_issues) == 1
 
     info = next(iter(reqs._installation_issues.values()))
-    assert "No matching distribution found for numpy>=2.0" in info
+    assert "No matching distribution found for numpy>=2.0" in info[0]
 
 
 from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError, MetadataGenerationFailed, InstallationError
