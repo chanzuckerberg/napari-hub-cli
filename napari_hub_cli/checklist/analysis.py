@@ -168,7 +168,8 @@ def analyse_remote_plugin_url(
                 )
         result = analyse_local_plugin(test_repo, suite_gen, progress_task=p, **kwargs)
         result.url = plugin_url  # update the plugin url
-        p.stop()
+        if not progress_bar:
+            p.stop()
         return result
 
 
