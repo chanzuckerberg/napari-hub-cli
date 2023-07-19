@@ -4,6 +4,7 @@ import csv
 import itertools
 from operator import index
 from pathlib import Path
+from textwrap import dedent
 
 import requests
 from git import GitCommandError
@@ -242,7 +243,9 @@ def build_csv_dict(dict_results):
             idx_linked_feature = [a.meta for a in analysis_result.additionals].index(feature.meta.linked_details)
             num_added_row = 3  # the 3 added row from the line above
             column = len(analysis_result.features) + idx_linked_feature + num_added_row
-            result = feature.result + f"\n\nSee details from column {n2a(column)}"
+            result = feature.result
+            if "No " not in result:
+                result = dedent(str(result)).strip() + f"\n\nSee details from column {n2a(column)}"
             row[feature.meta.name] = result
 
         for feature in analysis_result.features:
