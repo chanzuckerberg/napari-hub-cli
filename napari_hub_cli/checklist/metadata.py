@@ -31,6 +31,8 @@ class MetaFeature(object):
     force_main_file_usage: bool = True
     optional: bool = False
     section: Optional[Section] = None
+    detailed: Optional[bool] = False
+    linked_details: Optional["MetaFeature"] = None
 
 
 @dataclass
@@ -316,7 +318,7 @@ def display_checklist(analysis_result):
             style="red",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
-    
+
     # Display additional informations
     for feature in analysis_result.additionals:
         if feature.meta.section and feature.meta.section.title != previous_title:
