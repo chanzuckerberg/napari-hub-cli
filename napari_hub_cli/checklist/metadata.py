@@ -31,6 +31,8 @@ class MetaFeature(object):
     force_main_file_usage: bool = True
     optional: bool = False
     section: Optional[Section] = None
+    detailed: Optional[bool] = False
+    linked_details: Optional["MetaFeature"] = None
 
 
 @dataclass
