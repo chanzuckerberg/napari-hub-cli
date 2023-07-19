@@ -3,7 +3,7 @@
 import csv
 import itertools
 from pathlib import Path
-from click import progressbar
+# from click import progressbar
 
 import requests
 from git import GitCommandError
