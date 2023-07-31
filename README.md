@@ -88,7 +88,7 @@ If your token is stored in a file, you can do:
 GITHUB_TOKEN=$(cat path/to/your/token) GITHUB_USER=your_github_handle napari-hub-cli --help
 ```
 
-The `cat` command is not available on Windows, but you can use `type` instead. Furthermore, if you use `fish` as your shell, you need to use `GITHUB_TOKEN=(cat path/to/your/token)` instead.
+The `cat` command is not available on Windows, but you can set the environment variable like `set /P GITHUB_TOKEN=< path/to/your/token`. Furthermore, if you use `fish` as your shell, you need to use `GITHUB_TOKEN=(cat path/to/your/token)` instead.
 
 The program will print a warning/error if the `GITHUB_TOKEN` variable is not set, and will ask you to enter your GitHub handle if the `GITHUB_USER` variable is not set but is necessary.
 
