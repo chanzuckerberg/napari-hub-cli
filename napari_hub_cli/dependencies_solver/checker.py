@@ -99,7 +99,7 @@ class InstallationRequirements(ConfigFile):
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound as e:
             # print("Distribution not found", e, options.python_version, options.platforms)
-            message = f"A direct or transitive dependency cannot be resolve: {e.args[0]}"
+            message = f"A direct or transitive dependency cannot be resolved: {e.args[0]}"
             kind = "dependency distribution not found"
         except MetadataGenerationFailed as e:
             message = f"An error occured while building one of the dependencies that doesn't have wheel: {e.context}"
