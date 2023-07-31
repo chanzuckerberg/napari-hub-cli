@@ -316,7 +316,7 @@ Technically, the operations performed in GitHub will be:
 Now, considering that you have your token saved in this location `/tmp/gh_token.tok`, with your handle being `foo` here is how to call the autofix feature without creating a config file or setting environment variables:
 
 ```bash
-GITHUB_TOKEN=$(cat gh-token.log) GITHUB_USER=foo napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg --push-on-github
+GITHUB_TOKEN=$(cat gh-token.tok) GITHUB_USER=foo napari-hub-cli autofix --dir /tmp/cloned -p affinder PartSeg --push-on-github
 ```
 
 ## Code of Conduct
