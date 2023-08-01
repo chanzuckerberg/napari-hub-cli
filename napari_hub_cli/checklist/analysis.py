@@ -1,8 +1,6 @@
 # https://api.napari-hub.org/plugins
 
 import csv
-import itertools
-from operator import index
 from pathlib import Path
 from textwrap import dedent
 
