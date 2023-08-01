@@ -12,6 +12,7 @@ testing_section = Section(title="Testing")
 npe_section = Section(title="Napari Plugin Engine")
 os_section = Section(title="OS Support")
 install_section = Section(title="Installation")
+no_c_dependencies_section = Section(title="No Dependencies with C Extensions")
 dependencies_section = Section(title="Forbidden Dependencies")
 error_section = Section(title="Errors")
 conda_section = Section(title="Conda Installation")
@@ -49,13 +50,13 @@ ALL_WHEELS_WIN = MetaFeature("All deps are wheels for Windows", "allwheel_window
 ALL_WHEELS_LINUX = MetaFeature("All deps are wheels for Linux", "allwheel_linux", section=install_section)
 ALL_WHEELS_MACOS = MetaFeature("All deps are wheels for MacOS", "allwheel_macos", section=install_section)
 HAS_C_EXT_WIN = MetaFeature(
-    "Has no deps with C extensions for Windows", "has_no_C_ext_windows", section=install_section)
+    "Has no deps with C extensions for Windows", "has_no_C_ext_windows", section=no_c_dependencies_section)
 
 HAS_C_EXT_LINUX = MetaFeature(
-    "Has no deps with C extensions for Linux", "has_no_C_ext_linux", section=install_section)
+    "Has no deps with C extensions for Linux", "has_no_C_ext_linux", section=no_c_dependencies_section)
 
 HAS_C_EXT_MACOS = MetaFeature(
-    "Has no deps with C extensions for MacOS", "has_no_C_ext_macos", section=install_section)
+    "Has no deps with C extensions for MacOS", "has_no_C_ext_macos", section=no_c_dependencies_section)
 
 HAS_GITHUB_WORKFLOWS = MetaFeature("Github Action Workflows are configured", "exists", section=testing_section)
 HAS_TESTS_WORKFLOWS = MetaFeature(
