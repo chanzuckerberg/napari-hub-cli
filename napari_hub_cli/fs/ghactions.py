@@ -31,6 +31,8 @@ class GhActionWorkflow(ConfigFile):
                                 | regex("python -m pytest")
                                 | regex("pytest")
                                 | regex(".*unittest.*")
+                                | regex("nox")
+                                | regex("python -m nox")
                             }
                         )
                         | {"uses": regex(".*test.*")},
@@ -57,6 +59,8 @@ class GhActionWorkflow(ConfigFile):
                         | regex("python -m pytest")
                         | regex("pytest")
                         | regex(".*unittest.*")
+                        | regex("nox")
+                        | regex("python -m nox")
                     },
                     "steps>*>python-version": m([..., "@_", ...]) @ "python_versions"
                     | "@python_versions",
