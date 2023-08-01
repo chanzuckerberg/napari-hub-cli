@@ -23,14 +23,14 @@ additional_info_section = Section(title="More Details")
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version", section=additional_info_section)
 PLUGIN_VERSION = MetaFeature("Plugin version", "version", section=additional_info_section)
 ENGINE_VERSION = MetaFeature("Plugin engine version", "version", section=additional_info_section)
-TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version", section=additional_info_section)
-TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp", section=additional_info_section)
+TOOL_VERSION = MetaFeature("CLI tool version", "get_cli_tool_version", section=additional_info_section)
+TIMESTAMP = MetaFeature("Execution timestamp", "timestamp", section=additional_info_section)
 SUPPORTED_PYTHON_VERSIONS = MetaFeature(
     "Supported Python versions", "supported_python_version", section=additional_info_section
 )
-SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms", section=additional_info_section)
+SUPPORTED_PLATFORMS = MetaFeature("Supported platforms", "supported_platforms", section=additional_info_section)
 NUMBER_DEPENDENCIES = MetaFeature(
-    "Number of Installed Depenencies", "number_of_dependencies", section=additional_info_section
+    "Number of installed dependencies", "number_of_dependencies", section=additional_info_section
 )
 
 CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result", section=additional_info_section)
