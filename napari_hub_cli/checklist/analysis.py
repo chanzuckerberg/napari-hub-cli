@@ -6,7 +6,6 @@ from operator import index
 from pathlib import Path
 from textwrap import dedent
 from rich import print
-from rich.console import Console
 import os
 
 import requests
@@ -294,7 +293,6 @@ def write_csv(rows, output_filename):
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         writer.writerows(rows)
-    console = Console()
     current_path = os.getcwd()
     csv_path = current_path + '/' + output_filename
-    console.print(f"\n CSV: {output_filename} successfully created at {csv_path} \n", style="bold white")
+    print(f"\n [bold white] CSV: {output_filename} successfully created at {csv_path} \n [/bold white]" )
