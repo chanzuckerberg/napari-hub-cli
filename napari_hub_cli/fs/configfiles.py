@@ -159,7 +159,7 @@ class SetupCfg(Metadata, ConfigFile):
 
     @property
     def version(self):
-        return self.metadata.get("version")
+        return self.data.get("__detailed__", {}).get("metadata", {}).get("version")
 
     @property
     def name(self):
@@ -180,7 +180,7 @@ class SetupCfg(Metadata, ConfigFile):
     def _search_url(self, key):
         if not self.project_urls:
             return None
-        # entries = re.split(r"\n|\r", self.project_urls)
+
         entries = self.project_urls.splitlines()
         for entry in entries:
             if not entry:
@@ -287,7 +287,7 @@ class SetupCfg(Metadata, ConfigFile):
 class PyProjectToml(Metadata, ConfigFile):
     @property
     def project_data(self):
-        return self.data.get("project", {})
+        return self.data.get("project", {}) or self.data.get("tool", {}).get("poetry", {})
 
     @property
     def project_urls(self):
