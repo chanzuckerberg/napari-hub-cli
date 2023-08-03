@@ -78,7 +78,7 @@ HAS_CODE_COV_RESULTS = MetaFeature(
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved", section=license_section)
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors", section=error_section)
-CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section)
+CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section, progress_title="Bundle support per platform")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported", section=conda_section)
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported", section=conda_section)
 HAD_UNKNOWN_ERROR = MetaFeature(
