@@ -33,6 +33,10 @@ class MetaFeature(object):
     section: Optional[Section] = None
     detailed: Optional[bool] = False
     linked_details: Optional["MetaFeature"] = None
+    progress_title: Optional[str] = None
+
+    def __post_init__(self):
+        self.progress_title = self.progress_title or self.name
 
 
 @dataclass
@@ -181,7 +185,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite, pro
                 progress_task.update(
                     task,
                     advance=1,
-                    description=f"Checking {feature.name}",
+                    description=f"Checking {feature.progress_title}",
                 )
             reqs_result.append(
                 check_feature(
@@ -199,7 +203,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite, pro
                 progress_task.update(
                     task,
                     advance=1,
-                    description=f"Checking {feature.name}",
+                    description=f"Checking {feature.progress_title}",
                 )
             additional_results.append(
                 gather_base_feature(
@@ -273,7 +277,7 @@ def display_checklist(analysis_result):
         if feature.meta.section:
             section_title = feature.meta.section.title
             section_statuses[section_title] |= feature.found == False
-    
+
     last_section_status = dict(section_statuses)
 
     for feature in analysis_result.features:
