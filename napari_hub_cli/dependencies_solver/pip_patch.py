@@ -20,7 +20,8 @@ import shutil
 import subprocess
 import sys
 
-from requests import session
+
+NAPARI_HUB_PIP_TAG = "napari-hub-cli"
 
 
 # This hack is here to get more information about a failing wheel building
@@ -118,13 +119,10 @@ def user_agent() -> str:
         data.setdefault("system", {})["name"] = platform.system()
 
     if platform.release():
-        data.setdefault("system", {})["release"] = f"{platform.release()}-napari"
+        data.setdefault("system", {})["release"] = f"{platform.release()}-{NAPARI_HUB_PIP_TAG}"
 
     if platform.machine():
         data["cpu"] = platform.machine()
-
-    # import ipdb; ipdb.set_trace()
-
 
     if has_tls():
         import _ssl as ssl
@@ -165,5 +163,6 @@ def user_agent() -> str:
         data=data,
         json=json.dumps(data, separators=(",", ":"), sort_keys=True),
     )
+
 
 session_module.user_agent = user_agent
