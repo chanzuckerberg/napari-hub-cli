@@ -44,7 +44,7 @@ HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_suppo
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_linux_support", section=os_section)
 HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_macos_support", section=os_section)
 INSTALLABLE_WIN = MetaFeature("Installable on Windows", "installable_windows", section=install_section)
-INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux", section=install_section)
+INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux", section=install_section, progress_title="Installability on all platforms x supported Python versions")
 INSTALLABLE_MACOS = MetaFeature("Installable on MacOS", "installable_macos", section=install_section)
 ALL_WHEELS_WIN = MetaFeature("All deps are wheels for Windows", "allwheel_windows", section=install_section)
 ALL_WHEELS_LINUX = MetaFeature("All deps are wheels for Linux", "allwheel_linux", section=install_section)
@@ -78,7 +78,7 @@ HAS_CODE_COV_RESULTS = MetaFeature(
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved", section=license_section)
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors", section=error_section)
-CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section)
+CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section, progress_title="Bundle support per platform")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported", section=conda_section)
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported", section=conda_section)
 HAD_UNKNOWN_ERROR = MetaFeature(
