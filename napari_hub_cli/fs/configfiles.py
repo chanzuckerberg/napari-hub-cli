@@ -1,3 +1,4 @@
+from itertools import chain
 import re
 from functools import lru_cache
 
@@ -403,9 +404,25 @@ class PyProjectToml(Metadata, ConfigFile):
     def classifiers(self):
         return self.project_data.get("classifiers", [])
 
+    def _build_dep_list(self, dependencies):
+        deps = []
+        for dep, depver in dependencies.items():
+            if dep == "python":
+                continue
+            if isinstance(depver, dict):
+                markers = depver.get("markers")
+                markers = f";{markers}" if markers else ""
+                version = depver["version"]
+                deps.append(f"{dep}{version.replace('^', '>=')}{markers}")
+            else:
+                deps.append(f"{dep}{depver.replace('^', '>=')}")
+        return deps
+
+
     @property
     def requirements(self):
-        return self.project_data.get("dependencies", [])
+        deps = self.project_data.get("dependencies", [])
+        return self._build_dep_list(deps) if isinstance(deps, dict) else deps
 
 
 class Npe2Yaml(Metadata, ConfigFile):

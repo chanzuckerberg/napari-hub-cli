@@ -78,17 +78,25 @@ class InstallationRequirements(ConfigFile):
         self.platforms = platforms if platforms else ("win", "linux", "macos")
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
-        self.options_list = self._build_options()
+        self.options_list = self._build_options(abis=[
+            "cp36", "cp36m",
+            "cp37", "cp37m",
+            "cp38", "cp38m",
+            "cp39", "cp39m",
+            "cp310", "cp310m",
+            "cp311", "cp311m",
+            "none",
+            "abi3"])
         self.errors = {}
         self._installation_issues = {}
 
-    def _build_options(self):
+    def _build_options(self, abis=None):
         # Read the classifiers to have python's versions and platforms
         python_versions = self.python_versions
         platforms = self.platforms
         options_list = []
         for python_version, platform in product(python_versions, platforms):
-            options = build_options(python_version, platform)
+            options = build_options(python_version, platform, abis=abis)
             options.named_platform = platform if platform else {"win", "linux", "macos"}
             options_list.append(options)
         return options_list
@@ -109,7 +117,7 @@ class InstallationRequirements(ConfigFile):
             kind = "sub-process/package build error"
             # print("SubProcessError", e, options.python_version, options.platforms)
         except InstallationError as e:
-            message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', '')}"
+            message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', str(e))}"
             kind = "dependency need dev tools"
         except Exception as e:
             # print("General Exception", e, options.python_version, options.platforms)
