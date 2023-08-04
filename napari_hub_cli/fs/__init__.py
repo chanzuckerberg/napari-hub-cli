@@ -1,5 +1,14 @@
 from configparser import ConfigParser
 from functools import lru_cache
+try:
+    try:
+        # Recommended for setuptools 61.0.0+
+        # (though may disappear in the future)
+        from setuptools.config.setupcfg import read_configuration
+    except ImportError:
+        from setuptools.config import read_configuration
+except ImportError:
+    pass  # setuptools <30.3.0 cannot read metadata / options from
 
 import tomli
 import tomli_w
@@ -36,6 +45,7 @@ def parse_cfg(cfg_file):
     content = {}
     for section in config.sections():
         content[section] = dict(config[section])
+    content["__detailed__"] = read_configuration(f"{cfg_file}")
     return content
 
 
@@ -83,6 +93,10 @@ def unparse_yaml(yml_file, data):
 @register_unparser([".cfg", ".CFG"])
 def unparse_cfg(cfg_file, data):
     config = ConfigParser()
+    try:
+        del data["__detailed__"]
+    except KeyError:
+        ...
     config.read_dict(data)
     with cfg_file.open(mode="w", encoding="utf-8") as f:
         config.write(f)

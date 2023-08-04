@@ -2,6 +2,7 @@ ignore:
   - napari_hub_cli/formatting.py
   - napari_hub_cli/cli.py
   - napari_hub_cli/_tests
+  - napari_hub_cli/dependencies_solver/pip_patch.py
 coverage:
   status:
     project:

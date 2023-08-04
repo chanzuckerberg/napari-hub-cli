@@ -1,10 +1,9 @@
 # https://api.napari-hub.org/plugins
 
 import csv
-import itertools
-from operator import index
 from pathlib import Path
 from textwrap import dedent
+from rich import print
 
 import requests
 from git import GitCommandError
@@ -291,3 +290,5 @@ def write_csv(rows, output_filename):
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         writer.writerows(rows)
+    output_path = Path(output_filename)
+    print(f"\n [bold white] CSV: {output_filename} successfully created at {output_path.resolve()} \n [/bold white]" )
