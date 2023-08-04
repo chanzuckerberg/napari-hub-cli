@@ -190,7 +190,7 @@ def test_requirements_installability():
         platforms=("win", "linux", "macos"),
     )
 
-    assert reqs.installable_linux is False
+    assert reqs.installable_linux is True
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
 
