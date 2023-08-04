@@ -204,7 +204,7 @@ def parse_args(args):
     )
     subcommand.add_argument(
         "--csv",
-        help="File where to write the CSV report",
+        help="File where to write the CSV report in. If this flag is set, no report will be displayed in the standard output",
     )
     subcommand.add_argument(
         "-d",
