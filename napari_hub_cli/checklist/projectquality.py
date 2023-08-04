@@ -23,14 +23,14 @@ additional_info_section = Section(title="More Details")
 HAS_VERSION = MetaFeature("Has explicit version in configuration files", "has_version", section=additional_info_section)
 PLUGIN_VERSION = MetaFeature("Plugin version", "version", section=additional_info_section)
 ENGINE_VERSION = MetaFeature("Plugin engine version", "version", section=additional_info_section)
-TOOL_VERSION = MetaFeature("CLI Tool Version", "get_cli_tool_version", section=additional_info_section)
-TIMESTAMP = MetaFeature("Execution Timestamp", "timestamp", section=additional_info_section)
+TOOL_VERSION = MetaFeature("CLI tool version", "get_cli_tool_version", section=additional_info_section)
+TIMESTAMP = MetaFeature("Execution timestamp", "timestamp", section=additional_info_section)
 SUPPORTED_PYTHON_VERSIONS = MetaFeature(
     "Supported Python versions", "supported_python_version", section=additional_info_section
 )
-SUPPORTED_PLATFORMS = MetaFeature("Supported Platforms", "supported_platforms", section=additional_info_section)
+SUPPORTED_PLATFORMS = MetaFeature("Supported platforms", "supported_platforms", section=additional_info_section)
 NUMBER_DEPENDENCIES = MetaFeature(
-    "Number of Installed Depenencies", "number_of_dependencies", section=additional_info_section
+    "Number of installed dependencies", "number_of_dependencies", section=additional_info_section
 )
 
 CODECOV_RESULT = MetaFeature("Codecov results", "reported_codecov_result", section=additional_info_section)
@@ -44,7 +44,7 @@ HAS_SUPPORT_WIN = MetaFeature("Has explicit Windows support", "has_windows_suppo
 HAS_SUPPORT_LINX = MetaFeature("Has explicit Linux support", "has_linux_support", section=os_section)
 HAS_SUPPORT_MACOS = MetaFeature("Has explicit MacOS support", "has_macos_support", section=os_section)
 INSTALLABLE_WIN = MetaFeature("Installable on Windows", "installable_windows", section=install_section)
-INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux", section=install_section)
+INSTALLABLE_LINUX = MetaFeature("Installable on Linux", "installable_linux", section=install_section, progress_title="Installability on all platforms x supported Python versions")
 INSTALLABLE_MACOS = MetaFeature("Installable on MacOS", "installable_macos", section=install_section)
 ALL_WHEELS_WIN = MetaFeature("All deps are wheels for Windows", "allwheel_windows", section=install_section)
 ALL_WHEELS_LINUX = MetaFeature("All deps are wheels for Linux", "allwheel_linux", section=install_section)
@@ -78,7 +78,7 @@ HAS_CODE_COV_RESULTS = MetaFeature(
 )
 HAS_OSI_LICENSE = MetaFeature("Is licence OSI approved", "is_osi_approved", section=license_section)
 NPE2_ERRORS = MetaFeature("Has no npe2 parsing errors", "has_no_npe_parse_errors", section=error_section)
-CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section)
+CONDA_LINUX = MetaFeature("Linux bundle support", "is_linux_supported", section=conda_section, progress_title="Bundle support per platform")
 CONDA_WIN = MetaFeature("Windows bundle support", "is_windows_supported", section=conda_section)
 CONDA_MACOS = MetaFeature("MacOS bundle support", "is_macos_supported", section=conda_section)
 HAD_UNKNOWN_ERROR = MetaFeature(

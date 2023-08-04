@@ -241,7 +241,7 @@ def test_solver_messages():
 
     reqs.solver = FakeRaiseException(DistributionNotFound("_foo"))
     reqs.solve_dependencies(FakeOption(((3, 7),),  ["linux"]))
-    assert "transitive dependency cannot be resolve" in reqs.installation_issues
+    assert "transitive dependency cannot be resolved" in reqs.installation_issues
     assert "_foo" in reqs.installation_issues
 
     reqs = InstallationRequirements(
