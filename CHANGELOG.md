@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## 0.3.0
+
+This release introduce new checks included in the command that checks the quality of a plugin as well as some performances improvements
+
+### List
+
+* Add support for sections in the displayed report
+* Split some sections in sub-sections
+* Add general "pass/fail" results by section
+* Reorganize information for CSV display
+* Add overview of installation issues
+* Change title for bundle support in progress bar
+* Add different title for the linux installation in progress bar
+
+* Check display name only in npe2 file
+* Add ability to parse/check source code written in Python for a version superior to the Python's version running the tool
+* Add support for hatch backend
+* Add preliminary support for poetry
+* Add distinction and insights of failing tests
+* Add default value to "all platforms" for dependency solver
+* Change way of computing version number
+* Add nox support for tests discovery
+* Add ABI to the dependency solver
+
+* Add warning message when the tool is run without GH token
+* Add force clean of tmp directories
+
+* Add progress bar on sub-tasks
+* Fix progress bar disapearing
+
+* Add special tag for napari user-agent installations
+
 ## 0.2.0
 
 This release introduce a new command to check the "quality" of a plugin or a set of plugins on various criterias
