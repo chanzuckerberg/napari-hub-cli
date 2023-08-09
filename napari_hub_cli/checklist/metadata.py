@@ -3,7 +3,11 @@ from enum import Enum, unique
 from pathlib import Path
 from typing import Any, List, Optional, Union
 
+from rich import print
 from rich.console import Console
+from collections import defaultdict
+
+from napari_hub_cli.utils import build_gh_header
 
 from ..fs import NapariPlugin, RepositoryFile
 
@@ -11,6 +15,10 @@ CHECKLIST_STYLE = {
     True: ("\N{CHECK MARK}", "bold green"),
     False: ("\N{BALLOT X}", "bold red"),
 }
+
+@dataclass
+class Section(object):
+    title: str
 
 
 @dataclass
@@ -22,6 +30,13 @@ class MetaFeature(object):
     doc_url: str = ""
     force_main_file_usage: bool = True
     optional: bool = False
+    section: Optional[Section] = None
+    detailed: Optional[bool] = False
+    linked_details: Optional["MetaFeature"] = None
+    progress_title: Optional[str] = None
+
+    def __post_init__(self):
+        self.progress_title = self.progress_title or self.name
 
 
 @dataclass
@@ -157,13 +172,21 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
+def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite, progress_task=None):
     reqs_result = []
     requirements = suite.requirements
+    nb_features = sum(len(c.features) for c in requirements) + sum(len(c.features) for c in suite.additionals)
+    task = progress_task.add_task(f"Analysing main features...", total=nb_features) if progress_task else None
     for requirement in requirements:
         for feature in requirement.features:
             if not requirement.main_files:
                 continue
+            if progress_task:
+                progress_task.update(
+                    task,
+                    advance=1,
+                    description=f"Checking {feature.progress_title}",
+                )
             reqs_result.append(
                 check_feature(
                     feature,
@@ -176,6 +199,12 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
         for feature in additional.features:
             if not additional.main_files:
                 continue
+            if progress_task:
+                progress_task.update(
+                    task,
+                    advance=1,
+                    description=f"Checking {feature.progress_title}",
+                )
             additional_results.append(
                 gather_base_feature(
                     feature,
@@ -192,7 +221,7 @@ def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite):
     )
 
 
-def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
+def analyse_local_plugin(repo_path, requirement_suite, *, progress_task=None, **kwargs):
     """Create the documentation checklist and the subsequent suggestions by looking at metadata in multiple files
     Parameters
     ----------
@@ -212,8 +241,10 @@ def analyse_local_plugin(repo_path, requirement_suite, **kwargs):
         _, requirement_suite = requirement_suite
 
     requirements = requirement_suite(plugin_repo, **kwargs)
-
-    return analyse_requirements(plugin_repo, requirements)
+    if len(build_gh_header()) == 0:  # If there is no token
+        print("[yellow]WARNING! You are running without a github token in the env var GITHUB_TOKEN. "
+              "You will be limited in the requests made to the Github API[/yellow]")
+    return analyse_requirements(plugin_repo, requirements, progress_task=progress_task)
 
 
 def display_checklist(analysis_result):
@@ -236,12 +267,28 @@ def display_checklist(analysis_result):
         style="bold underline2 blue",
     )
 
-    # Display additional informations
-    for feature in analysis_result.additionals:
-        console.print(f"  {feature.meta.name}: {feature.result}")
-
     # Display summary result
+    previous_title = None
+    section_statuses = defaultdict(bool)
+    section_check_mark = "PASS \N{CHECK MARK}"
+    section_x_mark = "FAIL \N{BALLOT X}"
+
     for feature in analysis_result.features:
+        if feature.meta.section:
+            section_title = feature.meta.section.title
+            section_statuses[section_title] |= feature.found == False
+
+    last_section_status = dict(section_statuses)
+
+    for feature in analysis_result.features:
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            if  last_section_status[feature.meta.section.title]:
+                console.print()
+                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold red] {section_x_mark}" )
+            else :
+                console.print()
+                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold green] {section_check_mark}" )
+            previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
             console.print("OPTIONAL ", style="underline")
@@ -281,7 +328,7 @@ def display_checklist(analysis_result):
     for feature in analysis_result.missing_features():
         if not feature.meta.advise_location:
             continue
-        files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files]
+        files = [f"{f.file.relative_to(repo)}" for f in feature.scanned_files if f.file]
         scanned_files = f" (scanned files: {', '.join(files)})" if files else ""
         console.print()
         console.print(
@@ -289,3 +336,12 @@ def display_checklist(analysis_result):
             style="red",
         )
         console.print(f"  Recommended file location - {feature.meta.advise_location}")
+
+    # Display additional informations
+    for feature in analysis_result.additionals:
+        if feature.meta.section and feature.meta.section.title != previous_title:
+            console.print()
+            console.print(feature.meta.section.title, style="bold underline white")
+            previous_title = feature.meta.section.title
+        console.print(f"  {feature.meta.name}: {feature.result}")
+    console.print()

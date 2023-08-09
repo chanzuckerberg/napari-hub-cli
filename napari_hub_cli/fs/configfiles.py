@@ -1,5 +1,8 @@
+from itertools import chain
 import re
 from functools import lru_cache
+
+from pathlib import Path
 
 from ..fs import ConfigFile
 from .descriptions import MarkdownDescription
@@ -157,7 +160,7 @@ class SetupCfg(Metadata, ConfigFile):
 
     @property
     def version(self):
-        return self.metadata.get("version")
+        return self.data.get("__detailed__", {}).get("metadata", {}).get("version")
 
     @property
     def name(self):
@@ -178,7 +181,7 @@ class SetupCfg(Metadata, ConfigFile):
     def _search_url(self, key):
         if not self.project_urls:
             return None
-        # entries = re.split(r"\n|\r", self.project_urls)
+
         entries = self.project_urls.splitlines()
         for entry in entries:
             if not entry:
@@ -285,7 +288,7 @@ class SetupCfg(Metadata, ConfigFile):
 class PyProjectToml(Metadata, ConfigFile):
     @property
     def project_data(self):
-        return self.data.get("project", {})
+        return self.data.get("project", {}) or self.data.get("tool", {}).get("poetry", {})
 
     @property
     def project_urls(self):
@@ -362,13 +365,19 @@ class PyProjectToml(Metadata, ConfigFile):
         try:
             return self.data["tool"]["setuptools"]["packages"]["find"]["where"]
         except KeyError:
+            # We look for "Hatch" configuration
+            # We only look for it in "pyproject.toml" file as Hatch only supports pyproject.toml
+            src_path = self.file.parent / 'src'
+            if "hatchling" in self.data.get("build-system", {}).get("requires", {}) and src_path.exists():
+                return ["src"]
             return []
 
     def find_npe2(self):
         try:
             manifest_entry = self.project_data["entry-points"]["napari.manifest"]
-            project_name = self.project_data.get("name", "")
-            manifest = manifest_entry[project_name]
+            # project_name = self.project_data.get("name", "")
+            # manifest = manifest_entry[project_name]
+            manifest = next(iter(manifest_entry.values()))
         except KeyError:
             return None
         modules = self._find_src_location()
@@ -395,9 +404,25 @@ class PyProjectToml(Metadata, ConfigFile):
     def classifiers(self):
         return self.project_data.get("classifiers", [])
 
+    def _build_dep_list(self, dependencies):
+        deps = []
+        for dep, depver in dependencies.items():
+            if dep == "python":
+                continue
+            if isinstance(depver, dict):
+                markers = depver.get("markers")
+                markers = f";{markers}" if markers else ""
+                version = depver["version"]
+                deps.append(f"{dep}{version.replace('^', '>=')}{markers}")
+            else:
+                deps.append(f"{dep}{depver.replace('^', '>=')}")
+        return deps
+
+
     @property
     def requirements(self):
-        return self.project_data.get("dependencies", [])
+        deps = self.project_data.get("dependencies", [])
+        return self._build_dep_list(deps) if isinstance(deps, dict) else deps
 
 
 class Npe2Yaml(Metadata, ConfigFile):

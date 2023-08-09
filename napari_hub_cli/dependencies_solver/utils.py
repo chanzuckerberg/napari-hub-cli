@@ -4,6 +4,8 @@ from tempfile import gettempdir
 from unittest import result
 
 TEMPDIR = Path(gettempdir()) / "pipcache"
+TARGET_TEMP_DIR = Path(gettempdir()) / "target_install"
+
 
 WIN64 = ["win_amd64"]
 WIN32 = ["win32"]
@@ -15,7 +17,8 @@ MACOS = [
     "macosx_10_12_x86_64",
     "macosx_10_15_x86_64",
     "macosx_10_6_x86_64",
-    "macosx_11_0_arm64"
+    "macosx_11_0_arm64",
+    "macosx_11_0_universal2",
 ]
 
 _platform_specs = {
@@ -64,7 +67,7 @@ def build_options(python_version, platform, abis=None):
             "ignore_installed": False,
             "isolated_mode": True,
             "ignore_dependencies": False,
-            "target_dir": None,
+            "target_dir": TARGET_TEMP_DIR,
             "python_version": python_version,
             "abis": abis,
             "implementation": None,
@@ -90,7 +93,7 @@ def build_options(python_version, platform, abis=None):
             "format_control": None,
             "global": None,
             "pre": None,
-            "prefer_binary": False,
+            "prefer_binary": True,
             "constraints": [],
             "use_pep517": False,
             "config_settings": None,

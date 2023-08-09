@@ -87,6 +87,7 @@ def test_requirements_resolution_installable(plugin):
     assert reqs.is_installable(options=reqs.options_list[1]) is True
 
 
+@pytest.mark.online
 def test_requirements_build():
     reqs = InstallationRequirements(
         path=None, requirements=["unexisfgs_nop", "pyecore"]
@@ -151,7 +152,7 @@ def test_requirements_integration2():
     reqs = InstallationRequirements(
         path=None,
         python_versions=((3, 10),),
-        requirements=["lxml"],
+        requirements=["lxml==4.9.2"],
         platforms=["win", "linux", "macos"],
     )
 
@@ -189,7 +190,7 @@ def test_requirements_installability():
         platforms=("win", "linux", "macos"),
     )
 
-    assert reqs.installable_linux is False
+    assert reqs.installable_linux is True
     assert reqs.installable_windows is False
     assert reqs.installable_macos is False
 
@@ -210,7 +211,7 @@ def test_nodeps_message():
     assert len(reqs._installation_issues) == 1
 
     info = next(iter(reqs._installation_issues.values()))
-    assert "No matching distribution found for numpy>=2.0" in info
+    assert "No matching distribution found for numpy>=2.0" in info[0]
 
 
 from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError, MetadataGenerationFailed, InstallationError
@@ -229,6 +230,7 @@ class FakeOption(object):
         self.platforms = platforms
 
 
+@pytest.mark.online
 def test_solver_messages():
     reqs = InstallationRequirements(
         path=None,
@@ -239,7 +241,7 @@ def test_solver_messages():
 
     reqs.solver = FakeRaiseException(DistributionNotFound("_foo"))
     reqs.solve_dependencies(FakeOption(((3, 7),),  ["linux"]))
-    assert "transitive dependency cannot be resolve" in reqs.installation_issues
+    assert "transitive dependency cannot be resolved" in reqs.installation_issues
     assert "_foo" in reqs.installation_issues
 
     reqs = InstallationRequirements(

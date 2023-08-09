@@ -75,20 +75,28 @@ class InstallationRequirements(ConfigFile):
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
         self.python_versions = python_versions if python_versions else [None]
-        self.platforms = platforms if platforms else [None]
+        self.platforms = platforms if platforms else ("win", "linux", "macos")
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
-        self.options_list = self._build_options()
+        self.options_list = self._build_options(abis=[
+            "cp36", "cp36m",
+            "cp37", "cp37m",
+            "cp38", "cp38m",
+            "cp39", "cp39m",
+            "cp310", "cp310m",
+            "cp311", "cp311m",
+            "none",
+            "abi3"])
         self.errors = {}
         self._installation_issues = {}
 
-    def _build_options(self):
+    def _build_options(self, abis=None):
         # Read the classifiers to have python's versions and platforms
         python_versions = self.python_versions
         platforms = self.platforms
         options_list = []
         for python_version, platform in product(python_versions, platforms):
-            options = build_options(python_version, platform)
+            options = build_options(python_version, platform, abis=abis)
             options.named_platform = platform if platform else {"win", "linux", "macos"}
             options_list.append(options)
         return options_list
@@ -99,14 +107,18 @@ class InstallationRequirements(ConfigFile):
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound as e:
             # print("Distribution not found", e, options.python_version, options.platforms)
-            message = f"A direct or transitive dependency cannot be resolve: {e.args[0]}"
+            message = f"A direct or transitive dependency cannot be resolved: {e.args[0]}"
+            kind = "dependency distribution not found"
         except MetadataGenerationFailed as e:
             message = f"An error occured while building one of the dependencies that doesn't have wheel: {e.context}"
+            kind = "dependency has no wheel"
         except InstallationSubprocessError as e:
             message = f"An error occured in a sub-process: {e.args[0]}"
+            kind = "sub-process/package build error"
             # print("SubProcessError", e, options.python_version, options.platforms)
         except InstallationError as e:
-            message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', '')}"
+            message = f"An error occured while installing this dependency (could be the need for dev tools to build it): {getattr(e, 'project', str(e))}"
+            kind = "dependency need dev tools"
         except Exception as e:
             # print("General Exception", e, options.python_version, options.platforms)
             self.errors[options] = e
@@ -126,7 +138,7 @@ class InstallationRequirements(ConfigFile):
             major, minor, *_ = sys.version_info
             version = (major, minor)
         version = ".".join(str(x) for x in version)
-        self._installation_issues[(version, platform)] = message
+        self._installation_issues[(version, platform)] = (message, kind)
         return None
 
     @lru_cache()
@@ -191,6 +203,8 @@ class InstallationRequirements(ConfigFile):
     def _analyse_with_all_options(self):
         with ThreadPoolExecutor(max_workers=len(self.options_list)) as executor:
             executor.map(self.analysis_package, self.options_list)
+        for tmp_dir in global_tracker:
+            tmp_dir.cleanup()
 
     @property
     @dirty_threadpool
@@ -300,6 +314,13 @@ class InstallationRequirements(ConfigFile):
     @property
     def installation_issues(self):
         information = ""
-        for (pyv, platform), reason in self._installation_issues.items():
+        for (pyv, platform), (reason, _) in self._installation_issues.items():
             information += f"\n   * {platform} - {pyv}: {reason}"
         return information if information else "No information"
+
+    @property
+    def installation_issues_summary(self):
+        information = ""
+        for (pyv, platform), (_, kind) in self._installation_issues.items():
+            information += f"\n   * {platform} - {pyv}: {kind}"
+        return information if information else "No issue"
