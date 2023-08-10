@@ -156,6 +156,7 @@ class DependencySolver(InstallCommand):
             ignore_requires_python=options.ignore_requires_python,
             force_reinstall=options.force_reinstall,
             use_pep517=options.use_pep517,
+            py_version_info=options.python_version,
         )
 
         _, res = resolver.resolve(reqs, check_supported_wheels=not options.target_dir)
