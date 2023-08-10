@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.1
+
+This release introduce a patch to overcome a known bug of pip that will be patched in future versions.
+
 ## 0.3.0
 
 This release introduce new checks included in the command that checks the quality of a plugin as well as some performances improvements

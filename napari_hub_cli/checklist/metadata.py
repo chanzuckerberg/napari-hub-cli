@@ -16,6 +16,7 @@ CHECKLIST_STYLE = {
     False: ("\N{BALLOT X}", "bold red"),
 }
 
+
 @dataclass
 class Section(object):
     title: str
@@ -172,11 +173,19 @@ def check_feature(meta, main_files, fallbacks):
     )
 
 
-def analyse_requirements(plugin_repo: NapariPlugin, suite: RequirementSuite, progress_task=None):
+def analyse_requirements(
+    plugin_repo: NapariPlugin, suite: RequirementSuite, progress_task=None
+):
     reqs_result = []
     requirements = suite.requirements
-    nb_features = sum(len(c.features) for c in requirements) + sum(len(c.features) for c in suite.additionals)
-    task = progress_task.add_task(f"Analysing main features...", total=nb_features) if progress_task else None
+    nb_features = sum(len(c.features) for c in requirements) + sum(
+        len(c.features) for c in suite.additionals
+    )
+    task = (
+        progress_task.add_task(f"Analysing main features...", total=nb_features)
+        if progress_task
+        else None
+    )
     for requirement in requirements:
         for feature in requirement.features:
             if not requirement.main_files:
@@ -242,8 +251,10 @@ def analyse_local_plugin(repo_path, requirement_suite, *, progress_task=None, **
 
     requirements = requirement_suite(plugin_repo, **kwargs)
     if len(build_gh_header()) == 0:  # If there is no token
-        print("[yellow]WARNING! You are running without a github token in the env var GITHUB_TOKEN. "
-              "You will be limited in the requests made to the Github API[/yellow]")
+        print(
+            "[yellow]WARNING! You are running without a github token in the env var GITHUB_TOKEN. "
+            "You will be limited in the requests made to the Github API[/yellow]"
+        )
     return analyse_requirements(plugin_repo, requirements, progress_task=progress_task)
 
 
@@ -282,12 +293,18 @@ def display_checklist(analysis_result):
 
     for feature in analysis_result.features:
         if feature.meta.section and feature.meta.section.title != previous_title:
-            if  last_section_status[feature.meta.section.title]:
+            if last_section_status[feature.meta.section.title]:
                 console.print()
-                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold red] {section_x_mark}" )
-            else :
+                console.print(
+                    f"[bold underline white]{feature.meta.section.title}",
+                    f" [bold red] {section_x_mark}",
+                )
+            else:
                 console.print()
-                console.print(f"[bold underline white]{feature.meta.section.title}", f" [bold green] {section_check_mark}" )
+                console.print(
+                    f"[bold underline white]{feature.meta.section.title}",
+                    f" [bold green] {section_check_mark}",
+                )
             previous_title = feature.meta.section.title
         if feature.meta.optional:
             console.print()
