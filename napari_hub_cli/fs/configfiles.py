@@ -288,7 +288,9 @@ class SetupCfg(Metadata, ConfigFile):
 class PyProjectToml(Metadata, ConfigFile):
     @property
     def project_data(self):
-        return self.data.get("project", {}) or self.data.get("tool", {}).get("poetry", {})
+        return self.data.get("project", {}) or self.data.get("tool", {}).get(
+            "poetry", {}
+        )
 
     @property
     def project_urls(self):
@@ -367,8 +369,11 @@ class PyProjectToml(Metadata, ConfigFile):
         except KeyError:
             # We look for "Hatch" configuration
             # We only look for it in "pyproject.toml" file as Hatch only supports pyproject.toml
-            src_path = self.file.parent / 'src'
-            if "hatchling" in self.data.get("build-system", {}).get("requires", {}) and src_path.exists():
+            src_path = self.file.parent / "src"
+            if (
+                "hatchling" in self.data.get("build-system", {}).get("requires", {})
+                and src_path.exists()
+            ):
                 return ["src"]
             return []
 
@@ -417,7 +422,6 @@ class PyProjectToml(Metadata, ConfigFile):
             else:
                 deps.append(f"{dep}{depver.replace('^', '>=')}")
         return deps
-
 
     @property
     def requirements(self):

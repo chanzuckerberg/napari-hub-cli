@@ -158,7 +158,7 @@ def read_gh_token():
 def build_gh_header():
     token = read_gh_token()
     if token:
-        return {'Authorization': f'Bearer {token}'}
+        return {"Authorization": f"Bearer {token}"}
     return {}
 
 

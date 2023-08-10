@@ -138,29 +138,25 @@ def analyse_remote_plugin_url(
             p.start()
         started = False
         task = None
+
         def update_task(_, step, total, *__):
             nonlocal started, task
             if not started:
                 started = True
                 task = p.add_task(
-            f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]",
-            visible=display_info,
-            total=total
-        )
+                    f"Cloning repository [bold green]{plugin_name}[/bold green] - [green]{plugin_url}[/green] in [red]{test_repo}[/red]",
+                    visible=display_info,
+                    total=total,
+                )
                 p.start_task(task)
             p.update(
-                    task,  # type: ignore
-                    total=total,
-                    advance=step,
+                task,  # type: ignore
+                total=total,
+                advance=step,
             )
 
         try:
-            Repo.clone_from(
-                plugin_url,
-                test_repo,
-                depth=1,
-                progress=update_task
-            )
+            Repo.clone_from(plugin_url, test_repo, depth=1, progress=update_task)
         except GitCommandError:
             if not test_repo.exists():
                 return PluginAnalysisResult.with_status(
@@ -243,7 +239,7 @@ def _display_error_message(plugin_name, result):
 # Shamefully copied from stackoverflow
 def n2a(n):
     d, m = divmod(n, 26)  # 26 is the number of ASCII letters
-    return '' if n < 0 else n2a(d - 1) + chr(m + 65)  # chr(65) = 'A'
+    return "" if n < 0 else n2a(d - 1) + chr(m + 65)  # chr(65) = 'A'
 
 
 def build_csv_dict(dict_results):
@@ -259,13 +255,20 @@ def build_csv_dict(dict_results):
         }
 
         # Reorganize the information to put the "summaries" first
-        for feature in (f for f in analysis_result.additionals if f.meta.linked_details):
-            idx_linked_feature = [a.meta for a in analysis_result.additionals].index(feature.meta.linked_details)
+        for feature in (
+            f for f in analysis_result.additionals if f.meta.linked_details
+        ):
+            idx_linked_feature = [a.meta for a in analysis_result.additionals].index(
+                feature.meta.linked_details
+            )
             num_added_row = 3  # the 3 added row from the line above
             column = len(analysis_result.features) + idx_linked_feature + num_added_row
             result = feature.result
             if "No " not in result:
-                result = dedent(str(result)).strip() + f"\n\nSee details from column {n2a(column)}"
+                result = (
+                    dedent(str(result)).strip()
+                    + f"\n\nSee details from column {n2a(column)}"
+                )
             row[feature.meta.name] = result
 
         for feature in analysis_result.features:
@@ -273,7 +276,9 @@ def build_csv_dict(dict_results):
             if feature.has_fallback_files:
                 row[f"{feature.meta.name} in fallback"] = feature.only_in_fallback
 
-        for feature in (f for f in analysis_result.additionals if not f.meta.linked_details):
+        for feature in (
+            f for f in analysis_result.additionals if not f.meta.linked_details
+        ):
             row[feature.meta.name] = feature.result
 
         rows.append(row)
@@ -291,4 +296,6 @@ def write_csv(rows, output_filename):
         writer.writeheader()
         writer.writerows(rows)
     output_path = Path(output_filename)
-    print(f"\n [bold white] CSV: {output_filename} successfully created at {output_path.resolve()} \n [/bold white]" )
+    print(
+        f"\n [bold white] CSV: {output_filename} successfully created at {output_path.resolve()} \n [/bold white]"
+    )

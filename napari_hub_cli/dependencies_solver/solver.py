@@ -24,6 +24,7 @@ from pip._vendor.resolvelib import Resolver as RLResolver
 from pip._internal.utils.logging import subprocess_logger
 from pip._internal.resolution.resolvelib.factory import logger as factory_logger
 
+
 class MyResolver(Resolver):
     def resolve(self, root_reqs, check_supported_wheels):
         collected = self.factory.collect_root_requirements(root_reqs)
@@ -127,7 +128,9 @@ class DependencySolver(InstallCommand):
         )
 
         # build_tracker = self.enter_context(get_build_tracker())
-        build_tracker_tmp_dir = TempDirectory(kind="build-tracker", delete=not options.no_clean)
+        build_tracker_tmp_dir = TempDirectory(
+            kind="build-tracker", delete=not options.no_clean
+        )
         build_tracker = BuildTracker(build_tracker_tmp_dir.path)
 
         directory = TempDirectory(

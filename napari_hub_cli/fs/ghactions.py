@@ -174,7 +174,9 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
         if not api_url:
             return None
         try:
-            response = requests.get(f"{api_url}/actions/runs", headers=build_gh_header())
+            response = requests.get(
+                f"{api_url}/actions/runs", headers=build_gh_header()
+            )
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()  # pragma: no cover
             response_json = response.json()
@@ -205,20 +207,19 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
         eoi = self._identify_EOI(self.gh_test_config)
         return eoi is not None and eoi["conclusion"] == "success"
 
-
     @property
     def details_failing_tests(self):
         pattern = m(
             {
                 "jobs": {
                     "name": "@job_name",
-                    "conclusion": is_not("success"),   # type: ignore
+                    "conclusion": is_not("success"),  # type: ignore
                     "labels": "@platform",
                     "steps": {
                         "name": "@step_name",
                         "conclusion": "cancelled",
-                        "status": "completed"
-                    }
+                        "status": "completed",
+                    },
                 }
             }
         )
@@ -246,7 +247,9 @@ query GetRepoCoverage($name: String!, $repo: String!, $branch: String!) {
             return None
         api_url = self._compute_call_url()
         try:
-            response = requests.get(f"{api_url}/commits/{coi['head_sha']}/status", headers=build_gh_header())
+            response = requests.get(
+                f"{api_url}/commits/{coi['head_sha']}/status", headers=build_gh_header()
+            )
             if response.status_code != requests.codes.ok:
                 response.raise_for_status()  # pragma: no cover
             response_json = response.json()
