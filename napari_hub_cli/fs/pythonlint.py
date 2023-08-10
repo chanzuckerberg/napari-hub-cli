@@ -46,7 +46,10 @@ class PythonFile(object):
             "ast>body+" : (match(ast.ImportName)["names>value":"napari_plugin_engine"]),
             "ast>body+" : (
                 match(ast.Function)[
-                    "decorator_names": re(r"napari_plugin_engine\.napari_hook_implementation") @ "decorator_id"
+                    "decorator_names" : re(
+                        r"napari_plugin_engine\.napari_hook_implementation"
+                    )
+                    @ "decorator_id"
                 ]
                 @ "func"
             ),
@@ -63,12 +66,13 @@ class PythonFile(object):
             "ast>body+" : (
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
-                    "alias": "napari_hook_implementation"
+                    "alias":"napari_hook_implementation",
                 ]
             ),
             "ast>body+" : (
                 match(ast.Function)[
-                    "decorator_names": re("napari_hook_implementation") @ "decorator_id"
+                    "decorator_names" : re("napari_hook_implementation")
+                    @ "decorator_id"
                 ]
                 @ "func"
             ),
@@ -86,16 +90,13 @@ class PythonFile(object):
                 match(ast.ImportFrom)[
                     "module":"napari_plugin_engine",
                     "names>value" : re("napari_hook_implementation"),
-                    "alias": "@decorator_id",
-                    "alias": is_not("napari_hook_implementation"),
+                    "alias":"@decorator_id",
+                    "alias" : is_not("napari_hook_implementation"),
                 ]
             ),
             "ast>body+" : (
-                match(ast.Function)[
-                    "decorators>body>value": "@decorator_id"
-                ]
-                @ "func"
-            )
+                match(ast.Function)["decorators>body>value":"@decorator_id"] @ "func"
+            ),
         ]
         result = from_import_as_.match(self)
         return extract_if_match(
@@ -106,19 +107,16 @@ class PythonFile(object):
     def npe1_from_as_hook_check(self):
         from_as_ = match(self.__class__)[
             "path":"@file",
-             "ast>body+" : (
+            "ast>body+" : (
                 match(ast.ImportName)[
-                    "names>value" : "napari_plugin_engine",
-                    "alias": "@decorator_id",
-                    "alias": is_not("napari_plugin_engine")
+                    "names>value":"napari_plugin_engine",
+                    "alias":"@decorator_id",
+                    "alias" : is_not("napari_plugin_engine"),
                 ]
             ),
             "ast>body+" : (
-                match(ast.Function)[
-                    "decorators>body>value": "@decorator_id"
-                ]
-                @ "func"
-            )
+                match(ast.Function)["decorators>body>value":"@decorator_id"] @ "func"
+            ),
         ]
         result = from_as_.match(self)
         return extract_if_match(
@@ -139,8 +137,9 @@ class PythonSrcDir(RepositoryFile):
         super().__init__(path)
         files = []
         for python_file in self.file.glob("**/*.py"):
-            if ("site-packages" in str(python_file)
-                or (exclude_test_folders and "tests" in str(python_file))):
+            if "site-packages" in str(python_file) or (
+                exclude_test_folders and "tests" in str(python_file)
+            ):
                 # exclude virtualenv files and tests
                 continue
             files.append(PythonFile(python_file))

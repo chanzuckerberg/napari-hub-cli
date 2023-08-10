@@ -27,7 +27,12 @@ from .pip_patch import *  # This import needs to be imported just after the dist
 from functools import lru_cache
 from itertools import product
 
-from pip._internal.exceptions import DistributionNotFound, InstallationSubprocessError, MetadataGenerationFailed, InstallationError
+from pip._internal.exceptions import (
+    DistributionNotFound,
+    InstallationSubprocessError,
+    MetadataGenerationFailed,
+    InstallationError,
+)
 
 from ..fs import ConfigFile
 from .solver import DependencySolver
@@ -78,15 +83,24 @@ class InstallationRequirements(ConfigFile):
         self.platforms = platforms if platforms else ("win", "linux", "macos")
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
-        self.options_list = self._build_options(abis=[
-            "cp36", "cp36m",
-            "cp37", "cp37m",
-            "cp38", "cp38m",
-            "cp39", "cp39m",
-            "cp310", "cp310m",
-            "cp311", "cp311m",
-            "none",
-            "abi3"])
+        self.options_list = self._build_options(
+            abis=[
+                "cp36",
+                "cp36m",
+                "cp37",
+                "cp37m",
+                "cp38",
+                "cp38m",
+                "cp39",
+                "cp39m",
+                "cp310",
+                "cp310m",
+                "cp311",
+                "cp311m",
+                "none",
+                "abi3",
+            ]
+        )
         self.errors = {}
         self._installation_issues = {}
 
@@ -107,7 +121,9 @@ class InstallationRequirements(ConfigFile):
             return self.solver.solve_dependencies(self.requirements, options)
         except DistributionNotFound as e:
             # print("Distribution not found", e, options.python_version, options.platforms)
-            message = f"A direct or transitive dependency cannot be resolved: {e.args[0]}"
+            message = (
+                f"A direct or transitive dependency cannot be resolved: {e.args[0]}"
+            )
             kind = "dependency distribution not found"
         except MetadataGenerationFailed as e:
             message = f"An error occured while building one of the dependencies that doesn't have wheel: {e.context}"

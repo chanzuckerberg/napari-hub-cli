@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from functools import lru_cache
+
 try:
     try:
         # Recommended for setuptools 61.0.0+
