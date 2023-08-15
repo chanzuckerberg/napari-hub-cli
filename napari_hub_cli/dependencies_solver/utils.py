@@ -49,6 +49,7 @@ class Options(dict):
 
 def build_options(python_version, platform, abis=None):
     # abis = ["none", "abi3"] if abis is None else abis
+    abis = None
     platforms = _platform_specs.get(platform, platform) if platform else None
     return Options(
         {
