@@ -28,11 +28,14 @@ def test_requirements_resolution(plugin):
     assert "cython" in reqs.requirements
     assert "pyecore==0.13.1" in reqs.requirements
 
-    assert len(reqs.options_list) == 2
+    assert len(reqs.options_list) == 3
     result = reqs.solve_dependencies(options=reqs.options_list[0])
     assert result
 
     result = reqs.solve_dependencies(options=reqs.options_list[1])
+    assert result
+
+    result = reqs.solve_dependencies(options=reqs.options_list[2])
     assert result
 
 
@@ -208,7 +211,13 @@ def test_nodeps_message():
     assert reqs.number_of_dependencies == NO_DEPENDENCIES
     assert reqs._installation_issues
 
-    assert len(reqs._installation_issues) == 1
+    assert len(reqs._installation_issues) == 3
+
+    info = next(iter(reqs._installation_issues.values()))
+    assert "No matching distribution found for numpy>=2.0" in info[0]
+
+    info = next(iter(reqs._installation_issues.values()))
+    assert "No matching distribution found for numpy>=2.0" in info[0]
 
     info = next(iter(reqs._installation_issues.values()))
     assert "No matching distribution found for numpy>=2.0" in info[0]
