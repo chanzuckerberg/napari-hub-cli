@@ -65,7 +65,11 @@ class NonExistingNapariPluginError(Exception):
 
 
 def get_all_napari_plugin_names(api_url=NAPARI_HUB_API_URL):
-    return requests.get(api_url).json().keys()
+    return [
+        plugin["name"]
+        for plugin in requests.get(f"{api_url}/index/all").json()
+        if plugin["visibility"] == "public"
+    ]
 
 
 def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_URL):
@@ -85,7 +89,7 @@ def closest_plugin_name(plugin_name, api_url=NAPARI_HUB_API_URL):
     str | None
         The closest plugin name found in the Napari HUB api, None if no closest match could be found
     """
-    plugin_names = requests.get(api_url).json().keys()
+    plugin_names = get_all_napari_plugin_names(api_url=api_url)
     closest = difflib.get_close_matches(plugin_name, plugin_names, n=1)
     if closest:
         return closest[0]
