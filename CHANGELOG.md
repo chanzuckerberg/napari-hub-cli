@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.0.0
+
+This release uses a new endpoint and drop the support for the old endpoint that was used before to query the napari plugin platform.
+
+### List
+
+* Change endpoint for napari plugin queries
+* Change the dependency resolution to consider the all platforms
+
 ## 0.3.1
 
 This release introduce a patch to overcome a known bug of pip that will be patched in future versions.
