@@ -29,12 +29,29 @@ _, DEFAULT_SUITE = DEFAULT_SUITE
 @pytest.fixture
 def napari_hub(requests_mock):
     requests_mock.get(
-        NAPARI_HUB_API_URL,
-        json={
-            "avidaq": "0.0.5",
-            "mikro-napari": "0.1.49",
-            "napari-curtain": "0.1.1",
-        },
+        f"{NAPARI_HUB_API_URL}/index/all",
+        json=[
+            {
+                "name": "avidaq",
+                "version": "0.0.5",
+                "visibility": "public",
+            },
+            {
+                "name": "mikro-napari",
+                "version": "0.1.49",
+                "visibility": "public",
+            },
+            {
+                "name": "napari-curtain",
+                "version": "0.1.1",
+                "visibility": "public",
+            },
+            {
+                "name": "unexisting",
+                "version": "NONE",
+                "visibility": "private",
+            },
+        ]
     )
     return requests_mock
 
