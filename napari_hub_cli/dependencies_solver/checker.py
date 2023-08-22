@@ -80,27 +80,29 @@ class InstallationRequirements(ConfigFile):
         self.solver = DependencySolver("solver", "")
         self.requirements = requirements
         self.python_versions = python_versions if python_versions else [None]
-        self.platforms = platforms if platforms else ("win", "linux", "macos")
+        self.supported_platforms = platforms if platforms else ("win", "linux", "macos")
+        self.platforms = ("win", "linux", "macos")
         if not self.requirements:
             self.requirements = self.data.get("content", "").splitlines()
-        self.options_list = self._build_options(
-            abis=[
-                "cp36",
-                "cp36m",
-                "cp37",
-                "cp37m",
-                "cp38",
-                "cp38m",
-                "cp39",
-                "cp39m",
-                "cp310",
-                "cp310m",
-                "cp311",
-                "cp311m",
-                "none",
-                "abi3",
-            ]
-        )
+        # self.options_list = self._build_options(
+        #     abis=[
+        #         "cp36",
+        #         "cp36m",
+        #         "cp37",
+        #         "cp37m",
+        #         "cp38",
+        #         "cp38m",
+        #         "cp39",
+        #         "cp39m",
+        #         "cp310",
+        #         "cp310m",
+        #         "cp311",
+        #         "cp311m",
+        #         "none",
+        #         "abi3",
+        #     ]
+        # )
+        self.options_list = self._build_options()
         self.errors = {}
         self._installation_issues = {}
 
@@ -308,15 +310,15 @@ class InstallationRequirements(ConfigFile):
 
     @property
     def has_windows_support(self):
-        return "win" in self.platforms
+        return "win" in self.supported_platforms
 
     @property
     def has_linux_support(self):
-        return "linux" in self.platforms
+        return "linux" in self.supported_platforms
 
     @property
     def has_macos_support(self):
-        return "macos" in self.platforms
+        return "macos" in self.supported_platforms
 
     @property
     def had_no_unknown_error(self):

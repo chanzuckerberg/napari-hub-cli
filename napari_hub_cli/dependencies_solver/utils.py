@@ -49,6 +49,7 @@ class Options(dict):
 
 def build_options(python_version, platform, abis=None):
     # abis = ["none", "abi3"] if abis is None else abis
+    abis = None
     platforms = _platform_specs.get(platform, platform) if platform else None
     return Options(
         {
@@ -64,7 +65,7 @@ def build_options(python_version, platform, abis=None):
             "use_user_site": False,
             "force_reinstall": True,
             "ignore_requires_python": False,
-            "ignore_installed": False,
+            "ignore_installed": True,
             "isolated_mode": True,
             "ignore_dependencies": False,
             "target_dir": TARGET_TEMP_DIR,
