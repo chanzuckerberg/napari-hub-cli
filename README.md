@@ -4,6 +4,12 @@ Command line utilities for inspecting and validating plugins for the napari hub.
 
 **NOTE:** the project is still under developement and this version is not yet deployed in Pypi.
 
+## Supported operating systems
+
+The tool works on Linux and MacOS without issue. On Windows, the tool works without issue in the Windows Subsystem for Linux (WSL) but there is a known issue in Windows without WSL - the result from the plugin installation check is flaky. See [this issue](https://github.com/chanzuckerberg/napari-hub-cli/issues/135) for more details.
+
+To set up WSL, follow the instructions [here](https://learn.microsoft.com/en-us/windows/wsl/install). With WSL set up, you can run the tool from the WSL terminal following the instructions below.
+
 ## Installation
 
 First the repository needs to be cloned
