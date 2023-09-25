@@ -9,6 +9,12 @@ The ```extra``` branch is intended for an administrative user, gaining access to
 - ```all-plugins-report``` - create a csv report with the documentation information for all existent plugins in the napari hub platform
 - ```check-plugin-quality``` - create a report with the code quality information for a remote plugin.
 
+## Supported operating systems
+
+The tool works on Linux and MacOS without issue. On Windows, the tool works without issue in the Windows Subsystem for Linux (WSL) but there is a known issue in Windows without WSL - the result from the plugin installation check is flaky. See [this issue](https://github.com/chanzuckerberg/napari-hub-cli/issues/135) for more details.
+
+To set up WSL, follow the instructions [here](https://learn.microsoft.com/en-us/windows/wsl/install). With WSL set up, you can run the tool from the WSL terminal following the instructions below.
+
 ## Installation
 
 First the repository needs to be cloned
