@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.0.0
+## 1.1.0
 
 This release uses a new endpoint and drop the support for the old endpoint that was used before to query the napari plugin platform.
 
