@@ -130,7 +130,6 @@ Those citations are structured representations of the citations.
 ---
 title: Repository files (excerpt)
 ---
-
 classDiagram
     namespace fs {
         class RepositoryFile {
@@ -238,7 +237,6 @@ The `InstallCommand` and `Resolver` are extended to provide this new API to the 
 ---
 title: Dependencies resolution
 ---
-
 classDiagram
     namespace checker {
         class InstallationRequirement {
