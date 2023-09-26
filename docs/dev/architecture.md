@@ -131,17 +131,15 @@ Those citations are structured representations of the citations.
 title: Repository files (excerpt)
 ---
 classDiagram
-    namespace fs {
+
         class RepositoryFile {
 
         }
-    }
-    namespace description {
+
         class MarkdownDescription {
 
-        }
-    }
-    namespace configfiles {
+        }    
+
         class ConfigFile {
 
         }
@@ -157,8 +155,7 @@ classDiagram
         class CitationFile {
 
         }
-    }
-    namespace citations {
+
         class Citation {
 
         }
@@ -168,7 +165,6 @@ classDiagram
         class APACitation {
 
         }
-    }
     RepositoryFile <|-- ConfigFile
     Citation <|-- BibtexCitation
     Citation <|-- APACitation
@@ -238,27 +234,22 @@ The `InstallCommand` and `Resolver` are extended to provide this new API to the 
 title: Dependencies resolution
 ---
 classDiagram
-    namespace checker {
         class InstallationRequirement {
 
         }
-    }
-    namespace pip_internals {
         class Resolver {
 
         }
         class InstallCommand {
 
         }
-    }
-    namespace solver {
         class MySolver {
 
         }
         class DependencySolver {
 
         }
-    }
+
     Resolver <|-- MySolver
     InstallCommand <|-- DependencySolver
     DependencySolver --> "[1] solver" MySolver
