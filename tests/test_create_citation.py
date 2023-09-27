@@ -505,7 +505,7 @@ def test_git_scrapping():
     )
     assert infos["title"] == "napari-hub-cli"
 
-    assert len(authors["authors"]) == 7
+    assert len(authors["authors"]) == 6
 
     a1, _, *_, a2 = authors["authors"]
     assert a1["given-names"] in (
